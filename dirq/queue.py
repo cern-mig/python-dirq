@@ -454,7 +454,7 @@ def _special_mkdir(path, umask=None):
             os.mkdir(path)
     #except (OSError, IOError), e:
     except EnvironmentError, e:
-        if e.errno == errno.EEXIST:
+        if e.errno == errno.EEXIST or e.errno == errno.EISDIR:
             return False
         else:
             raise OSError("cannot mkdir(%s): %s"%(path, str(e)))
