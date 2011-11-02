@@ -1117,21 +1117,7 @@ class QueueSet(object):
         self.elts = [] # local (queue, element) cache
         self._next_exception = False
 
-        type_queue = False
-        for q in queues:
-            if type(q) in [list, tuple] and not type_queue:
-                for _q in q:
-                    if isinstance(_q, Queue):
-                        self.qset.append(_q.copy())
-                    else:
-                        raise TypeError("Queue objects expected.")
-                break
-            elif isinstance(q, Queue):
-                type_queue = True
-                self.qset.append(q.copy())
-            else:
-                raise TypeError("expected Queue object(s) or list/tuple of "+\
-                                 "Queue objects")
+        self._add(*queues)
 
     def __iter__(self):
         """Return iterator over element names on the set of queues.
@@ -1200,7 +1186,7 @@ class QueueSet(object):
             c += q.count()
         return c
 
-    def add(self, *queues):
+    def _add(self, *queues):
         """Add lists of queues to existing ones. Copies of the object
         instances are used.
         Arguments:
@@ -1227,6 +1213,17 @@ class QueueSet(object):
             else:
                 raise TypeError("expected Queue object(s) or list/tuple of "+\
                                  "Queue objects")
+
+    def add(self, *queues):
+        """Add lists of queues to existing ones. Copies of the object
+        instances are used.
+        Arguments:
+            *queues - add([q1,..]/(q1,..)) or add(q1,..)
+        Raise:
+            QueueError - queue already in the set
+            TypeError  - wrong queue object type provided
+        """
+        self._add(*queues)
         self._reset()
 
     def remove(self, queue):
