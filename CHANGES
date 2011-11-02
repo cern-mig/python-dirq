@@ -1,0 +1,5 @@
+* Mon Jun 28 2010 K. Skaburskas <Konstantin.Skaburskas@cern.ch> - 0.0.5-1
+- Added Python iterator protocol to iterate over names of elements in
+  queues and set of queues (Queue and QueueSet classes). See examples.
+* Mon Jun 21 2010 K. Skaburskas <Konstantin.Skaburskas@cern.ch> - 0.0.4-1
+- Initial release 0.0.4-1

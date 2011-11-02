@@ -1,0 +1,12 @@
+
+dirq_simple.py
+    Producer, browser and consumer (qirq.queue.Queue)
+    - producer: create a queue, store elements
+    - browser : create a queue, get/print elements
+    - consumer: create a queue, get/remove elements
+
+dirqset_simple.py
+    Browse set of queues (qirq.queue.Queue, qirq.queue.QueueSet)
+    - create a number of queue and store elements in them
+    - create QueueSet object, add/remove queues, count elements,
+      get/print elements
