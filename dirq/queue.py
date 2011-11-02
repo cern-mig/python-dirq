@@ -1200,7 +1200,7 @@ class QueueSet(object):
             if type(q) in [list, tuple] and not type_queue:
                 for _q in q:
                     if isinstance(_q, Queue):
-                        if _q.path in [x.path for x in self.qset]:
+                        if _q.id in [x.id for x in self.qset]:
                             raise QueueError("queue already in the set: %s"%\
                                               _q.path)
                         self.qset.append(_q.copy())
@@ -1236,7 +1236,7 @@ class QueueSet(object):
         if not isinstance(queue, Queue):
             raise TypeError("Queue objects expected.")
         for i,q in enumerate(self.qset):
-            if queue.path == q.path:
+            if queue.id == q.id:
                 del self.qset[i]
                 if self.elts:
                     del self.elts[i]
