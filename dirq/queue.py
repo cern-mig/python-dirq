@@ -267,6 +267,8 @@ __ElementRegexp   = '[0-9a-f]{14}'
 _ElementRegexp    = re.compile('(%s)$' % __ElementRegexp)
 _DirElemRegexp    = re.compile('^%s/%s$'%(__DirectoryRegexp,
                                           __ElementRegexp))
+__FileRegexp      = "[0-9a-zA-Z]+"
+_FileRegexp       = re.compile("^(%s)$" % __FileRegexp)
 _KeyValRegexp     = re.compile('^([^\x09\x0a]*)\x09([^\x09\x0a]*)$')
 
 _Byte2Esc = {"\x5c" : "\\", "\x09" : "\\t", "\x0a" : "\\n"}
@@ -569,7 +571,7 @@ class Queue(object):
             if not isinstance(schema, dict):
                 raise QueueError("invalid schema: %r"%schema)
             for name in schema.keys():
-                if not re.match('\w+$', name):
+                if not _FileRegexp.match(name):
                     raise QueueError("invalid schema name: %r"%name)
                 if not isinstance(schema[name], str):
                     raise QueueError("invalid data type for schema "+\
@@ -820,7 +822,7 @@ class Queue(object):
         for name in _directory_contents(temp):
             if name == LOCKED_DIRECTORY:
                 continue
-            if not re.match('(\w+)$', name):
+            if not _FileRegexp.match(name):
                 raise QueueError("unexpected file in %s: %s"%(temp, name))
             path = '%s/%s' % (temp, name)
             try:
