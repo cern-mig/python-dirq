@@ -812,7 +812,7 @@ class Queue(object):
                 os.rename(path, temp)
                 break
             except StandardError, e:
-                if e.errno not in [errno.ENOTEMPTY, errno.EEXIST]:
+                if e.errno != errno.ENOTEMPTY or e.errno != errno.EEXIST:
                     raise OSError("cannot rename(%s, %s): %s"%(ename, temp,
                                                                str(e)))
                     # RACE: the target directory was already present...
@@ -838,7 +838,7 @@ class Queue(object):
                 os.rmdir(temp)
                 return
             except Exception, e:
-                if e.errno not in [errno.ENOTEMPTY, errno.EEXIST]:
+                if e.errno != errno.ENOTEMPTY or e.errno != errno.EEXIST:
                     raise OSError("cannot rmdir(%s): %s"%(path, str(e)))
                 # RACE: this can happen if an other process managed to lock
                 # this element while it was being renamed so we try again
@@ -1003,7 +1003,7 @@ class Queue(object):
                 os.rename(temp, path)
                 return name
             except StandardError, e:
-                if e.errno not in [errno.ENOTEMPTY, errno.EEXIST]:
+                if e.errno != errno.ENOTEMPTY or e.errno != errno.EEXIST:
                     raise OSError("cannot rename(%s, %s): %s"%(temp, path,
                                                                str(e)))
                     # RACE: the target directory was already present...
