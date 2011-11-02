@@ -410,7 +410,7 @@ def _older(path, time):
     else:
         return stat.st_mtime < time
 
-def _subdirs_num(path):
+def __subdirs_num(path):
     """Count the number of sub-directories in the given directory:
      - return 0 if the directory does not exist (anymore)
      - die in case of any other error
@@ -431,6 +431,20 @@ def _subdirs_num(path):
         return 0
     else:
         return stat.st_nlink - 2
+
+def __subdirs_num_Windows(path):
+    """Count the number of sub-directories in the given directory:
+     - return 0 if the directory does not exist (anymore)
+
+    Windows version where we simply count number of sub-directories as we
+    cannot rely on the number of links.
+    """
+    return len(_directory_contents(path, missingok=True))
+
+if sys.platform in ['win32', 'cygwin']:
+    _subdirs_num = __subdirs_num_Windows
+else:
+    _subdirs_num = __subdirs_num
 
 def _special_mkdir(path, umask=None):
     """Create a directory:
@@ -592,6 +606,12 @@ class Queue(object):
         # create other directories
         for d in (TEMPORARY_DIRECTORY, OBSOLETE_DIRECTORY):
             _special_mkdir('%s/%s'%(self.path,d), self.umask)
+        # store the queue unique identifier
+        if sys.platform in ['win32']:
+            self.id = self.path
+        else:
+            stat = os.stat(self.path)
+            self.id = '%s:%s' % (stat.st_dev, stat.st_ino)
 
     def __iter__(self):
         """Return iterator over element names.
