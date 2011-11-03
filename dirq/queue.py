@@ -296,16 +296,16 @@ def _file_read(path, utf8):
     except StandardError, e:
         raise OSError("cannot open %s: %s"%(path, str(e)))
     try:
-        contents = fh.read()
+        data = fh.read()
     except StandardError, e:
         raise IOError("cannot read %s: %s"%(path, str(e)))
     try:
         fh.close()
     except StandardError, e:
         raise OSError("cannot close %s: %s"%(path, str(e)))
-    return contents
+    return data
 
-def _file_write(path, utf8, umask, contents):
+def _file_write(path, utf8, umask, data):
     """Write to a file.
     Raise:
     OSError - problems opening/closing file
@@ -323,7 +323,7 @@ def _file_write(path, utf8, umask, contents):
     except StandardError, e:
         raise OSError("cannot open %s: %s"%(path, str(e)))
     try:
-        fh.write(contents)
+        fh.write(data)
     except StandardError, e:
         raise IOError("cannot write to %s: %s"%(path, str(e)))
     try:
