@@ -1033,6 +1033,18 @@ class Queue(object):
     """Alias for add()
     """
 
+    def _volatile(self):
+        """Return the list of volatile (i.e. temporary or obsolete) directories.
+        """
+        _list = []
+        for name in _directory_contents('%s/%s'%(self.path,TEMPORARY_DIRECTORY), True):
+            if _ElementRegexp.match(name):
+                _list.append('%s/%s' % (TEMPORARY_DIRECTORY, name))
+        for name in _directory_contents('%s/%s'%(self.path,OBSOLETE_DIRECTORY), True):
+            if _ElementRegexp.match(name):
+                _list.append('%s/%s' % (OBSOLETE_DIRECTORY, name))
+        return _list
+
     def purge(self, maxtemp=300, maxlock=600):
         """Purge the queue:
          - delete unused intermediate directories
@@ -1061,13 +1073,7 @@ class Queue(object):
                     continue
                 _special_rmdir(path)
         # get the list of temporary and obsolete directories
-        _list = []
-        for name in _directory_contents('%s/%s'%(self.path,TEMPORARY_DIRECTORY), True):
-            if _ElementRegexp.match(name):
-                _list.append('%s/%s' % (TEMPORARY_DIRECTORY, name))
-        for name in _directory_contents('%s/%s'%(self.path,OBSOLETE_DIRECTORY), True):
-            if _ElementRegexp.match(name):
-                _list.append('%s/%s' % (OBSOLETE_DIRECTORY, name))
+        _list = self._volatile()
         # remove the ones which are too old
         oldtime = time.time() - maxtemp
         for name in _list:
