@@ -460,7 +460,6 @@ def _special_mkdir(path, umask=None):
     """
     try:
         if umask != None:
-            print umask
             oldumask = os.umask(umask)
             os.mkdir(path)
             os.umask(oldumask)
