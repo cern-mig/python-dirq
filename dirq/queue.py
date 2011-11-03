@@ -917,8 +917,8 @@ class Queue(object):
                 if e.errno != errno.ENOTEMPTY or e.errno != errno.EEXIST:
                     raise OSError("cannot rmdir(%s): %s"%(path, str(e)))
                 # RACE: this can happen if an other process managed to lock
-                # this element while it was being renamed so we try again
-                # to remove the lock
+                # this element while it was being removed (see the comment in
+                # the lock() method) so we try to remove the lock again and agian ...
 
     def dequeue(self, ename, permissive=True):
         """Dequeue an element from the queue. Removes element from the
