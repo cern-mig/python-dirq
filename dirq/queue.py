@@ -806,7 +806,8 @@ class Queue(object):
         except StandardError, e:
             if permissive:
                 # RACE: the element directory does not exist anymore (this can
-                # happen if an other process locked & removed the element)
+                # happen if an other process locked & removed the element
+                # while our mkdir() was in progress... yes, this can happen!)
                 if e.errno == errno.ENOENT:
                     return False
             # otherwise this is unexpected...
