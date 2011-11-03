@@ -410,7 +410,7 @@ def _older(path, time):
     else:
         return stat.st_mtime < time
 
-def __subdirs_num(path):
+def __subdirs_num_nlink(path):
     """Count the number of sub-directories in the given directory:
      - return 0 if the directory does not exist (anymore)
      - die in case of any other error
@@ -432,19 +432,19 @@ def __subdirs_num(path):
     else:
         return stat.st_nlink - 2
 
-def __subdirs_num_Windows(path):
+def __subdirs_num_count(path):
     """Count the number of sub-directories in the given directory:
      - return 0 if the directory does not exist (anymore)
 
-    Windows version where we simply count number of sub-directories as we
-    cannot rely on the number of links.
+    For systems where we cannot rely on the number of links, so we simply count 
+    the number of sub-directories.
     """
     return len(_directory_contents(path, missingok=True))
 
 if sys.platform in ['win32', 'cygwin']:
-    _subdirs_num = __subdirs_num_Windows
+    _subdirs_num = __subdirs_num_count
 else:
-    _subdirs_num = __subdirs_num
+    _subdirs_num = __subdirs_num_nlink
 
 def _special_mkdir(path, umask=None):
     """Create a directory:
