@@ -94,6 +94,17 @@ class TestQueue(TestDirQueue):
                                     os.listdir('%s/%08x' % (self.path,0))[-1])
         assert os.path.exists(data_file)
         assert open(data_file).read() == 'a\n'
+    def test6touch(self):
+        'Queue.touch()'
+        q = queue.Queue(self.path, schema={'a':'string'})
+        q.add({'a':'a\n'})
+        e = q.first()
+        element_dir = q.path + '/' + e
+        old_time = time.time() - 10
+        os.utime(element_dir, (old_time, old_time))
+        mtime = os.stat(element_dir).st_mtime
+        q.touch(e)
+        assert os.stat(element_dir).st_mtime >= (mtime + 10)
 
 class TestModuleFunctions(TestDirQueue):
     def test1_special_mkdir(self):

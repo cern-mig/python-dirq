@@ -847,6 +847,24 @@ class Queue(object):
         else:
             return True
 
+    def touch(self, ename):
+        """Touch an element directory to indicate that it is still being used.
+        note:
+         - this is only really useful for locked elements but we allow it for all
+
+        Raises:
+         EnvironmentError - on any IOError, OSError in utime()
+
+        TODO: this may not work on OSes with directories implemented not as
+              files (eg. Windows). See doc for os.utime().
+        """
+        _check_element(ename)
+        path = '%s/%s' % (self.path, ename)
+        try:
+            os.utime(path, None)
+        except (IOError, OSError), e:
+            raise EnvironmentError("cannot utime(%s, None): %s" % (path, str(e)))
+
     def remove(self, ename):
         """Remove locked element from the queue.
         Arguments:
