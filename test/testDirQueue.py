@@ -24,9 +24,13 @@ class TestQueue(TestDirQueue):
         maxelts = 10
         good_schemas = [
                         {'a':'binary'},
+                        {'a':'binary*'},
                         {'a':'string'},
+                        {'a':'string*'},
                         {'a':'table'},
                         {'a':'binary?','b':'binary'},
+                        {'a':'binary?','b':'binary*'},
+                        {'a':'string','b':'binary?*'},
                         ]
         for schema in good_schemas:
             try:
