@@ -1051,8 +1051,10 @@ class Queue(object):
          - delete too old temporary directories
          - unlock too old locked directories
         Arguments:
-            maxtemp - maximum time for a temporary element
-            maxlock - maximum time for a locked element
+            maxtemp - maximum time for a temporary element. If 0, temporary
+                      elements will not be removed.
+            maxlock - maximum time for a locked element. If 0, locked elements
+                      will not be unloked.
         Raise:
             OSError - problem deleting element from disk
         note:
@@ -1073,36 +1075,38 @@ class Queue(object):
                     continue
                 _special_rmdir(path)
         # remove the volatile directories which are too old
-        oldtime = time.time() - maxtemp
-        for name in self._volatile():
-            path = '%s/%s' % (self.path, name)
-            if _older(path, oldtime):
-                _warn("* removing too old volatile element: %s" % name)
-                for file in _directory_contents(path, True):
-                    if file == LOCKED_DIRECTORY:
-                        continue
-                    fpath = '%s/%s' % (path, file)
-                    try:
-                        os.unlink(fpath)
-                    except StandardError, e:
-                        if e.errno != errno.ENOENT:
-                            raise OSError("cannot unlink(%s): %s"%(fpath,
-                                                                   str(e)))
-            _special_rmdir('%s/%s' % (path, LOCKED_DIRECTORY))
-            _special_rmdir(path)
+        if maxtemp:
+            oldtime = time.time() - maxtemp
+            for name in self._volatile():
+                path = '%s/%s' % (self.path, name)
+                if _older(path, oldtime):
+                    _warn("* removing too old volatile element: %s" % name)
+                    for file in _directory_contents(path, True):
+                        if file == LOCKED_DIRECTORY:
+                            continue
+                        fpath = '%s/%s' % (path, file)
+                        try:
+                            os.unlink(fpath)
+                        except StandardError, e:
+                            if e.errno != errno.ENOENT:
+                                raise OSError("cannot unlink(%s): %s"%(fpath,
+                                                                       str(e)))
+                _special_rmdir('%s/%s' % (path, LOCKED_DIRECTORY))
+                _special_rmdir(path)
         # iterate to find abandoned locked entries
-        oldtime = time.time() - maxlock
-        name = self.first()
-        while name:
-            if self._state(name) != STATE_LOCKED:
-                name = self.next()
-                continue
-            if not _older('%s/%s'%(self.path,name), oldtime):
-                name = self.next()
-                continue
-            # TODO: check if remove_element is needed or "unlocking" instead.
-            _warn("* removing too old locked element: %s" % name)
-            self.unlock(name, True)
+        if maxlock:
+            oldtime = time.time() - maxlock
+            name = self.first()
+            while name:
+                if self._state(name) != STATE_LOCKED:
+                    name = self.next()
+                    continue
+                if not _older('%s/%s'%(self.path,name), oldtime):
+                    name = self.next()
+                    continue
+                # TODO: check if remove_element is needed or "unlocking" instead.
+                _warn("* removing too old locked element: %s" % name)
+                self.unlock(name, True)
 
 
 class QueueSet(object):
