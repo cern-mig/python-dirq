@@ -1,5 +1,18 @@
+* Thu Nov 03 2011 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 0.1.0
+- Updated the interface and overall implementation to comply with the changes
+  in original Perl Directory::Queue implementation as of version 1.2
+   + Added the touch() method
+   + Improved the speed of the purge() method for large queues
+   + NB! Although, it's possible to provide schema as in Directory::Queue
+     with '*' to request returning of data by reference this is not actually
+     relevant in case of Python.
+   + Support for Windows.
+   + Some modification to private methods.
+- Added unit tests.
+
 * Mon Jun 28 2010 K. Skaburskas <Konstantin.Skaburskas@cern.ch> - 0.0.5-1
 - Added Python iterator protocol to iterate over names of elements in
   queues and set of queues (Queue and QueueSet classes). See examples.
+
 * Mon Jun 21 2010 K. Skaburskas <Konstantin.Skaburskas@cern.ch> - 0.0.4-1
 - Initial release 0.0.4-1
