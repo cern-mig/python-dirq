@@ -138,7 +138,12 @@ SCHEMA
 
     By default, all pieces of data are mandatory. If you append a question
     mark to the type, this piece of data will be marked as optional. See
-    the comments in the "SYNOPSIS" section for more information.
+    the comments in the "USAGE" section for more information.
+
+    To comply with Directory::Queue implementation it is allowed to append '*'
+    (asterisk) to data type specification, which in Directory::Queue means
+    switching to working with element references in add() and get() operations.
+    This is irrelevant for the Python implementation.
 
 DIRECTORY STRUCTURE
     All the directories holding the elements and all the files holding the
@@ -584,11 +589,11 @@ class Queue(object):
                 if not isinstance(schema[name], str):
                     raise QueueError("invalid data type for schema "+\
                                     "specification: %r"%type(schema[name]))
-                m = re.match('(binary|string|table)(\?)?$', schema[name])
+                m = re.match('(binary|string|table)([\?\*]{0,2})?$', schema[name])
                 if not m:
                     raise QueueError("invalid schema data type: %r"%schema[name])
                 self.type[name] = m.group(1)
-                if not m.group(2):
+                if not re.search('\?', m.group(2)):
                     self.mandatory[name] = True
             if not self.mandatory:
                 raise QueueError("invalid schema: no mandatory data")
