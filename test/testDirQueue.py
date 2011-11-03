@@ -1,6 +1,7 @@
 
 import os
 import shutil
+import time
 import unittest
 
 from dirq import queue
@@ -51,15 +52,28 @@ class TestQueue(TestDirQueue):
         except AttributeError: pass
         else:
             self.fail('Not a copy, but reference.')
-    def test3_state(self):
-        'Queue._state()'
+    def test3_is_locked(self):
+        'Queue._is_locked_*()'
         q = Queue(self.path, schema={'a':'string'})
-        assert q._state('') == queue.STATE_UNLOCKED
-        assert q._state('not_there') == queue.STATE_MISSING
+
+        assert q._is_locked_nlink('') == False
+        assert q._is_locked_nlink('not_there') == False
         os.mkdir(self.path + '/a')
-        assert q._state('a') == queue.STATE_UNLOCKED
+        assert q._is_locked_nlink('a') == False
         os.mkdir(self.path + '/a/%s' % queue.LOCKED_DIRECTORY)
-        assert q._state('a') == queue.STATE_LOCKED
+        assert q._is_locked_nlink('a') == True
+        time.sleep(1)
+        assert q._is_locked_nlink('a', time.time()) == True
+
+        assert q._is_locked_nonlink('') == False
+        assert q._is_locked_nonlink('not_there') == False
+        os.mkdir(self.path + '/b')
+        assert q._is_locked_nonlink('b') == False
+        os.mkdir(self.path + '/b/%s' % queue.LOCKED_DIRECTORY)
+        assert q._is_locked_nonlink('b') == True
+        time.sleep(1)
+        assert q._is_locked_nonlink('b', time.time()) == True
+
     def test4_insertion_directory(self):
         'Queue._insertion_directory()'
         q = queue.Queue(self.path, schema={'a':'string'})

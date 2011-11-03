@@ -252,11 +252,6 @@ OBSOLETE_DIRECTORY = "obsolete"
 # name of the directory indicating a locked element
 LOCKED_DIRECTORY = "locked"
 
-# states returned by _state()
-STATE_UNLOCKED = "U"
-STATE_LOCKED   = "L"
-STATE_MISSING  = "M"
-
 #
 # global variables
 #
@@ -637,21 +632,62 @@ class Queue(object):
         c.elts = []
         return c
 
-    def _state(self, ename):
-        """Return the state of the given element.
-        Arguments:
-            ename - name of an element
+    def _is_locked_nlink(self, ename, _time=None):
+        """Check if an element is locked.
         note:
          - this is only an indication as the state may be changed by another
            process
+        Uses number of links (st_nlink) returned by os.lstat() applied to the
+        element directory.
+
+        Arguments:
+            ename - name of an element
+            _time - consider only locks older than the given time
+
+        Return:
+         True  - if element exists and locked. If _time is provided, only
+                 return True on locks older than this time (needed by purge).
+         False - in other cases
+
+        Raises:
+         OSError - if unable to stat() the element
         """
         path = '%s/%s' % (self.path, ename)
-        if os.path.exists('%s/%s' % (path, LOCKED_DIRECTORY)):
-            return STATE_LOCKED
-        if os.path.exists(path):
-            return STATE_UNLOCKED
-        # the element does not exist (anymore)
-        return STATE_MISSING
+        try:
+            stat = os.lstat(path)
+        except StandardError, e:
+            if e.errno != errno.ENOENT:
+                raise OSError("cannot lstat(%s): %s" % (path, str(e)))
+            return False
+        # locking increases number of links
+        if not stat.st_nlink > 2:
+            return False
+        # check age if _time is given
+        if _time and stat.st_mtime >= _time:
+            return False
+        return os.path.exists('%s/%s' % (path, LOCKED_DIRECTORY))
+
+    def _is_locked_nonlink(self, ename, _time=None):
+        """See _is_locked_nlink(). This version doesn't use nlink (slower).
+        """
+        path = '%s/%s' % (self.path, ename)
+        if not os.path.exists('%s/%s' % (path, LOCKED_DIRECTORY)):
+            return False
+        elif not _time:
+            return True
+        # element exists and locked, and we were asked to act upon its age
+        try:
+            stat = os.lstat(path)
+        except StandardError, e:
+            if e.errno != errno.ENOENT:
+                raise OSError("cannot lstat(%s): %s" % (path, str(e)))
+            return False
+        return stat.st_mtime < _time
+
+    if sys.platform in ['win32', 'cygwin']:
+        _is_locked = _is_locked_nonlink
+    else:
+        _is_locked = _is_locked_nlink
 
     def _build_elements(self):
         """Build list of elements.
@@ -823,7 +859,7 @@ class Queue(object):
            or fails
         """
         _check_element(ename)
-        if self._state(ename) != STATE_LOCKED:
+        if not self._is_locked(ename):
             raise QueueError("cannot remove %s: not locked"%ename)
         # move the element out of its intermediate directory
         path = '%s/%s' % (self.path, ename)
@@ -899,7 +935,7 @@ class Queue(object):
         if not self.type:
             raise QueueError("unknown schema")
         _check_element(ename)
-        if self._state(ename) != STATE_LOCKED:
+        if not self._is_locked(ename):
             raise QueueError("cannot get %s: not locked"%ename)
         data = {}
         for dname in self.type.keys():
@@ -1097,15 +1133,11 @@ class Queue(object):
             oldtime = time.time() - maxlock
             name = self.first()
             while name:
-                if self._state(name) != STATE_LOCKED:
-                    name = self.next()
-                    continue
-                if not _older('%s/%s'%(self.path,name), oldtime):
-                    name = self.next()
-                    continue
-                # TODO: check if remove_element is needed or "unlocking" instead.
-                _warn("* removing too old locked element: %s" % name)
-                self.unlock(name, True)
+                if self._is_locked(name, oldtime):
+                    # TODO: check if remove_element is needed or "unlocking" instead.
+                    _warn("* removing too old locked element: %s" % name)
+                    self.unlock(name, True)
+                name = self.next()
 
 
 class QueueSet(object):
