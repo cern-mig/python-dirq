@@ -1,6 +1,6 @@
 
 NAME = 'dirq'
-VERSION = '0.0.5'
+VERSION = '0.1.0'
 DESCRIPTION = "Directory based queue"
 LONG_DESCRIPTION = """
 A port of Perl module Directory::Queue
@@ -14,7 +14,7 @@ and scalability.
 This module allows multiple concurrent readers and writers to interact
 with the same queue."""
 AUTHOR = 'Konstantin Skaburskas'
-AUTHOR_EMAIL = 'konstantin.skaburskas@cern.ch'
+AUTHOR_EMAIL = 'konstantin.skaburskas@gmail.com'
 LICENSE = "ASL 2.0"
 PLATFORMS = "Any"
 URL = "http://code.google.com/p/dirq/"

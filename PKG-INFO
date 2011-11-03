@@ -1,12 +1,12 @@
 Metadata-Version: 1.0
 Name: dirq
-Version: 0.0.5
+Version: 0.1.0
 Summary: Directory based queue
 Home-page: http://code.google.com/p/dirq/
 Author: Konstantin Skaburskas
-Author-email: konstantin.skaburskas@cern.ch
+Author-email: konstantin.skaburskas@gmail.com
 License: ASL 2.0
-Download-URL: http://dirq.googlecode.com/files/dirq-0.0.5.tar.gz
+Download-URL: http://dirq.googlecode.com/files/dirq-0.1.0.tar.gz
 Description: 
         A port of Perl module Directory::Queue
         http://search.cpan.org/dist/Directory-Queue/

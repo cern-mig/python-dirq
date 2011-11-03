@@ -231,7 +231,7 @@ LICENSE AND COPYRIGHT
 
 ASL 2.0
 
-Copyright (C) 2010 CERN
+Copyright (C) 2010-2011 CERN
 """
 
 import os
