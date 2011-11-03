@@ -73,7 +73,6 @@ class TestQueue(TestDirQueue):
         assert q._is_locked_nonlink('b') == True
         time.sleep(1)
         assert q._is_locked_nonlink('b', time.time()) == True
-
     def test4_insertion_directory(self):
         'Queue._insertion_directory()'
         q = queue.Queue(self.path, schema={'a':'string'})
@@ -85,7 +84,7 @@ class TestQueue(TestDirQueue):
         name1 = '%08x' % 1
         assert q._insertion_directory() == name1
         assert os.path.exists(self.path+'/'+name1)
-    def test5_add(self):
+    def test5add(self):
         'Queue.add()'
         q = queue.Queue(self.path, schema={'a':'string'})
         q.add({'a':'a\n'})
