@@ -1072,11 +1072,9 @@ class Queue(object):
                 if _subdirs_num(path):
                     continue
                 _special_rmdir(path)
-        # get the list of temporary and obsolete directories
-        _list = self._volatile()
-        # remove the ones which are too old
+        # remove the volatile directories which are too old
         oldtime = time.time() - maxtemp
-        for name in _list:
+        for name in self._volatile():
             path = '%s/%s' % (self.path, name)
             if _older(path, oldtime):
                 _warn("* removing too old volatile element: %s" % name)
@@ -1096,7 +1094,7 @@ class Queue(object):
         oldtime = time.time() - maxlock
         name = self.first()
         while name:
-            if self._state('%s/%s' % (self.path, name)) != STATE_LOCKED:
+            if self._state(name) != STATE_LOCKED:
                 name = self.next()
                 continue
             if not _older('%s/%s'%(self.path,name), oldtime):
