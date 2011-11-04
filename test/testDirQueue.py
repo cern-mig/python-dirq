@@ -84,7 +84,7 @@ class TestQueue(TestDirQueue):
         name0 = '%08x' % 0
         assert q._insertion_directory() == name0
         assert os.path.exists(self.path+'/'+name0)
-        os.mkdir('%s/%s/%s' % (self.path, name0, queue._new_name()))
+        os.mkdir('%s/%s/%s' % (self.path, name0, queue._name()))
         name1 = '%08x' % 1
         assert q._insertion_directory() == name1
         assert os.path.exists(self.path+'/'+name1)
@@ -144,8 +144,8 @@ class TestModuleFunctions(TestDirQueue):
         for v in ['','a']:
             self.failUnlessRaises(queue.QueueError, queue._string2hash, (v))
     def test4_new_name(self):
-        'queue._new_name()'
-        n = queue._new_name()
+        'queue._name()'
+        n = queue._name()
         assert len(n) == 14
         assert n.endswith('%01x' % (os.getpid() % 16))
     def test5_file_write(self):

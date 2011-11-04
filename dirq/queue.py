@@ -492,7 +492,7 @@ def _special_rmdir(path):
     else:
         return True
 
-def _new_name():
+def _name():
     """Return the name of a new element to (try to) use with:
      - 8 hexadecimal digits for the number of seconds since the Epoch
      - 5 hexadecimal digits for the microseconds part
@@ -888,7 +888,7 @@ class Queue(object):
         # move the element out of its intermediate directory
         path = '%s/%s' % (self.path, ename)
         while True:
-            temp = '%s/%s/%s' % (self.path, OBSOLETE_DIRECTORY, _new_name())
+            temp = '%s/%s/%s' % (self.path, OBSOLETE_DIRECTORY, _name())
             try:
                 os.rename(path, temp)
                 break
@@ -1049,7 +1049,7 @@ class Queue(object):
         if not self.type:
             raise QueueError("unknown schema")
         while True:
-            temp = '%s/%s/%s' % (self.path, TEMPORARY_DIRECTORY, _new_name())
+            temp = '%s/%s/%s' % (self.path, TEMPORARY_DIRECTORY, _name())
             if _special_mkdir(temp, self.umask):
                 break
         for name in data.keys():
@@ -1078,7 +1078,7 @@ class Queue(object):
             if not data.has_key(name):
                 raise QueueError("missing mandatory data: %s"%name)
         while True:
-            name = '%s/%s' % (self._insertion_directory(), _new_name())
+            name = '%s/%s' % (self._insertion_directory(), _name())
             path = '%s/%s' % (self.path, name)
             try:
                 os.rename(temp, path)
