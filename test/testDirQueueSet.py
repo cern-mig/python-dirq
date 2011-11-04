@@ -5,7 +5,9 @@ import unittest
 
 __all__ = ['TestQueueSet']
 
-from dirq.queue import Queue, QueueSet, QueueError
+from dirq.queue import Queue
+from dirq.Exceptions import QueueError
+from dirq.QueueSet import QueueSet
 
 class TestDirQueue(unittest.TestCase):
     def setUp(self):
