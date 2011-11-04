@@ -535,12 +535,6 @@ def _count(path):
 # Object Oriented Interface
 #
 
-class QueueError(Exception):
-    ''
-
-class QueueLockError(QueueError):
-    ''
-
 class Queue(object):
     """Directory based queue.
     """
