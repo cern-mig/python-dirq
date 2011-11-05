@@ -246,10 +246,6 @@ __all__ = ['Queue','QueueSet','QueueError']
 
 from Exceptions import QueueError, QueueLockError
 
-## stat(2) fields
-#ST_NLINK = 3
-#ST_MTIME = 9
-
 # name of the directory holding temporary elements
 TEMPORARY_DIRECTORY = "temporary"
 
