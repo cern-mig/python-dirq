@@ -240,7 +240,6 @@ import time
 import errno
 import re
 import inspect
-import codecs
 
 __all__ = ['Queue','QueueSet','QueueError']
 
