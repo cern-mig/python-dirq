@@ -201,7 +201,6 @@ class QueueBase(object):
     def _build_elements(self):
         raise NotImplementedError
 
-#    next()
     def next(self):
         """Return name of the next element in the queue, only using cached
         information. When queue is empty, depending on the iterator
