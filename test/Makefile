@@ -2,7 +2,7 @@ ifndef PYTHON
 	PYTHON=python
 endif
 
-TESTDIR=/tmp/dirq-test
+TESTDIR=/tmp/dirq-test.$$$$
 
 QueueBase: testDirQueueBase.py
 	@echo "--- $? ---"
