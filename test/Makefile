@@ -4,11 +4,20 @@ endif
 
 TESTDIR=/tmp/dirq-test
 
+QueueBase: testDirQueueBase.py
+	@echo "--- $? ---"
+	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
+	$(PYTHON) $?
 Queue: testDirQueue.py
 	@echo "--- $? ---"
 	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
 	$(PYTHON) $?
 QueueSet: testDirQueueSet.py
+	@echo "--- $? ---"
+	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
+	$(PYTHON) $?
+
+QueueSimple: testDirQueueSimple.py
 	@echo "--- $? ---"
 	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
 	$(PYTHON) $?
@@ -23,7 +32,7 @@ QueueSetFunc: test_dirqset.py
 	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
 	$(PYTHON) $? -d -c 10 -p $(TESTDIR) complex
 
-tests: Queue QueueSet QueueFunc QueueSetFunc
+tests: QueueBase Queue QueueSimple QueueSet QueueFunc QueueSetFunc
 
 test: tests clean
  
