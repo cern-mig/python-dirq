@@ -7,7 +7,7 @@ import unittest
 from dirq import queue
 from dirq.queue import Queue, QueueError
 
-__all__ =['TestQueue']
+__all__ =['TestQueue', 'TestQueueModuleFunctions']
 
 class TestDirQueue(unittest.TestCase):
     def setUp(self):
@@ -110,13 +110,7 @@ class TestQueue(TestDirQueue):
         q.touch(e)
         assert os.stat(element_dir).st_mtime >= (mtime + 10)
 
-class TestModuleFunctions(TestDirQueue):
-    def test1_special_mkdir(self):
-        'queue._special_mkdir()'
-        assert queue._special_mkdir(self.path) == 1
-        assert queue._special_mkdir(self.path) == 0
-        shutil.rmtree(self.path, ignore_errors=True)
-        self.failUnlessRaises(OSError, queue._special_mkdir, (self.path+'/a'))
+class TestQueueModuleFunctions(TestDirQueue):
     def test2_check_element(self):
         'queue._check_element()'
         queue._check_element('0'*8 +'/'+'0'*14)
@@ -143,23 +137,10 @@ class TestModuleFunctions(TestDirQueue):
                                     {'a1\x5c':'a2','b1':'b2\\'}
         for v in ['','a']:
             self.failUnlessRaises(queue.QueueError, queue._string2hash, (v))
-    def test4_new_name(self):
-        'queue._name()'
-        n = queue._name()
-        assert len(n) == 14
-        assert n.endswith('%01x' % (os.getpid() % 16))
-    def test5_file_write(self):
-        'queue._file_write()'
-        queue._file_write('test.file', 0, None, 'a\n')
-        os.unlink('test.file')
-        queue._file_write('test.file', 0, None, 'a'*(2**10)*10)
-        os.unlink('test.file')
-        for t in [1, [], (), {}, object]:
-            self.failUnlessRaises(TypeError, queue._file_write, ('', t))
 
 def main():
     testcases = [TestQueue,
-                 TestModuleFunctions]
+                 TestQueueModuleFunctions]
     for tc in testcases:
         unittest.TextTestRunner(verbosity=2).\
             run(unittest.TestLoader().loadTestsFromTestCase(tc))
