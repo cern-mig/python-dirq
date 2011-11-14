@@ -239,18 +239,18 @@ import sys
 import time
 import errno
 import re
-import inspect
 
 __all__ = ['Queue','QueueSet','QueueError']
 
-from dirq.QueueBase import QueueBase
+from dirq.QueueBase import QueueBase, _DirElemRegexp, _DirectoryRegexp,\
+    _ElementRegexp
 from QueueBase import (_name,
                        _special_mkdir,
-                       #_special_getdir,
                        _special_rmdir,
                        _file_read,
-                       #_file_create,
-                       _file_write) 
+                       _file_write,
+                       _directory_contents,
+                        _warn) 
 from Exceptions import QueueError, QueueLockError
 
 # name of the directory holding temporary elements
@@ -266,12 +266,6 @@ LOCKED_DIRECTORY = "locked"
 # global variables
 #
 
-__DirectoryRegexp = '[0-9a-f]{8}'
-_DirectoryRegexp  = re.compile('(%s)$' % __DirectoryRegexp)
-__ElementRegexp   = '[0-9a-f]{14}'
-_ElementRegexp    = re.compile('(%s)$' % __ElementRegexp)
-_DirElemRegexp    = re.compile('^%s/%s$'%(__DirectoryRegexp,
-                                          __ElementRegexp))
 __FileRegexp      = "[0-9a-zA-Z]+"
 _FileRegexp       = re.compile("^(%s)$" % __FileRegexp)
 _KeyValRegexp     = re.compile('^([^\x09\x0a]*)\x09([^\x09\x0a]*)$')
@@ -279,16 +273,9 @@ _KeyValRegexp     = re.compile('^([^\x09\x0a]*)\x09([^\x09\x0a]*)$')
 _Byte2Esc = {"\x5c" : "\\", "\x09" : "\\t", "\x0a" : "\\n"}
 _Esc2Byte = dict([(v,k) for k, v in _Byte2Esc.iteritems()])
 
-WARN = False
-
 #
 # Helper Functions
 #
-
-def _warn(text):
-    if WARN:
-        sys.stdout.write('%s, at %s line %s\n' % (text, __name__,
-                                        inspect.currentframe().f_back.f_lineno))
 
 def _hash2string(hash):
     """Transform a hash of strings into a string.
@@ -327,22 +314,6 @@ def _string2hash(string):
         _hash[key] = val
         _hash[match.group(1)] = match.group(2)
     return _hash
-
-def _directory_contents(path, missingok=True):
-    """Get the contents of a directory as a list of names, without . and ..
-    Raise:
-    OSError - can't list directory
-    note:
-     - if the optional second argument is true, it is not an error if the
-       directory does not exist (anymore)
-    """
-    try:
-        return os.listdir(path)
-    except StandardError, e:
-        if not missingok and not e.errcode == errno.ENOENT:
-            raise OSError("cannot listdir(%s): %s"%(path, str(e)))
-            # RACE: this path does not exist (anymore)
-        return []
 
 def _older(path, time):
     """Check if a path is old enough:
@@ -542,28 +513,15 @@ class Queue(QueueBase):
         """
         while self.dirs:
             dir = self.dirs.pop(0)
-            self.elts = []
+            _list = []
             for name in _directory_contents('%s/%s'%(self.path,dir), True):
                 if _ElementRegexp.match(name):
-                    self.elts.append(name)
-            if not self.elts:
+                    _list.append(name)
+            if not _list:
                 continue
-            self.elts = ['%s/%s'%(dir, x) for x in sorted(self.elts)]
-            if self.elts:
-                return
-
-    def _reset(self):
-        """Regenerate list of intermediate directories. Drop cached
-        elements list.
-        Raise:
-            OSError - can't list directories
-        """
-        self.dirs = []
-        for name in _directory_contents(self.path):
-            if _DirectoryRegexp.match(name):
-                self.dirs.append(name)
-        self.dirs.sort()
-        self.elts = []
+            self.elts = ['%s/%s'%(dir, x) for x in sorted(_list)]
+            return True
+        return False
 
     def count(self):
         """Return the number of elements in the queue, regardless of
@@ -905,7 +863,7 @@ class Queue(QueueBase):
             maxtemp - maximum time for a temporary element. If 0, temporary
                       elements will not be removed.
             maxlock - maximum time for a locked element. If 0, locked elements
-                      will not be unloked.
+                      will not be unlocked.
         Raise:
             OSError - problem deleting element from disk
         note:
