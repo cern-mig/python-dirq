@@ -1,16 +1,6 @@
 
-from queue import Queue
+from dirq.QueueBase import QueueBase
 from Exceptions import QueueError
-
-#_isdq()
-#class QueueSet(object):
-#    ''
-#    __init__()
-#    add()
-#    count()
-#    first()
-#    next()
-#    remove()
 
 class QueueSet(object):
     """Interface to elements on a set of directory based queues.
@@ -110,20 +100,20 @@ class QueueSet(object):
         for q in queues:
             if type(q) in [list, tuple] and not type_queue:
                 for _q in q:
-                    if isinstance(_q, Queue):
+                    if isinstance(_q, QueueBase):
                         if _q.id in [x.id for x in self.qset]:
                             raise QueueError("queue already in the set: %s"%\
                                               _q.path)
                         self.qset.append(_q.copy())
                     else:
-                        raise TypeError("Queue objects expected.")
+                        raise TypeError("QueueBase objects expected.")
                 break
-            elif isinstance(q, Queue):
+            elif isinstance(q, QueueBase):
                 type_queue = True
                 self.qset.append(q.copy())
             else:
-                raise TypeError("expected Queue object(s) or list/tuple of "+\
-                                 "Queue objects")
+                raise TypeError("expected QueueBase object(s) or list/tuple of "+\
+                                 "QueueBase objects")
 
     def add(self, *queues):
         """Add lists of queues to existing ones. Copies of the object
@@ -144,8 +134,8 @@ class QueueSet(object):
         Raise:
             TypeError - wrong queue object type provided
         """
-        if not isinstance(queue, Queue):
-            raise TypeError("Queue objects expected.")
+        if not isinstance(queue, QueueBase):
+            raise TypeError("QueueBase objects expected.")
         for i,q in enumerate(self.qset):
             if queue.id == q.id:
                 del self.qset[i]
