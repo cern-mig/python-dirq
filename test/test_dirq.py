@@ -44,7 +44,7 @@ def init():
         parser.print_help()
         sys.exit()
 
-def die(format, *arguments):
+def _die(format, *arguments):
     print >> sys.stderr, format % arguments
     sys.exit(1)
 
@@ -206,9 +206,9 @@ def test_simple():
     """
     path = OS.path
     if os.path.exists(path):
-        die("%s: directory exists: %s", ProgramName, path)
-    if not OS.count:
-        die("%s: missing option: -count", ProgramName)
+        _die("%s: directory exists: %s", ProgramName, path)
+    if not opts.count:
+        _die("%s: missing option: -count", ProgramName)
     time1 = time.time()
     test_add()
     test_count()
@@ -220,11 +220,11 @@ def test_simple():
         try:
             return os.listdir(path)
         except OSError, e:
-            die("%s: couldn't listdir(%s)", ProgramName, path)
+            _die("%s: couldn't listdir(%s)", ProgramName, path)
             sys.exit(1)
     subdirs = directory_contents(path)
     if len(subdirs) != 3:
-        die("%s: unexpected subdirs: %i", ProgramName, len(subdirs))
+        _die("%s: unexpected subdirs: %i", ProgramName, len(subdirs))
     shutil.rmtree(path, ignore_errors=True)
     debug("done in %.4f seconds", time2 - time1)
 
