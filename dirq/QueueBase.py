@@ -1,10 +1,27 @@
+
+import re
 import codecs
 import errno
 import os
 import time
 import sys
+import inspect
 
 UPID = '%01x' % (os.getpid() % 16)
+
+__DirectoryRegexp = '[0-9a-f]{8}'
+_DirectoryRegexp  = re.compile('(%s)$' % __DirectoryRegexp)
+__ElementRegexp   = '[0-9a-f]{14}'
+_ElementRegexp    = re.compile('(%s)$' % __ElementRegexp)
+_DirElemRegexp    = re.compile('^%s/%s$'%(__DirectoryRegexp,
+                                          __ElementRegexp))
+
+WARN = False
+
+def _warn(text):
+    if WARN:
+        sys.stdout.write('%s, at %s line %s\n' % (text, __name__,
+                                        inspect.currentframe().f_back.f_lineno))
 
 def _name():
     """Return the name of a new element to (try to) use with:
@@ -22,6 +39,22 @@ def _name():
     """
     t = time.time()
     return "%08x%05x%s" % (t, (t % 1.0)*100000, UPID)
+
+def _directory_contents(path, missingok=True):
+    """Get the contents of a directory as a list of names, without . and ..
+    Raise:
+    OSError - can't list directory
+    note:
+     - if the optional second argument is true, it is not an error if the
+       directory does not exist (anymore)
+    """
+    try:
+        return os.listdir(path)
+    except StandardError, e:
+        if not missingok and not e.errcode == errno.ENOENT:
+            raise OSError("cannot listdir(%s): %s"%(path, str(e)))
+            # RACE: this path does not exist (anymore)
+        return []
 
 def _special_mkdir(path, umask=None):
     """Create a directory:
@@ -69,9 +102,6 @@ def _special_rmdir(path):
     else:
         return True
 
-def _special_getdir():
-    raise NotImplementedError()
-
 def _file_read(path, utf8):
     """Read from a file.
     Raise:
@@ -95,8 +125,25 @@ def _file_read(path, utf8):
         raise OSError("cannot close %s: %s"%(path, str(e)))
     return data
 
-def _file_create(): 
-    raise NotImplementedError()
+def _file_create(path, umask=None, utf8=False):
+    """Open a file defined by 'path' and return file handler.
+    Raises:
+    OSError - if file exists
+    """
+    if umask:
+        oldumask = os.umask(umask)
+    if utf8:
+        if os.path.exists(path):
+            ex = OSError("[Errno %i] File exists: %s" % (errno.EEXIST, path))
+            ex.errno = errno.EEXIST
+            raise ex
+        fh = codecs.open(path, 'w', 'utf8')
+    else:
+        fh = os.fdopen(os.open(path, os.O_WRONLY|os.O_CREAT|os.O_EXCL), 'w')
+    if umask:
+        os.umask(oldumask)
+
+    return fh
 
 def _file_write(path, utf8, umask, data):
     """Write to a file.
@@ -104,17 +151,7 @@ def _file_write(path, utf8, umask, data):
     OSError - problems opening/closing file
     IOError - file write error
     """
-    try:
-        if umask:
-            oldumask = os.umask(umask)
-        if utf8:
-            fh = codecs.open(path, 'w', 'utf8')
-        else:
-            fh = open(path, 'wb')
-        if umask:
-            os.umask(oldumask)
-    except StandardError, e:
-        raise OSError("cannot open %s: %s"%(path, str(e)))
+    fh = _file_create(path, umask=umask, utf8=utf8)
     try:
         fh.write(data)
     except StandardError, e:
@@ -187,7 +224,17 @@ class QueueBase(object):
         return c
 
     def _reset(self):
-        raise NotImplementedError
+        """Regenerate list of intermediate directories. Drop cached
+        elements list.
+        Raise:
+            OSError - can't list directories
+        """
+        self.dirs = []
+        for name in _directory_contents(self.path):
+            if _DirectoryRegexp.match(name):
+                self.dirs.append(name)
+        self.dirs.sort()
+        self.elts = []
 
     def first(self):
         """Return the first element in the queue and cache information about
@@ -199,7 +246,7 @@ class QueueBase(object):
         return self.next()
 
     def _build_elements(self):
-        raise NotImplementedError
+        raise NotImplementedError('Implement in sub-class.')
 
     def next(self):
         """Return name of the next element in the queue, only using cached
@@ -214,8 +261,7 @@ class QueueBase(object):
         """
         if self.elts:
             return self.elts.pop(0)
-        self._build_elements()
-        if self.elts:
+        if self._build_elements():
             return self.elts.pop(0)
         if self._next_exception:
             self._next_exception = False
