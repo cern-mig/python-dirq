@@ -123,12 +123,14 @@ class QueueSimple(QueueBase):
         except OSError, ex:
             if permissive and (ex.errno == errno.EEXIST or 
                                     ex.errno == errno.ENOENT):
-                return 0
-            raise ex
+                return False
+            e = OSError("cannot link(%s, %s): %s" % (path, lock, str(ex)))
+            e.errno = ex.errno
+            raise e
         else:
             t = time.time()
             os.utime(path, (t, t))
-            return 1
+            return True
 
     def unlock(self, name, permissive=False):
         """
