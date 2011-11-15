@@ -37,7 +37,7 @@ QueueSetFunc: test_dirqset.py
 	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
 	$(PYTHON) $? -d -c 10 -p $(TESTDIR) complex
 
-tests: QueueBase Queue QueueSimple QueueSet QueueFunc QueueSetFunc
+tests: QueueBase Queue QueueSimple QueueSet QueueFunc QueueSimpleFunc QueueSetFunc
 
 test: tests clean
  
