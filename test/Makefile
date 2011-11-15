@@ -5,20 +5,20 @@ endif
 TESTDIR=/tmp/dirq-test.$$$$
 
 QueueBase: testDirQueueBase.py
-	@echo "--- $? ---"
+	@echo "=== $? ==="
 	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
 	$(PYTHON) $?
 Queue: testDirQueue.py
-	@echo "--- $? ---"
+	@echo "=== $? ==="
 	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
 	$(PYTHON) $?
 QueueSet: testDirQueueSet.py
-	@echo "--- $? ---"
+	@echo "=== $? ==="
 	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
 	$(PYTHON) $?
 
 QueueSimple: testDirQueueSimple.py
-	@echo "--- $? ---"
+	@echo "=== $? ==="
 	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
 	$(PYTHON) $?
 
@@ -33,7 +33,7 @@ QueueSimpleFunc: test_dirq.py
 	$(PYTHON) $? -d -c 10 -p $(TESTDIR) --simple simple
 
 QueueSetFunc: test_dirqset.py
-	@echo "--- $? ---"
+	@echo "=== $? ==="
 	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
 	$(PYTHON) $? -d -c 10 -p $(TESTDIR) complex
 
@@ -42,7 +42,7 @@ tests: QueueBase Queue QueueSimple QueueSet QueueFunc QueueSimpleFunc QueueSetFu
 test: tests clean
  
 clean:
-	@echo "--- cleanup ---"
+	@echo "=== cleanup ==="
 	rm -rf $(TESTDIR)
 	rm -f *.pyc
 
