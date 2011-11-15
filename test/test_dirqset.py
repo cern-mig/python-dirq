@@ -6,7 +6,7 @@ import time
 import shutil
 from optparse import OptionParser
 
-sys.path.insert(1, re.sub('/\w*$','/..',os.getcwd()))
+sys.path.insert(1, re.sub('/\w*$','',os.getcwd()))
 from dirq import queue
 
 OS = ''
