@@ -23,9 +23,14 @@ QueueSimple: testDirQueueSimple.py
 	$(PYTHON) $?
 
 QueueFunc: test_dirq.py
-	@echo "--- $? ---"
+	@echo "=== $? Queue ==="
 	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
 	$(PYTHON) $? -d -c 10 -p $(TESTDIR) simple
+
+QueueSimpleFunc: test_dirq.py
+	@echo "=== $? QueueSimple ==="
+	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
+	$(PYTHON) $? -d -c 10 -p $(TESTDIR) --simple simple
 
 QueueSetFunc: test_dirqset.py
 	@echo "--- $? ---"
