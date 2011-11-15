@@ -271,7 +271,7 @@ def test_simple():
     shutil.rmtree(path, ignore_errors=True)
     debug("done in %.4f seconds", time2 - time1)
 
-def main_simple():
+def main_simple(simple=False):
     """A wrapper to run from a library.
     """
     global opts
@@ -283,7 +283,10 @@ def main_simple():
         header = False
         debug = True
         maxelts = 0
+        simple = False
+        granularity = None
     opts = options()
+    opts.simple = simple
     try:
         shutil.rmtree(opts.path, ignore_errors=True)
         test_simple()

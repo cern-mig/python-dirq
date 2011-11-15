@@ -19,6 +19,8 @@ def main():
     print '='*25
     print '*** Queue'
     test_dirq.main_simple()
+    print '*** QueueSimple'
+    test_dirq.main_simple(simple=True)
     print '*** QueueSet'
     test_dirqset.main_complex()
 
