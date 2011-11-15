@@ -11,14 +11,18 @@ from optparse import OptionParser
 
 sys.path.insert(1, re.sub('/\w*$','',os.getcwd()))
 from dirq import queue
+from dirq.QueueSimple import QueueSimple
 
-OS = ''
+opts = None
 TEST = ''
+TESTS = ['all', 'add', 'count', 'get', 'iterate', 'purge', 'remove', 'simple']
 ProgramName = sys.argv[0]
 
 def init():
-    global OS, TEST
+    global opts, TEST
     parser = OptionParser(usage="%prog [OPTIONS] [--] TEST", version="%prog 0.1")
+    parser.add_option('-l', '--list', dest='list', action="store_true",
+                       default=False, help="list available tests")
     parser.add_option('-d', '--debug', dest='debug', action="store_true",
                        default=False, help="show debugging information")
     parser.add_option('-p', '--path', dest='path', type='string', default='',
@@ -33,13 +37,23 @@ def init():
                       default=False, help="set header for added elements")
     parser.add_option("--maxelts", dest="maxelts", type='int',
                       default=0, help="set the maximum number of elements per directory")
+    parser.add_option("--simple", dest="simple", action="store_true",
+                      default=False, help="test QueueSimple")
+    parser.add_option("--granularity", dest="granularity", type='int',
+                      default=0, help="time granularity for intermediate directories (QueueSimple)")
 
-    OS,args = parser.parse_args()
-    if not OS.path:
-        print "*** mandatory option not set: path"
+    opts,args = parser.parse_args()
+    if opts.list:
+        print "Tests: %s" % ', '.join(TESTS)
+        sys.exit() 
+    if not opts.path:
+        _die("*** mandatory option not set: -p/--path")
         sys.exit(1)
     if len(args) != 0:
         TEST = args[0]
+        if TEST not in TESTS:
+            _die("Unsupported test '%s'.\nTEST should be one of: %s" % (TEST, 
+                                                              ', '.join(TESTS)))
     else:
         parser.print_help()
         sys.exit()
@@ -51,7 +65,7 @@ def _die(format, *arguments):
 def debug(format, *arguments):
     """Report a debugging message.
     """
-    if not OS.debug:
+    if not opts.debug:
         return
     message = format % arguments
     message = re.sub('\s+$', '.', message)
@@ -60,12 +74,19 @@ def debug(format, *arguments):
 def new_dirq(_schema):
     """Create a new Directory::Queue object, optionally with schema.
     """
-    if _schema:
-        schema = {'body'  : 'string',
-                  'header': 'table?'}
+    kwargs = {}
+    if opts.simple:
+        if opts.granularity:
+            kwargs['granularity'] = opts.granularity
+        return QueueSimple(opts.path, **kwargs)
     else:
-        schema = {}
-    return queue.Queue(OS.path, maxelts=OS.maxelts, schema=schema)
+        if _schema:
+            schema = {'body'  : 'string',
+                      'header': 'table?'}
+            kwargs['schema'] = schema
+        if opts.maxelts:
+            kwargs['maxelts'] = opts.maxelts 
+        return queue.Queue(opts.path, **kwargs)
 
 def test_count():
     """Count the elements in the queue.
@@ -92,7 +113,7 @@ def _body(size, rand):
     if rand:
         # see Irwin-Hall in http://en.wikipedia.org/wiki/Normal_distribution
         rnd = 0.
-        for i in range(12):
+        for _ in range(12):
             rnd += random.random()
         rnd -= 6.
         rnd *= size / 6
@@ -104,33 +125,42 @@ def _body(size, rand):
 def test_add():
     """Add elements to the queue.
     """
-    random = OS.random
-    size = OS.size
-    count = OS.count
+    random = opts.random
+    size = opts.size
+    count = opts.count
     if count:
         debug("adding %d elements to the queue...", count)
     else:
         debug("adding elements to the queue forever...")
     dirq = new_dirq(1)
-    element = {}
-    if OS.header:
-        element['header'] = dict(os.environ)
+    if opts.simple:
+        element = ''
+    else:
+        element = {}
+        if opts.header:
+            element['header'] = dict(os.environ)
     done = 0
     time1 = time.time()
     while not count or done < count:
         done += 1
         if size:
-            element['body'] = _body(size, random)
+            if opts.simple:
+                element = _body(size, random)
+            else:
+                element['body'] = _body(size, random)
         else:
-            element['body'] = u'Élément %i \u263A\n' % done
-        name = dirq.add(element)
+            if opts.simple:
+                element = 'Element %i ;-)\n' % done
+            else:
+                element['body'] = u'Élément %i \u263A\n' % done
+        _ = dirq.add(element)
     time2 = time.time()
     debug("done in %.4f seconds", time2 - time1)
 
 def test_remove():
     """Remove elements from the queue.
     """
-    count = OS.count
+    count = opts.count
     if count:
         debug("removing %d elements from the queue...", count)
     else:
@@ -148,6 +178,7 @@ def test_remove():
                     continue
                 dirq.remove(name)
                 done += 1
+                name = dirq.next()
         time2 = time.time()
         debug("done in %.4f seconds", time2 - time1)
     else:
@@ -167,9 +198,9 @@ def test_remove():
 def test_iterate():
     """Iterate through the queue (only lock+unlock).
     """
-    debug("iterating all elements in the queue (one pass)...")
     dirq = new_dirq(0)
     done = 0
+    debug("iterating all elements in the queue (first()/next())...")
     time1 = time.time()
     name = dirq.first()
     while name:
@@ -179,6 +210,14 @@ def test_iterate():
         dirq.unlock(name)
         done += 1
         name = dirq.next()
+    time2 = time.time()
+    debug("done in %.4f seconds (%d elements)", time2 - time1, done)
+    debug("iterating all elements in the queue (iterator protocol)...")
+    time1 = time.time()
+    for name in dirq:
+        if not dirq.lock(name):
+            continue
+        dirq.unlock(name)
     time2 = time.time()
     debug("done in %.4f seconds (%d elements)", time2 - time1, done)
 
@@ -204,9 +243,9 @@ def test_get():
 def test_simple():
     """Simple test filling and emptying a brand new queue.
     """
-    path = OS.path
+    path = opts.path
     if os.path.exists(path):
-        _die("%s: directory exists: %s", ProgramName, path)
+        _die("%s: directory exists: %s", ProgramName, opts.path)
     if not opts.count:
         _die("%s: missing option: -count", ProgramName)
     time1 = time.time()
@@ -219,11 +258,15 @@ def test_simple():
     def directory_contents(path):
         try:
             return os.listdir(path)
-        except OSError, e:
+        except OSError:
             _die("%s: couldn't listdir(%s)", ProgramName, path)
             sys.exit(1)
     subdirs = directory_contents(path)
-    if len(subdirs) != 3:
+    if opts.simple:
+        num_subdirs = 1
+    else:
+        num_subdirs = 3
+    if len(subdirs) != num_subdirs:
         _die("%s: unexpected subdirs: %i", ProgramName, len(subdirs))
     shutil.rmtree(path, ignore_errors=True)
     debug("done in %.4f seconds", time2 - time1)
@@ -231,7 +274,7 @@ def test_simple():
 def main_simple():
     """A wrapper to run from a library.
     """
-    global OS
+    global opts
     class options(object):
         path = '/tmp/dirq-%i'%os.getpid()
         count = 10
@@ -240,30 +283,24 @@ def main_simple():
         header = False
         debug = True
         maxelts = 0
-    OS = options()
+    opts = options()
     try:
-        shutil.rmtree(OS.path, ignore_errors=True)
+        shutil.rmtree(opts.path, ignore_errors=True)
         test_simple()
     except Exception, e:
-        shutil.rmtree(OS.path, ignore_errors=True)
+        shutil.rmtree(opts.path, ignore_errors=True)
         raise e
-    shutil.rmtree(OS.path, ignore_errors=True)
+    shutil.rmtree(opts.path, ignore_errors=True)
 
 if __name__ == "__main__":
     init()
-    if TEST == "count":
-        test_count()
-    elif TEST == "purge":
-        test_purge()
-    elif TEST == "add":
-        test_add()
-    elif TEST == "remove":
-        test_remove()
-    elif TEST == "iterate":
-        test_iterate()
-    elif TEST == "get":
-        test_get()
-    elif TEST == "simple":
-        test_simple()
+    if TEST == 'all':
+        TESTS.remove('all')
+        tests = TESTS
     else:
-        print "unsupported test:", TEST
+        tests = [TEST]
+
+    for test in tests:
+        test_func = 'test_%s()' % test
+        print '--- %s ---' % test_func
+        exec test_func
