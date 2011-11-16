@@ -115,7 +115,7 @@ class QueueSimple(QueueBase):
     def get_path(self, name):
         return '%s/%s%s' % (self.path, name, LOCKED_SUFFIX) 
 
-    def lock(self, name, permissive=False):
+    def lock(self, name, permissive=True):
         path = '%s/%s' % (self.path, name)
         lock = '%s%s' % (path, LOCKED_SUFFIX)
         try:
