@@ -110,6 +110,7 @@ class QueueSimple(QueueBase):
         return _file_read('%s/%s%s' % (self.path, name, LOCKED_SUFFIX), False)
 
     get_ref = get
+    "Defined to comply with Directory::Queue interface."
 
     def get_path(self, name):
         return '%s/%s%s' % (self.path, name, LOCKED_SUFFIX) 
