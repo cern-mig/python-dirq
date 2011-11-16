@@ -27,11 +27,16 @@ class QueueSimple(QueueBase):
         if not isinstance(granularity, int):
             raise TypeError('granularity should be integer.')
         self.granularity = granularity
+        if self.granularity == 0:
+            self._add_dir = self.__add_dir_timecurrent
 
     def _add_dir(self):
         t = time.time()
         t -= t % self.granularity
         return "%08x" % t
+
+    def __add_dir_timecurrent(self):
+        return "%08x" % time.time()
 
     def _add_data(self, data):
         """Write 'data' to a file.
