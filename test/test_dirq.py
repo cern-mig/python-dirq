@@ -85,7 +85,7 @@ def new_dirq(_schema):
     """
     kwargs = {}
     if opts.simple:
-        if opts.granularity:
+        if opts.granularity != None:
             kwargs['granularity'] = opts.granularity
         return QueueSimple(opts.path, **kwargs)
     else:
