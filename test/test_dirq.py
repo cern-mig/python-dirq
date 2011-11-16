@@ -41,7 +41,8 @@ def init():
                       default=False, help="test QueueSimple")
     parser.add_option("--granularity", dest="granularity", type='int',
                       default=0, help="time granularity for intermediate directories (QueueSimple)")
-
+    parser.add_option("--sleep", dest="sleep", type='float', default=0,
+                      help="sleep this amount of seconds before starting the test(s)")
     opts,args = parser.parse_args()
     if opts.list:
         print "Tests: %s" % ', '.join(TESTS)
@@ -307,3 +308,5 @@ if __name__ == "__main__":
         test_func = 'test_%s()' % test
         print '--- %s ---' % test_func
         exec test_func
+        if opts.sleep:
+            time.sleep(opts.sleep)
