@@ -36,11 +36,13 @@ def init():
     parser.add_option("--header", dest="header", action="store_true",
                       default=False, help="set header for added elements")
     parser.add_option("--maxelts", dest="maxelts", type='int',
-                      default=0, help="set the maximum number of elements per directory")
+                      default=0, help="set the maximum number of elements per "
+                      "directory")
     parser.add_option("--simple", dest="simple", action="store_true",
                       default=False, help="test QueueSimple")
     parser.add_option("--granularity", dest="granularity", type='int',
-                      default=0, help="time granularity for intermediate directories (QueueSimple)")
+                      default=None, help="time granularity for intermediate "
+                      "directories (QueueSimple)")
     parser.add_option("--sleep", dest="sleep", type='float', default=0,
                       help="sleep this amount of seconds before starting the test(s)")
     parser.add_option("--maxlock", dest="maxlock", type='int', default=None,
