@@ -65,7 +65,7 @@ class QueueSimple(QueueBase):
             try:
                 os.link(tmp, new)
             except OSError, ex:
-                if not ex.errno == errno.EEXIST:
+                if ex.errno != errno.EEXIST:
                     raise ex
                 else:
                     continue
