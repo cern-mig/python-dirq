@@ -40,7 +40,6 @@ class QueueSimple(QueueBase):
         """
         _dir = self._add_dir()
         while 1:
-            name = _name()
             tmp = '%s/%s/%s%s' % (self.path, _dir, _name(), TEMPORARY_SUFFIX)
             try:
                 fh = _file_create(tmp, umask=self.umask)
