@@ -47,8 +47,9 @@ class QueueSimple(QueueBase):
                 if ex.errno == errno.ENOENT:
                     _special_mkdir('%s/%s/' % (self.path, _dir))
                     continue
-            if fh:
-                break
+            else:
+                if fh:
+                    break
         fh.write(data)
         fh.close()
         return _dir, tmp
