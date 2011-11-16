@@ -43,6 +43,12 @@ def init():
                       default=0, help="time granularity for intermediate directories (QueueSimple)")
     parser.add_option("--sleep", dest="sleep", type='float', default=0,
                       help="sleep this amount of seconds before starting the test(s)")
+    parser.add_option("--maxlock", dest="maxlock", type='int', default=None,
+                      help="maximum time for a locked element. 0 - locked "
+                      "elements will not be unlocked.")
+    parser.add_option("--maxtemp", dest="maxtemp", type='int', default=None,
+                      help="maximum time for a temporary element. 0 - temporary "
+                      "elements will not be removed.")
     opts,args = parser.parse_args()
     if opts.list:
         print "Tests: %s" % ', '.join(TESTS)
@@ -105,7 +111,12 @@ def test_purge():
     debug("purging the queue...")
     dirq = new_dirq(0)
     time1 = time.time()
-    dirq.purge(maxtemp=10, maxlock=10)
+    pwkargs = {}
+    if opts.maxtemp != None:
+        pwkargs['maxtemp'] = opts.maxtemp
+    if opts.maxlock != None:
+        pwkargs['maxlock'] = opts.maxlock
+    dirq.purge(**pwkargs)
     time2 = time.time()
     debug("done in %.4f seconds", time2 - time1)
 
