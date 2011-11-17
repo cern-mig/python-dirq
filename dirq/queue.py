@@ -669,7 +669,7 @@ class Queue(QueueBase):
                 os.rmdir(temp)
                 return
             except Exception, e:
-                if e.errno != errno.ENOTEMPTY or e.errno != errno.EEXIST:
+                if e.errno == errno.ENOTEMPTY or e.errno == errno.EEXIST:
                     raise OSError("cannot rmdir(%s): %s"%(temp, str(e)))
                 # RACE: this can happen if an other process managed to lock
                 # this element while it was being removed (see the comment in
