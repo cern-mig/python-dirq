@@ -78,7 +78,9 @@ def debug(format, *arguments):
         return
     message = format % arguments
     message = re.sub('\s+$', '.', message)
-    sys.stderr.write("# %i [%5d] %s\n"%(time.time(),os.getpid(),message))
+    sys.stderr.write("# %s [%5d] %s\n"%(
+                        time.strftime("%Y/%m/%d-%H:%M:%S",time.gmtime(time.time())),
+                                      os.getpid(),message))
 
 def new_dirq(_schema):
     """Create a new Directory::Queue object, optionally with schema.
