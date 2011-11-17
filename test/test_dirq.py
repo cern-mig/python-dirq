@@ -301,6 +301,8 @@ def main_simple(simple=False):
         maxelts = 0
         simple = False
         granularity = None
+        maxtemp = None
+        maxlock = None
     opts = options()
     opts.simple = simple
     try:
