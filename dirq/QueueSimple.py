@@ -141,8 +141,7 @@ class QueueSimple(QueueBase):
     def unlock(self, name, permissive=False):
         """
         """
-        path = '%s/%s' % (self.path, name)
-        lock = '%s%s' % (path, LOCKED_SUFFIX)
+        lock = '%s/%s%s' % (self.path, name, LOCKED_SUFFIX)
         try:
             os.unlink(lock)
         except OSError, ex:
