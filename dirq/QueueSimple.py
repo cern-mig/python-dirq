@@ -99,6 +99,7 @@ class QueueSimple(QueueBase):
         return self._add_path(path, _dir)
 
     add_ref = add
+    "Defined to comply with Directory::Queue interface."
 
     def add_path(self, path):
         """Add the given file (identified by its path) to the queue and return
