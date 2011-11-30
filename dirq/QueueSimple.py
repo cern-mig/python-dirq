@@ -147,10 +147,10 @@ class QueueSimple(QueueBase):
             os.unlink(lock)
         except OSError, ex:
             if permissive and ex.errno == errno.ENOENT:
-                return 0
+                return False
             raise ex
         else:
-            return 1
+            return True
 
     def remove(self, name):
         """Remove a locked element from the queue.
