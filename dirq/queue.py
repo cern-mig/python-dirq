@@ -328,7 +328,7 @@ def _older(path, time):
     try:
         stat = os.lstat(path)
     except StandardError, e:
-        if not e.errno == errno.ENOENT:
+        if e.errno != errno.ENOENT:
             raise OSError("cannot lstat(%s): %s"%(path, str(e)))
             # RACE: this path does not exist (anymore)
         return False
@@ -350,7 +350,7 @@ def __subdirs_num_nlink(path):
     try:
         stat = os.lstat(path)
     except StandardError, e:
-        if not e.errno == errno.ENOENT:
+        if e.errno != errno.ENOENT:
             raise OSError("cannot lstat(%s): %s"%(path, str(e)))
             # RACE: this path does not exist (anymore)
         return 0
@@ -643,7 +643,7 @@ class Queue(QueueBase):
                 os.rename(path, temp)
                 break
             except StandardError, e:
-                if e.errno != errno.ENOTEMPTY or e.errno != errno.EEXIST:
+                if e.errno != errno.ENOTEMPTY and e.errno != errno.EEXIST:
                     raise OSError("cannot rename(%s, %s): %s"%(ename, temp,
                                                                str(e)))
                     # RACE: the target directory was already present...
