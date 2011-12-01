@@ -2,7 +2,8 @@ ifndef PYTHON
 	PYTHON=python
 endif
 
-TESTDIR=/tmp/dirq-test.$$$$
+TESTDIR := $(shell [ "$(shell uname)" = "Darwin" ] && \
+							mktemp -d -t dirq-test || mktemp -d -t dirq-test.XXXXXX)
 
 QueueBase: testDirQueueBase.py
 	@echo "=== $? ==="
@@ -24,6 +25,7 @@ QueueSimple: testDirQueueSimple.py
 
 QueueFunc: test_dirq.py
 	@echo "=== $? Queue ==="
+	@rm -rf $(TESTDIR)
 	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
 	$(PYTHON) $? -d -c 10 -p $(TESTDIR) simple
 
@@ -45,4 +47,3 @@ clean:
 	@echo "=== cleanup ==="
 	rm -rf $(TESTDIR)
 	rm -f *.pyc
-
