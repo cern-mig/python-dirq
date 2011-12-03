@@ -40,10 +40,12 @@ class TestQueueBaseModuleFunctions(TestDirQueueBase):
 
     def test1_special_mkdir(self):
         'QueueBase._special_mkdir()'
-        assert QueueBase._special_mkdir(self.path) == 1
-        assert QueueBase._special_mkdir(self.path) == 0
-        shutil.rmtree(self.path, ignore_errors=True)
-        self.failUnlessRaises(OSError, QueueBase._special_mkdir, (self.path+'/a'))
+        assert QueueBase._special_mkdir(self.path) == True
+        assert QueueBase._special_mkdir(self.path) == False
+        # test against a file
+        test_file = os.path.join(self.path, 'foo')
+        open(test_file, 'w').write('bar')
+        self.failUnlessRaises(OSError, QueueBase._special_mkdir, (test_file))
     def test2_name(self):
         'QueueBase._name()'
         n = QueueBase._name()

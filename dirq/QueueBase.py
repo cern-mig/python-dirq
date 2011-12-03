@@ -57,7 +57,7 @@ def _directory_contents(path, missingok=True):
         return []
 
 def _special_mkdir(path, umask=None):
-    """Create a directory:
+    """Recursively create directories specified in path:
      - return true on success
      - return false if something with the same path already exists
      - die in case of any other error
@@ -65,22 +65,22 @@ def _special_mkdir(path, umask=None):
     Raise:
     OSError - can't make directory
     note:
-     - in case something with the same path already exists, we do not check
+     - in case something with the same name already exists, we do not check
        that this is indeed a directory as this should always be the case here
     """
     try:
-        if umask != None:
+        if umask == None:
+            os.makedirs(path)
+        else:
             oldumask = os.umask(umask)
-            os.mkdir(path)
+            os.makedirs(path)
             os.umask(oldumask)
-        else:
-            os.mkdir(path)
-    #except (OSError, IOError), e:
-    except EnvironmentError, e:
-        if e.errno == errno.EEXIST or e.errno == errno.EISDIR:
+    except OSError, e:
+        if e.errno == errno.EEXIST and not os.path.isfile(path):
             return False
-        else:
-            raise OSError("cannot mkdir(%s): %s"%(path, str(e)))
+        elif e.errno == errno.EISDIR:
+            return False
+        raise OSError("cannot mkdir(%s): %s"%(path, str(e)))
     else:
         return True
 
@@ -186,10 +186,7 @@ class QueueBase(object):
         self.umask = umask
 
         # create top level directory
-        path = ''
-        for d in self.path.split('/'):
-            path = '%s/%s' % (path, d)
-            _special_mkdir(path, self.umask)
+        _special_mkdir(path, self.umask)
 
         # store the queue unique identifier
         if sys.platform in ['win32']:
