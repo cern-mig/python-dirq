@@ -116,12 +116,21 @@ class QueueSimple(QueueBase):
         return _file_read('%s/%s%s' % (self.path, name, LOCKED_SUFFIX), False)
 
     get_ref = get
-    "Defined to comply with Directory::Queue interface."
+    "Get locked element. Defined to comply with Directory::Queue interface."
 
     def get_path(self, name):
         return '%s/%s%s' % (self.path, name, LOCKED_SUFFIX) 
 
     def lock(self, name, permissive=True):
+        """Lock an element.
+        Arguments:
+            name - name of an element
+            permissive - work in permissive mode
+        Return:
+         - true on success
+         - false in case the element could not be locked (in permissive
+           mode)
+        """
         path = '%s/%s' % (self.path, name)
         lock = '%s%s' % (path, LOCKED_SUFFIX)
         try:
@@ -139,7 +148,14 @@ class QueueSimple(QueueBase):
             return True
 
     def unlock(self, name, permissive=False):
-        """
+        """Unlock an element.
+        Arguments:
+            name - name of an element
+            permissive - work in permissive mode
+        Return:
+         - true on success
+         - false in case the element could not be unlocked (in permissive
+         mode)
         """
         lock = '%s/%s%s' % (self.path, name, LOCKED_SUFFIX)
         try:
