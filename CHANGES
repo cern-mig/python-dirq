@@ -1,3 +1,6 @@
+* Sun Dec 04 2011 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.0.0
+- After more testing and followed fixes promoted to version 1.0.0
+
 * Thu Nov 03 2011 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 0.1.0
 - Updated the interface and overall implementation to comply with the changes
   in original Perl Directory::Queue implementation as of version 1.2
