@@ -1,3 +1,110 @@
+"""
+QueueSimple - object oriented interface to a simple directory 
+              based queue.
+
+A port of Perl module Directory::Queue::Simple
+http://search.cpan.org/dist/Directory-Queue/
+The documentation from Directory::Queue::Simple module was 
+adapted for Python.
+
+=========================
+=== QueueSimple class ===
+
+QueueSimple - simple directory based queue.
+
+USAGE
+
+    from dirq.QueueSimple import QueueSimple
+
+    # sample producer
+
+    dirq = QueueSimple('/tmp/test')
+    for count in range(1,101):
+        name = dirq.add("element %i\n" % count)
+        print "# added element %i as %s" %(count, name)
+
+    # sample consumer
+
+    dirq = QueueSimple('/tmp/test')
+    for name in dirq:
+        if not dirq.lock(name):
+            continue
+        print "# reading element %s" % name
+        data = dirq.get(name)
+        # one could use dirq.unlock(name) to only browse the queue...
+        dirq.remove(name)
+
+DESCRIPTION
+
+    This module is very similar to dirq.queue, but uses a
+    different way to store data in the filesystem, using less
+    directories. Its API is almost identical.
+
+    Compared to dirq.queue, this module:
+
+    * is simpler
+
+    * is faster
+
+    * uses less space on disk
+
+    * can be given existing files to store
+
+    * does not support schemas
+
+    * can only store and retrieve byte strings
+
+    * is not compatible (at filesystem level) with Queue
+
+    Please refer to dirq.queue for general information about
+    directory queues.
+    
+DIRECTORY STRUCTURE
+
+    The toplevel directory contains intermediate directories that contain
+    the stored elements, each of them in a file.
+
+    The names of the intermediate directories are time based: the element
+    insertion time is used to create a 8-digits long hexadecimal number.
+    The granularity (see the constructor) is used to limit the number of
+    new directories. For instance, with a granularity of 60 (the default),
+    new directories will be created at most once per minute.
+
+    Since there is usually a filesystem limit in the number of directories
+    a directory can hold, there is a trade-off to be made. If you want to
+    support many added elements per second, you should use a low
+    granularity to keep small directories. However, in this case, you will
+    create many directories and this will limit the total number of
+    elements you can store.
+
+    The elements themselves are stored in files (one per element) with a
+    14-digits long hexadecimal name SSSSSSSSMMMMMR where:
+
+    * SSSSSSSS represents the number of seconds since the Epoch
+
+    * MMMMM represents the microsecond part of the time since the Epoch
+
+    * R is a random digit used to reduce name collisions
+
+
+    A temporary element (being added to the queue) will have a .tmp
+    suffix.
+
+    A locked element will have a hard link with the same name and the
+    .lck suffix.
+
+----------------------------
+
+AUTHOR
+
+Konstantin Skaburskas
+
+LICENSE AND COPYRIGHT
+
+ASL 2.0
+
+Copyright (C) 2010-2011
+"""
 
 import errno
 import re

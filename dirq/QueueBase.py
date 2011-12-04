@@ -1,4 +1,21 @@
+"""
+Base class and common code for the 'dirq' package
 
+It is used internally by the 'dirq' modules and should not
+be used elsewhere.
+
+----------------------------
+
+AUTHOR
+
+Konstantin Skaburskas
+
+LICENSE AND COPYRIGHT
+
+ASL 2.0
+
+Copyright (C) 2010-2011
+"""
 import re
 import codecs
 import errno

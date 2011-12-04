@@ -16,9 +16,10 @@ with the same queue.
 PROVIDES
 
 Classes:
-- Queue      directory based queue
-- QueueSet   set of directory based queues
-- QueueError exception
+- Queue       directory based queue
+- QueueSimple simple directory based queue 
+- QueueSet    set of directory based queues
+- QueueError  exception
 
 DOCUMENTATION
 
