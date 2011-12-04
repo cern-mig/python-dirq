@@ -1,6 +1,6 @@
 
 NAME = 'dirq'
-VERSION = '0.1.0'
+VERSION = '1.0.0'
 DESCRIPTION = "Directory based queue"
 LONG_DESCRIPTION = """
 A port of Perl module Directory::Queue
@@ -21,7 +21,7 @@ URL = "http://code.google.com/p/dirq/"
 DOWNLOAD_URL = "http://dirq.googlecode.com/files/dirq-%s.tar.gz" % VERSION
 # Cheese shop (PyPI)
 CLASSIFIERS = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: Unix",

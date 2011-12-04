@@ -20,7 +20,7 @@ ProgramName = sys.argv[0]
 
 def init():
     global opts, TEST
-    parser = OptionParser(usage="%prog [OPTIONS] [--] TEST", version="%prog 0.1")
+    parser = OptionParser(usage="%prog [OPTIONS] [--] TEST", version="%prog 1.0")
     parser.add_option('-l', '--list', dest='list', action="store_true",
                        default=False, help="list available tests")
     parser.add_option('-d', '--debug', dest='debug', action="store_true",

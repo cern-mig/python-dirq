@@ -15,7 +15,7 @@ TEST = ''
 def init():
     ''
     global OS, TEST
-    parser = OptionParser(usage="%prog [OPTIONS] [--] TEST", version="%prog 0.1")
+    parser = OptionParser(usage="%prog [OPTIONS] [--] TEST", version="%prog 1.0")
     parser.add_option('-d', '--debug', dest='debug', action="store_true",
                        default=False, help="show debugging information")
     parser.add_option('-p', '--path', dest='path', type='string', default='',
