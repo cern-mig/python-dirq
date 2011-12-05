@@ -1,3 +1,19 @@
+"""Interface to elements on a set of directory based queues.
+
+AUTHOR
+
+Konstantin Skaburskas <konstantin.skaburskas@gmail.com>
+
+LICENSE AND COPYRIGHT
+
+ASL 2.0
+
+Copyright (C) 2010-2011
+"""
+import dirq
+__version__ = dirq.VERSION
+__author__ = dirq.AUTHOR
+__date__ = dirq.DATE
 
 from dirq.QueueBase import QueueBase
 from Exceptions import QueueError

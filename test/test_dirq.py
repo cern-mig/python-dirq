@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+"""Test program for testing dirq.queue and dirq.QueueSimple modules.
+"""
+
 import os
 import re
 import sys
@@ -10,6 +13,7 @@ import shutil
 from optparse import OptionParser
 
 sys.path.insert(1, re.sub('/\w*$','',os.getcwd()))
+import dirq
 from dirq import queue
 from dirq.QueueSimple import QueueSimple
 
@@ -20,7 +24,8 @@ ProgramName = sys.argv[0]
 
 def init():
     global opts, TEST
-    parser = OptionParser(usage="%prog [OPTIONS] [--] TEST", version="%prog 1.0")
+    parser = OptionParser(usage="%prog [OPTIONS] [--] TEST", 
+                          version="%prog "+"%s" % dirq.VERSION)
     parser.add_option('-l', '--list', dest='list', action="store_true",
                        default=False, help="list available tests")
     parser.add_option('-d', '--debug', dest='debug', action="store_true",

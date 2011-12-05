@@ -1,10 +1,12 @@
 
+import dirq
+
 NAME = 'dirq'
-VERSION = '1.0.0'
+VERSION = dirq.VERSION
 DESCRIPTION = "Directory based queue"
 LONG_DESCRIPTION = """
 A port of Perl module Directory::Queue
-http://search.cpan.org/dist/Directory-Queue/
+http://search.cpan.org/~lcons/Directory-Queue-1.3/
 
 The goal of this module is to offer a simple queue system using the
 underlying filesystem for storage, security and to prevent race

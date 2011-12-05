@@ -1,8 +1,7 @@
-"""
-Directory based queue.
+"""Directory based queue.
 
 A port of Perl module Directory::Queue
-http://search.cpan.org/dist/Directory-Queue/
+http://search.cpan.org/~lcons/Directory-Queue-1.3/
 The documentation from Directory::Queue module was adapted for Python.
 
 The goal of this module is to offer a simple queue system using the
@@ -141,10 +140,11 @@ SCHEMA
     mark to the type, this piece of data will be marked as optional. See
     the comments in the "USAGE" section for more information.
 
-    To comply with Directory::Queue implementation it is allowed to append '*'
-    (asterisk) to data type specification, which in Directory::Queue means
-    switching to working with element references in add() and get() operations.
-    This is irrelevant for the Python implementation.
+    To comply with Directory::Queue implementation it is allowed to 
+    append '*' (asterisk) to data type specification, which in 
+    Directory::Queue means switching to working with element references in 
+    add() and get() operations. This is irrelevant for the Python 
+    implementation.
 
 DIRECTORY STRUCTURE
     All the directories holding the elements and all the files holding the
@@ -226,7 +226,7 @@ CONSTRUCTOR
 
 AUTHOR
 
-Konstantin Skaburskas
+Konstantin Skaburskas <konstantin.skaburskas@gmail.com>
 
 LICENSE AND COPYRIGHT
 
@@ -234,6 +234,10 @@ ASL 2.0
 
 Copyright (C) 2010-2011 CERN
 """
+import dirq
+__author__ = dirq.AUTHOR
+__version__ = dirq.VERSION
+__date__ = dirq.DATE
 
 import os
 import sys
@@ -863,8 +867,8 @@ class Queue(QueueBase):
         Arguments:
             maxtemp - maximum time for a temporary element. If 0, temporary
                       elements will not be removed.
-            maxlock - maximum time for a locked element. If 0, locked elements
-                      will not be unlocked.
+            maxlock - maximum time for a locked element. If 0, locked 
+                      elements will not be unlocked.
         Raise:
             OSError - problem deleting element from disk
         note:

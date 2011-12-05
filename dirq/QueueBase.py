@@ -1,14 +1,11 @@
-"""
-Base class and common code for the 'dirq' package
+"""Base class and common code for 'dirq' package.
 
-It is used internally by the 'dirq' modules and should not
+It is used internally by 'dirq' modules and should not 
 be used elsewhere.
-
-----------------------------
 
 AUTHOR
 
-Konstantin Skaburskas
+Konstantin Skaburskas <konstantin.skaburskas@gmail.com>
 
 LICENSE AND COPYRIGHT
 
@@ -16,6 +13,11 @@ ASL 2.0
 
 Copyright (C) 2010-2011
 """
+import dirq
+__author__ = dirq.AUTHOR
+__version__ = dirq.VERSION
+__date__ = dirq.DATE
+
 import re
 import codecs
 import errno
@@ -286,7 +288,8 @@ class QueueBase(object):
     def touch(self, ename):
         """Touch an element directory to indicate that it is still being used.
         note:
-         - this is only really useful for locked elements but we allow it for all
+         - this is only really useful for locked elements but we allow it 
+           for all
 
         Raises:
          EnvironmentError - on any IOError, OSError in utime()

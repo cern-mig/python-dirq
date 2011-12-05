@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+
+"""Test program for testing dirq.QueueSet module.
+"""
 
 import os
 import re
@@ -7,6 +11,7 @@ import shutil
 from optparse import OptionParser
 
 sys.path.insert(1, re.sub('/\w*$','',os.getcwd()))
+import dirq
 from dirq import queue
 
 OS = ''
@@ -15,7 +20,8 @@ TEST = ''
 def init():
     ''
     global OS, TEST
-    parser = OptionParser(usage="%prog [OPTIONS] [--] TEST", version="%prog 1.0")
+    parser = OptionParser(usage="%prog [OPTIONS] [--] TEST",
+                          version=("%prog "+"%s" % dirq.VERSION))
     parser.add_option('-d', '--debug', dest='debug', action="store_true",
                        default=False, help="show debugging information")
     parser.add_option('-p', '--path', dest='path', type='string', default='',
