@@ -1,0 +1,3 @@
+include CHANGES
+include PKG-INFO
+recursive-include examples *.py
