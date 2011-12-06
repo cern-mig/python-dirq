@@ -27,6 +27,7 @@ CLASSIFIERS = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: Unix",
+    "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python",
     "Programming Language :: Python :: 2.4",
     "Programming Language :: Python :: 2.5",
