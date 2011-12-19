@@ -1,13 +1,15 @@
-"""Base class and common code for 'dirq' package.
+"""Base class and common code for :py:mod:`dirq` package.
 
-It is used internally by 'dirq' modules and should not 
+It is used internally by :py:mod:`dirq` modules and should not 
 be used elsewhere.
 
-AUTHOR
+Author
+------
 
-Konstantin Skaburskas <konstantin.skaburskas@gmail.com>
+Konstantin Skaburskas \<konstantin.skaburskas@gmail.com\>
 
-LICENSE AND COPYRIGHT
+License and Copyright
+---------------------
 
 ASL 2.0
 
@@ -43,29 +45,32 @@ def _warn(text):
                                         inspect.currentframe().f_back.f_lineno))
 
 def _name():
-    """Return the name of a new element to (try to) use with:
-     - 8 hexadecimal digits for the number of seconds since the Epoch
-     - 5 hexadecimal digits for the microseconds part
-     - 1 hexadecimal digit from the pid to further reduce name collisions
+    """
+    Return the name of a new element to (try to) use with:
+    * 8 hexadecimal digits for the number of seconds since the Epoch
+    * 5 hexadecimal digits for the microseconds part
+    * 1 hexadecimal digit from the pid to further reduce name collisions
 
-    properties:
-     - fixed size (14 hexadecimal digits)
-     - likely to be unique (with high-probability)
-     - can be lexically sorted
-     - ever increasing (for a given process)
-     - reasonably compact
-     - matching $_ElementRegexp
+    Properties:
+    * fixed size (14 hexadecimal digits)
+    * likely to be unique (with high-probability)
+    * can be lexically sorted
+    * ever increasing (for a given process)
+    * reasonably compact
+    * matching $_ElementRegexp
     """
     t = time.time()
     return "%08x%05x%s" % (t, (t % 1.0)*100000, UPID)
 
 def _directory_contents(path, missingok=True):
     """Get the contents of a directory as a list of names, without . and ..
+    
     Raise:
-    OSError - can't list directory
-    note:
-     - if the optional second argument is true, it is not an error if the
-       directory does not exist (anymore)
+        OSError - can't list directory
+        
+    Note:
+    * if the optional second argument is true, it is not an error if the
+      directory does not exist (anymore)
     """
     try:
         return os.listdir(path)
@@ -76,16 +81,18 @@ def _directory_contents(path, missingok=True):
         return []
 
 def _special_mkdir(path, umask=None):
-    """Recursively create directories specified in path:
-     - return true on success
-     - return false if something with the same path already exists
-     - die in case of any other error
+    """
+    Recursively create directories specified in path:
+    * return true on success
+    * return false if something with the same path already exists
+    * die in case of any other error
 
     Raise:
-    OSError - can't make directory
-    note:
-     - in case something with the same name already exists, we do not check
-       that this is indeed a directory as this should always be the case here
+        OSError - can't make directory
+    
+    Note:
+    * in case something with the same name already exists, we do not check
+      that this is indeed a directory as this should always be the case here
     """
     try:
         if umask == None:
@@ -104,12 +111,14 @@ def _special_mkdir(path, umask=None):
         return True
 
 def _special_rmdir(path):
-    """Delete a directory:
-     - return true on success
-     - return false if the path does not exist (anymore)
-     - die in case of any other error
-     Raise:
-     OSError - can't delete given directory
+    """
+    Delete a directory:
+    * return true on success
+    * return false if the path does not exist (anymore)
+    * die in case of any other error
+     
+    Raise:
+        OSError - can't delete given directory
     """
     try:
         os.rmdir(path)
@@ -123,9 +132,10 @@ def _special_rmdir(path):
 
 def _file_read(path, utf8):
     """Read from a file.
+    
     Raise:
-    OSError - problems opening/closing file
-    IOError - file read error
+        OSError - problems opening/closing file
+        IOError - file read error
     """
     try:
         if utf8:
@@ -146,8 +156,9 @@ def _file_read(path, utf8):
 
 def _file_create(path, umask=None, utf8=False):
     """Open a file defined by 'path' and return file handler.
+    
     Raises:
-    OSError - if file exists
+        OSError - if file exists
     """
     if umask:
         oldumask = os.umask(umask)
@@ -166,9 +177,10 @@ def _file_create(path, umask=None, utf8=False):
 
 def _file_write(path, utf8, umask, data):
     """Write to a file.
+    
     Raise:
-    OSError - problems opening/closing file
-    IOError - file write error
+        OSError - problems opening/closing file
+        IOError - file write error
     """
     fh = _file_create(path, umask=umask, utf8=utf8)
     try:
@@ -181,6 +193,8 @@ def _file_write(path, utf8, umask, data):
         raise OSError("cannot close %s: %s"%(path, str(e)))
 
 class QueueBase(object):
+    """QueueBase
+    """
     def __init__(self, path, umask=None):
         """
         Arguments:
@@ -189,6 +203,7 @@ class QueueBase(object):
             umask
                 the umask to use when creating files and directories
                 (default: use the running process' umask)
+        
         Raise:
             TypeError  - wrong input data types provided
             OSError    - can't create directory structure
@@ -229,9 +244,10 @@ class QueueBase(object):
     def copy(self):
         """Copy/clone the object. Return copy of the object.
 
-        note:
-         - the main purpose is to copy/clone the iterator cached state
-         - the other structured attributes (including schema) are not cloned
+        Note:
+
+        * the main purpose is to copy/clone the iterator cached state
+        * the other structured attributes (including schema) are not cloned
         """
         import copy
         c = copy.deepcopy(self)
@@ -242,6 +258,7 @@ class QueueBase(object):
     def _reset(self):
         """Regenerate list of intermediate directories. Drop cached
         elements list.
+        
         Raise:
             OSError - can't list directories
         """
@@ -255,6 +272,7 @@ class QueueBase(object):
     def first(self):
         """Return the first element in the queue and cache information about
         the next ones.
+        
         Raise:
             OSError - can't list directories
         """
@@ -268,11 +286,14 @@ class QueueBase(object):
         """Return name of the next element in the queue, only using cached
         information. When queue is empty, depending on the iterator
         protocol - return empty string or raise StopIteration.
+        
         Return:
             name of the next element in the queue
+            
         Raise:
             StopIteration - when used as Python iterator via
                             __iter__() method
+                            
             OSError       - can't list element directories
         """
         if self.elts:
@@ -287,15 +308,16 @@ class QueueBase(object):
 
     def touch(self, ename):
         """Touch an element directory to indicate that it is still being used.
-        note:
-         - this is only really useful for locked elements but we allow it 
-           for all
+        
+        Note:
+            this is only really useful for locked elements but we allow it 
+            for all.
 
         Raises:
-         EnvironmentError - on any IOError, OSError in utime()
+           EnvironmentError - on any IOError, OSError in utime()
 
         TODO: this may not work on OSes with directories implemented not as
-              files (eg. Windows). See doc for os.utime().
+        files (eg. Windows). See doc for os.utime().
         """
         path = '%s/%s' % (self.path, ename)
         try:

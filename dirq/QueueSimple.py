@@ -1,18 +1,18 @@
 """
-QueueSimple - object oriented interface to a simple directory 
-              based queue.
+QueueSimple - object oriented interface to a simple directory based queue.
 
 A port of Perl module Directory::Queue::Simple
 http://search.cpan.org/~lcons/Directory-Queue-1.3/
 The documentation from Directory::Queue::Simple module was 
 adapted for Python.
 
-=========================
-=== QueueSimple class ===
+=================
+QueueSimple class
+=================
 
-QueueSimple - simple directory based queue.
+:py:class:`QueueSimple` - simple directory based queue.
 
-USAGE
+Usage::
 
     from dirq.QueueSimple import QueueSimple
 
@@ -20,7 +20,7 @@ USAGE
 
     dirq = QueueSimple('/tmp/test')
     for count in range(1,101):
-        name = dirq.add("element %i\n" % count)
+        name = dirq.add("element %i\\n" % count)
         print "# added element %i as %s" %(count, name)
 
     # sample consumer
@@ -34,32 +34,29 @@ USAGE
         # one could use dirq.unlock(name) to only browse the queue...
         dirq.remove(name)
 
-DESCRIPTION
+
+Description
+-----------
 
     This module is very similar to dirq.queue, but uses a
     different way to store data in the filesystem, using less
     directories. Its API is almost identical.
 
-    Compared to dirq.queue, this module:
+    Compared to :py:mod:`dirq.queue`, this module:
 
     * is simpler
-
     * is faster
-
     * uses less space on disk
-
     * can be given existing files to store
-
     * does not support schemas
-
     * can only store and retrieve byte strings
-
     * is not compatible (at filesystem level) with Queue
 
-    Please refer to dirq.queue for general information about
+    Please refer to :py:mod:`dirq.queue` for general information about
     directory queues.
     
-DIRECTORY STRUCTURE
+Directory Structure
+-------------------
 
     The toplevel directory contains intermediate directories that contain
     the stored elements, each of them in a file.
@@ -87,19 +84,20 @@ DIRECTORY STRUCTURE
     * R is a random digit used to reduce name collisions
 
 
-    A temporary element (being added to the queue) will have a .tmp
+    A temporary element (being added to the queue) will have a *.tmp*
     suffix.
 
     A locked element will have a hard link with the same name and the
-    .lck suffix.
+    *.lck* suffix.
 
-----------------------------
 
-AUTHOR
+Author
+------
 
-Konstantin Skaburskas
+Konstantin Skaburskas \<konstantin.skaburskas@gmail.com\>
 
-LICENSE AND COPYRIGHT
+License and Copyright
+---------------------
 
 ASL 2.0
 
@@ -121,12 +119,15 @@ TEMPORARY_SUFFIX = ".tmp"
 LOCKED_SUFFIX = ".lck"
 
 class QueueSimple(QueueBase):
+    """
+    QueueSimple
+    """
     def __init__(self, path, umask=None, granularity=60):
         """
-        path - queue top level directory
-        umask - the umask to use when creating files and directories (default:
+        * path - queue top level directory
+        * umask - the umask to use when creating files and directories (default:
                 use the running process' umask)
-        granularity - the time granularity for intermediate directories
+        * granularity - the time granularity for intermediate directories
                       (default: 60)
         """
         super(QueueSimple, self).__init__(path, umask=umask)
@@ -147,6 +148,7 @@ class QueueSimple(QueueBase):
 
     def _add_data(self, data):
         """Write 'data' to a file.
+        
         Return: (tuple) directory name where the file was written, full path to
         the temporary file.
         """
@@ -169,6 +171,7 @@ class QueueSimple(QueueBase):
     def _add_path(self, tmp, _dir):
         """Given temporary file and directory where it resides: create a hard
         link to that file and remove initial one.
+        
         Return: element name (<directory name>/<file name>).
         """
         while 1:
@@ -200,6 +203,7 @@ class QueueSimple(QueueBase):
 
     def add(self, data):
         """Add data to the queue as a file.
+        
         Return: element name (<directory name>/<file name>).
         """
         _dir, path = self._add_data(data)
@@ -230,13 +234,16 @@ class QueueSimple(QueueBase):
 
     def lock(self, name, permissive=True):
         """Lock an element.
+        
         Arguments:
             name - name of an element
             permissive - work in permissive mode
+            
         Return:
-         - true on success
-         - false in case the element could not be locked (in permissive
-           mode)
+        
+        * true on success
+        * false in case the element could not be locked (in permissive
+          mode)
         """
         path = '%s/%s' % (self.path, name)
         lock = '%s%s' % (path, LOCKED_SUFFIX)
@@ -256,13 +263,16 @@ class QueueSimple(QueueBase):
 
     def unlock(self, name, permissive=False):
         """Unlock an element.
+        
         Arguments:
             name - name of an element
             permissive - work in permissive mode
+            
         Return:
-         - true on success
-         - false in case the element could not be unlocked (in permissive
-         mode)
+        
+        * true on success
+        * false in case the element could not be unlocked (in permissive
+          mode)
         """
         lock = '%s/%s%s' % (self.path, name, LOCKED_SUFFIX)
         try:

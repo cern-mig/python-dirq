@@ -12,13 +12,15 @@ and scalability.
 This module allows multiple concurrent readers and writers to interact
 with the same queue.
 
-For usage and implementation details see 'dirq.queue' module.
+For usage and implementation details see :py:mod:`dirq.queue` module.
 
-AUTHOR
+Author
+------
 
 Konstantin Skaburskas <konstantin.skaburskas@gmail.com>
 
-LICENSE AND COPYRIGHT
+License and Copyright
+---------------------
 
 ASL 2.0
 
