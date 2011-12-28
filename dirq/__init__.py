@@ -31,3 +31,6 @@ DATE = "04 December 2011"
 __author__ = AUTHOR
 __version__ = VERSION
 __date__ = DATE
+
+from .queue import Queue
+ 
