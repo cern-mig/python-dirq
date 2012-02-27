@@ -2,6 +2,7 @@
 import testDirQueueBase
 import testDirQueue
 import testDirQueueSimple
+import testDirQueueNull
 import testDirQueueSet
 import test_dirq
 import test_dirqset
@@ -13,6 +14,7 @@ def main():
     testDirQueueBase.main()
     testDirQueue.main()
     testDirQueueSimple.main()
+    testDirQueueNull.main()
     testDirQueueSet.main()
     print '='*25
     print 'Running functional tests.'

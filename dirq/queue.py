@@ -1,7 +1,7 @@
 """Directory based queue.
 
 A port of Perl module Directory::Queue
-http://search.cpan.org/~lcons/Directory-Queue-1.3/
+http://search.cpan.org/~lcons/Directory-Queue/
 The documentation from Directory::Queue module was adapted for Python.
 
 The goal of this module is to offer a simple queue system using the
@@ -255,7 +255,7 @@ License and Copyright
 
 ASL 2.0
 
-Copyright (C) 2010-2011 CERN
+Copyright (C) 2010-2012 CERN
 """
 import dirq
 __author__ = dirq.AUTHOR

@@ -2,7 +2,7 @@
 QueueSimple - object oriented interface to a simple directory based queue.
 
 A port of Perl module Directory::Queue::Simple
-http://search.cpan.org/~lcons/Directory-Queue-1.3/
+http://search.cpan.org/~lcons/Directory-Queue/
 The documentation from Directory::Queue::Simple module was 
 adapted for Python.
 
@@ -101,7 +101,7 @@ License and Copyright
 
 ASL 2.0
 
-Copyright (C) 2010-2011
+Copyright (C) 2010-2012
 """
 
 import errno
