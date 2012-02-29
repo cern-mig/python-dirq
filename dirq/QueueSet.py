@@ -1,14 +1,16 @@
 """Interface to elements on a set of directory based queues.
 
-AUTHOR
+Author
+------
 
 Konstantin Skaburskas <konstantin.skaburskas@gmail.com>
 
-LICENSE AND COPYRIGHT
+License and Copyright
+---------------------
 
 ASL 2.0
 
-Copyright (C) 2010-2011
+Copyright (C) 2010-2012
 """
 import dirq
 __version__ = dirq.VERSION
@@ -24,8 +26,10 @@ class QueueSet(object):
     def __init__(self, *queues):
         """Generate queue set on the given lists of queues. Copies of the
         object instances are used.
+        
         Arguments:
             *queues - QueueSet([q1,..]/(q1,..)) or QueueSet(q1,..)
+            
         Raise:
             QueueError - queues should be list/tuple or Queue object
             TypeError  - one of objects provided is not instance of Queue
@@ -51,6 +55,7 @@ class QueueSet(object):
     def _reset(self):
         """Regenerate lists of intermediate directories and drop cached
         elements lists.
+        
         Raise:
             OSError - can't list directories
         """
@@ -61,6 +66,7 @@ class QueueSet(object):
     def first(self):
         """Return the first element in the queue set and cache information
         about the next ones.
+        
         Raise:
             OSError - can't list directories
         """
@@ -70,9 +76,11 @@ class QueueSet(object):
     def next(self):
         """Return (queue, next element) tuple from the queue set, only using
         cached information.
+        
         Raise:
             StopIteration - when used as Python iterator via
                             __iter__() method
+                            
             OSError       - can't list element directories
         """
         if not self.elts:
@@ -106,8 +114,10 @@ class QueueSet(object):
     def _add(self, *queues):
         """Add lists of queues to existing ones. Copies of the object
         instances are used.
+        
         Arguments:
             *queues - add([q1,..]/(q1,..)) or add(q1,..)
+            
         Raise:
             QueueError - queue already in the set
             TypeError  - wrong queue object type provided
@@ -134,8 +144,10 @@ class QueueSet(object):
     def add(self, *queues):
         """Add lists of queues to existing ones. Copies of the object
         instances are used.
+        
         Arguments:
-            *queues - add([q1,..]/(q1,..)) or add(q1,..)
+            \*queues - add([q1,..]/(q1,..)) or add(q1,..)
+            
         Raise:
             QueueError - queue already in the set
             TypeError  - wrong queue object type provided
@@ -145,8 +157,10 @@ class QueueSet(object):
 
     def remove(self, queue):
         """Remove a queue and its respective elements from in memory cache.
+        
         Arguments:
             queue - queue to be removed
+            
         Raise:
             TypeError - wrong queue object type provided
         """

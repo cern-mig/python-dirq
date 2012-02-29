@@ -1,7 +1,7 @@
 Directory based queue.
 
 A port of Perl module Directory::Queue
-http://search.cpan.org/~lcons/Directory-Queue-1.3/
+http://search.cpan.org/~lcons/Directory-Queue/
 
 The goal of this module is to offer a simple queue system using the
 underlying filesystem for storage, security and to prevent race
@@ -28,4 +28,4 @@ LICENSE AND COPYRIGHT
 
 Apache License, Version 2.0
 
-Copyright (C) 2010-2011 CERN
+Copyright (C) 2010-2012 CERN

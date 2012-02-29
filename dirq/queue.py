@@ -1,7 +1,7 @@
 """Directory based queue.
 
 A port of Perl module Directory::Queue
-http://search.cpan.org/~lcons/Directory-Queue-1.3/
+http://search.cpan.org/~lcons/Directory-Queue/
 The documentation from Directory::Queue module was adapted for Python.
 
 The goal of this module is to offer a simple queue system using the
@@ -12,22 +12,27 @@ and scalability.
 This module allows multiple concurrent readers and writers to interact
 with the same queue.
 
-PROVIDES
+Provides
+========
 
 Classes:
-- Queue       directory based queue
-- QueueSimple simple directory based queue 
-- QueueSet    set of directory based queues
-- QueueError  exception
 
-DOCUMENTATION
+* :py:class:`dirq.queue.Queue`       directory based queue
+* :py:class:`dirq.QueueSimple.QueueSimple` simple directory based queue 
+* :py:class:`dirq.queue.QueueSet`    set of directory based queues
+* :py:class:`dirq.Exceptions.QueueError`  exception
 
-===================
-=== Queue class ===
+Documentation
+=============
 
-Queue - directory based queue.
+===========
+Queue class
+===========
 
-USAGE
+:py:class:`dirq.queue.Queue` - directory based queue.
+
+Usage::
+
     from dirq.queue import Queue
 
     # simple schema:
@@ -61,10 +66,12 @@ USAGE
         dirq.remove(name)
         name = dirq.next()
 
-TERMINOLOGY
+Terminology
+-----------
+
     An element is something that contains one or more pieces of data. A
     simple string may be an element but more complex schemas can also be
-    used, see the "SCHEMA" section for more information.
+    used, see the *Schema* section for more information.
 
     A queue is a "best effort FIFO" collection of elements.
 
@@ -84,7 +91,9 @@ TERMINOLOGY
     high-resolution time function and having elements sorted by the time
     the element's final directory gets created.
 
-LOCKING
+Locking
+-------
+
     Adding an element is not a problem because the add() method is atomic.
 
     In order to support multiple processes interacting with the same queue,
@@ -108,11 +117,14 @@ LOCKING
     ally useless since it may change at any time. Instead, programs should
     directly try to lock elements to make sure they are indeed locked.
 
-CONSTRUCTOR
+Constructor
+-----------
+
     For the signature of the Queue constructor see documentation to the
     respective __init__() method.
 
-SCHEMA
+Schema
+------
     The schema defines how user supplied data is stored in the queue. It is
     only required by the add() and get() methods.
 
@@ -138,7 +150,7 @@ SCHEMA
 
     By default, all pieces of data are mandatory. If you append a question
     mark to the type, this piece of data will be marked as optional. See
-    the comments in the "USAGE" section for more information.
+    the comments in the *Usage* section for more information.
 
     To comply with Directory::Queue implementation it is allowed to 
     append '*' (asterisk) to data type specification, which in 
@@ -146,7 +158,9 @@ SCHEMA
     add() and get() operations. This is irrelevant for the Python 
     implementation.
 
-DIRECTORY STRUCTURE
+Directory Structure
+-------------------
+
     All the directories holding the elements and all the files holding the
     data pieces are located under the queue toplevel directory. This direc-
     tory can contain:
@@ -178,7 +192,9 @@ DIRECTORY STRUCTURE
     stored into different files, named according to the schema. A locked
     element contains in addition a directory named "locked".
 
-SECURITY
+Security
+--------
+
     There are no specific security mechanisms in this module.
 
     The elements are stored as plain files and directories. The filesystem
@@ -194,12 +210,15 @@ SECURITY
     of the toplevel directory itself (e.g. group-writable) are enough to
     control who can access the queue.
 
-======================
-=== QueueSet class ===
 
-QueueSet - interface to a set of Queue objects
+==============
+QueueSet class
+==============
 
-USAGE
+:py:class:`dirq.queue.QueueSet` - interface to a set of Queue objects
+
+Usage::
+
     from dirq.queue import Queue, QueueSet
 
     dq1 = Queue("/tmp/q1")
@@ -213,26 +232,30 @@ USAGE
         # you can now process the element elt of queue dq...
         (dq, elt) = dqset.next()
 
-DESCRIPTION
+Description
+-----------
+
     This class can be used to put different queues into a set and browse
     them as one queue. The elements from all queues are merged together
     and sorted independently from the queue they belong to.
 
-CONSTRUCTOR
+Constructor
+-----------
+
     For the signature of the QueueSet constructor see documentation to the
-    respective __init__() method.
+    respective :py:meth:`dirq.queue.QueueSet.__init__` method.
 
-----------------------------
-
-AUTHOR
+Author
+------
 
 Konstantin Skaburskas <konstantin.skaburskas@gmail.com>
 
-LICENSE AND COPYRIGHT
+License and Copyright
+---------------------
 
 ASL 2.0
 
-Copyright (C) 2010-2011 CERN
+Copyright (C) 2010-2012 CERN
 """
 import dirq
 __author__ = dirq.AUTHOR
@@ -286,9 +309,10 @@ def _hash2string(hash):
     """Transform a hash of strings into a string.
 
     Raise:
-    QueueError - invalid type of a value in hash (allowed string or unicode)
-    note:
-     - the keys are sorted so that identical hashes yield to identical strings
+        QueueError - invalid type of a value in hash (allowed string or unicode)
+    
+    Note:
+        the keys are sorted so that identical hashes yield to identical strings
     """
     string = ''
     for key in sorted(hash.keys()):
@@ -302,10 +326,12 @@ def _hash2string(hash):
 
 def _string2hash(string):
     """Transform a string into a hash of strings.
+    
     Raise:
-    QueueError - unexpected hash line
-    note:
-     - duplicate keys are not checked (the last one wins)
+        QueueError - unexpected hash line
+    
+    Note:
+        duplicate keys are not checked (the last one wins)
     """
     _hash = {}
     for line in string.strip('\n').split('\x0a'):
@@ -321,14 +347,18 @@ def _string2hash(string):
     return _hash
 
 def _older(path, time):
-    """Check if a path is old enough:
-     - return true if the path exists and is (strictly) older than given time
-     - return false if it does not exist or it is newer
-     - die in case of any other error
+    """
+    Check if a path is old enough:
+    
+    * return true if the path exists and is (strictly) older than given time
+    * return false if it does not exist or it is newer
+    * die in case of any other error
+     
     Raise:
-    OSError - can't stat given path
-    note:
-     - lstat() is used so symlinks are not followed
+        OSError - can't stat given path
+    
+    Note:
+        lstat() is used so symlinks are not followed
     """
     try:
         stat = os.lstat(path)
@@ -342,15 +372,18 @@ def _older(path, time):
 
 def __subdirs_num_nlink(path):
     """Count the number of sub-directories in the given directory:
-     - return 0 if the directory does not exist (anymore)
-     - die in case of any other error
+    
+    * return 0 if the directory does not exist (anymore)
+    * die in case of any other error
 
     Raise:
-    OSError - can't stat given path
-    note:
-     - lstat() is used so symlinks are not followed
-     - this only checks the number of links
-     - we do not even check that the path indeed points to a directory!
+        OSError - can't stat given path
+    
+    Note:
+    
+    * lstat() is used so symlinks are not followed
+    * this only checks the number of links
+    * we do not even check that the path indeed points to a directory!
     """
     try:
         stat = os.lstat(path)
@@ -378,8 +411,9 @@ else:
 
 def _check_element(name):
     """Check the given string to make sure it represents a valid element name.
+    
     Raise:
-    QueueError - given element is invalid
+        QueueError - given element is invalid
     """
     if not _DirElemRegexp.match(name):
         raise QueueError("invalid element name: %s"%name)
@@ -389,7 +423,7 @@ def _count(path):
     their state.
 
     Raise:
-    OSError - can't list/stat element directories
+        OSError - can't list/stat element directories
     """
     count = 0
     for name in [x for x in _directory_contents(path)]:
@@ -407,6 +441,7 @@ class Queue(QueueBase):
     """
     def __init__(self, path, umask=None, maxelts=16000, schema={}):
         """Check and set schema. Build the queue directory structure.
+        
         Arguments:
             path
                 the queue toplevel directory
@@ -456,9 +491,11 @@ class Queue(QueueBase):
 
     def _is_locked_nlink(self, ename, _time=None):
         """Check if an element is locked.
-        note:
-         - this is only an indication as the state may be changed by another
-           process
+        
+        Note:
+            this is only an indication as the state may be changed by another
+            process
+            
         Uses number of links (st_nlink) returned by os.lstat() applied to the
         element directory.
 
@@ -467,12 +504,13 @@ class Queue(QueueBase):
             _time - consider only locks older than the given time
 
         Return:
-         True  - if element exists and locked. If _time is provided, only
-                 return True on locks older than this time (needed by purge).
-         False - in other cases
+            True  - if element exists and locked. If _time is provided, only
+            return True on locks older than this time (needed by purge).
+            
+            False - in other cases
 
         Raises:
-         OSError - if unable to stat() the element
+            OSError - if unable to stat() the element
         """
         path = '%s/%s' % (self.path, ename)
         try:
@@ -513,6 +551,7 @@ class Queue(QueueBase):
 
     def _build_elements(self):
         """Build list of elements.
+        
         Raise:
             OSError - can't list element directories
         """
@@ -531,6 +570,7 @@ class Queue(QueueBase):
     def count(self):
         """Return the number of elements in the queue, regardless of
         their state.
+        
         Raise:
             OSError - can't list/stat element directories
         """
@@ -538,26 +578,33 @@ class Queue(QueueBase):
 
     def lock(self, ename, permissive=True):
         """Lock an element.
+        
         Arguments:
             ename - name of an element
             permissive - work in permissive mode
+            
         Return:
-         - true on success
-         - false in case the element could not be locked (in permissive
-           mode)
+        
+        * True on success
+        * False in case the element could not be locked (in permissive
+          mode)
+           
         Raise:
             QueueError - invalid element name
             OSError    - can't create lock (mkdir()/lstat() failed)
-        note:
-         - locking can fail:
-            - if the element has been locked by somebody else (EEXIST)
-            - if the element has been removed by somebody else (ENOENT)
-         - if the optional second argument is true, it is not an error if
-           the element cannot be locked (permissive mode), this is the
-           default
-         - the directory's mtime will change automatically (after a
-           successful mkdir()), this will later be used to detect stalled
-           locks
+        
+        Note:
+        
+        * locking can fail:
+        
+          * if the element has been locked by somebody else (EEXIST)
+          * if the element has been removed by somebody else (ENOENT)
+        * if the optional second argument is true, it is not an error if
+          the element cannot be locked (permissive mode), this is the
+          default
+        * the directory's mtime will change automatically (after a
+          successful mkdir()), this will later be used to detect stalled
+          locks
         """
         _check_element(ename)
         path = '%s/%s/%s' % (self.path, ename, LOCKED_DIRECTORY)
@@ -594,23 +641,30 @@ class Queue(QueueBase):
 
     def unlock(self, ename, permissive=False):
         """Unlock an element.
+        
         Arguments:
             ename - name of an element
             permissive - work in permissive mode
+            
         Return:
-         - true on success
-         - false in case the element could not be unlocked (in permissive
-         mode)
+        
+        * true on success
+        * false in case the element could not be unlocked (in permissive
+          mode)
+          
         Raise:
             QueueError - invalid element name
             OSError    - can't remove lock (rmdir() failed)
-        note:
-         - unlocking can fail:
-            - if the element has been unlocked by somebody else (ENOENT)
-            - if the element has been removed by somebody else (ENOENT)
-         - if the optional second argument is true, it is not an error if
-           the element cannot be unlocked (permissive mode), this is _not_
-           the default
+            
+        Note:
+        
+        * unlocking can fail:
+        
+            * if the element has been unlocked by somebody else (ENOENT)
+            * if the element has been removed by somebody else (ENOENT)
+        * if the optional second argument is true, it is not an error if
+          the element cannot be unlocked (permissive mode), this is _not_
+          the default
         """
         _check_element(ename)
         path = '%s/%s/%s' % (self.path, ename, LOCKED_DIRECTORY)
@@ -627,15 +681,19 @@ class Queue(QueueBase):
 
     def remove(self, ename):
         """Remove locked element from the queue.
+        
         Arguments:
             ename - name of an element
+            
         Raise:
             QueueError - invalid element name; element not locked;
                          unexpected file in the element directory
+                         
             OSError    - can't rename/remove a file/directory
-        note:
-         - doesn't return anything explicitly (i.e. returns NoneType)
-           or fails
+            
+        Note:
+            doesn't return anything explicitly (i.e. returns NoneType)
+            or fails
         """
         _check_element(ename)
         if not self._is_locked(ename):
@@ -683,10 +741,13 @@ class Queue(QueueBase):
     def dequeue(self, ename, permissive=True):
         """Dequeue an element from the queue. Removes element from the
         queue. Performs operations: lock(name), get(name), remove(name)
+        
         Arguments:
             ename - name of an element
+            
         Return:
             dictionary representing an element
+        
         Raise:
             QueueLockError - coulnd't lock element
             QueueError     - problems with schema/data types/etc.
@@ -700,14 +761,18 @@ class Queue(QueueBase):
 
     def get(self, ename):
         """Get an element data from a locked element.
+        
         Arguments:
             ename - name of an element
+            
         Return:
             dictionary representing an element
+            
         Raise:
             QueueError - schema is unknown; unexpected data type in
                          the schema specification; missing mandatory
                          file of the element
+                         
             OSError    - problems opening/closing file
             IOError    - file read error
         """
@@ -741,8 +806,10 @@ class Queue(QueueBase):
     def get_element(self, ename, permissive=True):
         """Get an element from the queue. Element will not be removed.
         Operations performed: lock(name), get(name), unlock(name)
+        
         Arguments:
             ename - name of an element
+            
         Raise:
             QueueLockError - couldn't lock element
         """
@@ -755,9 +822,11 @@ class Queue(QueueBase):
     def _insertion_directory(self):
         """Return the name of the intermediate directory that can be used for
         insertion:
-        - if there is none, an initial one will be created
-        - if it is full, a new one will be created
-        - in any case the name will match $_DirectoryRegexp
+        
+        * if there is none, an initial one will be created
+        * if it is full, a new one will be created
+        * in any case the name will match $_DirectoryRegexp
+        
         Raise:
             OSError - can't list/make element directories
         """
@@ -791,12 +860,17 @@ class Queue(QueueBase):
     def add(self, data):
         """Add a new element to the queue and return its name.
         Arguments:
+        
             data - element as a dictionary (should conform to the schema)
+            
         Raise:
+        
             QueueError - problem with schema definition or data
             OSError    - problem putting element on disk
-        note:
-        - the destination directory must _not_ be created beforehand as
+            
+        Note:
+        
+          the destination directory must _not_ be created beforehand as
           it would be seen as a valid (but empty) element directory by
           another process, we therefore use rename() from a temporary
           directory
@@ -861,9 +935,11 @@ class Queue(QueueBase):
 
     def purge(self, maxtemp=300, maxlock=600):
         """Purge the queue:
-         - delete unused intermediate directories
-         - delete too old temporary directories
-         - unlock too old locked directories
+        
+        * delete unused intermediate directories
+        * delete too old temporary directories
+        * unlock too old locked directories
+         
         Arguments:
             maxtemp - maximum time for a temporary element. If 0, temporary
                       elements will not be removed.
@@ -871,8 +947,9 @@ class Queue(QueueBase):
                       elements will not be unlocked.
         Raise:
             OSError - problem deleting element from disk
-        note:
-         - this uses first()/next() to iterate so this will reset the cursor
+            
+        Note:
+            this uses first()/next() to iterate so this will reset the cursor
         """
         # get the list of intermediate directories
         _list = []

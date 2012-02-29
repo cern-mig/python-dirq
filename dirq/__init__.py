@@ -1,7 +1,7 @@
 """Directory based queue.
 
 A port of Perl module Directory::Queue
-http://search.cpan.org/~lcons/Directory-Queue-1.3/
+http://search.cpan.org/~lcons/Directory-Queue/
 The documentation from Directory::Queue module was adapted for Python.
 
 The goal of this module is to offer a simple queue system using the
@@ -12,17 +12,19 @@ and scalability.
 This module allows multiple concurrent readers and writers to interact
 with the same queue.
 
-For usage and implementation details see 'dirq.queue' module.
+For usage and implementation details see :py:mod:`dirq.queue` module.
 
-AUTHOR
+Author
+------
 
 Konstantin Skaburskas <konstantin.skaburskas@gmail.com>
 
-LICENSE AND COPYRIGHT
+License and Copyright
+---------------------
 
 ASL 2.0
 
-Copyright (C) 2010-2011
+Copyright (C) 2010-2012
 """
 
 AUTHOR = "Konstantin Skaburskas <konstantin.skaburskas@gmail.com>"
