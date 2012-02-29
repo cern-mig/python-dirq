@@ -1,5 +1,6 @@
-* X X X 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - X.X.X
+* Thu Mar 01 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.1.0
 - [Massimo Paladin] added QueueNull which is kind of a black hole
+- Fixed a bug with providing umask to QueueBase constructor
 
 * Mon Dec 05 2011 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.0.1
 - Updated documentation and unified versioning.
