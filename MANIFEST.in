@@ -1,3 +1,4 @@
 include CHANGES
 include PKG-INFO
 recursive-include examples *.py
+recursive-include docs *
