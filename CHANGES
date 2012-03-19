@@ -1,3 +1,7 @@
+* Mon Mar 19 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.1.1
+- minor fix for failing build under Python 3
+- updated test of dirq.Queue.touch()
+
 * Thu Mar 01 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.1.0
 - [Massimo Paladin] added QueueNull which is kind of a black hole
 - Fixed a bug with providing umask to QueueBase constructor
