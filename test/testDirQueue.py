@@ -108,7 +108,7 @@ class TestQueue(TestDirQueue):
         os.utime(element_dir, (old_time, old_time))
         mtime = os.stat(element_dir).st_mtime
         q.touch(e)
-        assert os.stat(element_dir).st_mtime >= (mtime + 10)
+        assert int(os.stat(element_dir).st_mtime) >= int(mtime + 10)
 
 class TestQueueModuleFunctions(TestDirQueue):
     def test2_check_element(self):
