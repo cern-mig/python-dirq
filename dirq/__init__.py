@@ -34,5 +34,4 @@ __author__ = AUTHOR
 __version__ = VERSION
 __date__ = DATE
 
-from .queue import Queue
- 
+from dirq.queue import Queue
