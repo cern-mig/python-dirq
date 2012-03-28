@@ -28,8 +28,8 @@ Copyright (C) 2010-2012
 """
 
 AUTHOR = "Konstantin Skaburskas <konstantin.skaburskas@gmail.com>"
-VERSION = '1.1.1'
-DATE = "19 March 2012"
+VERSION = '1.1.2'
+DATE = "28 March 2012"
 __author__ = AUTHOR
 __version__ = VERSION
 __date__ = DATE
