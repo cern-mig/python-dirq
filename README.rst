@@ -1,7 +1,15 @@
+===========
+python-dirq
+===========
+
+Overview
+========
+
 Directory based queue.
 
 A port of Perl module Directory::Queue
-http://search.cpan.org/~lcons/Directory-Queue/
+
+    http://search.cpan.org/~lcons/Directory-Queue/
 
 The goal of this module is to offer a simple queue system using the
 underlying filesystem for storage, security and to prevent race
@@ -11,20 +19,32 @@ and scalability.
 This module allows multiple concurrent readers and writers to interact
 with the same queue.
 
-INSTALLATION
+Install
+=======
 
- python setup.py test
- python setup.py install
+To install this module, run the following commands::
 
-USAGE
+    python setup.py test
+    python setup.py install
 
-For documentation and public interface
- pydoc dirq.queue
+Usage
+=====
+
+For documentation and public interface::
+
+    pydoc dirq.queue
+
+or visit online documentation:
+
+    http://dirq.readthedocs.org/
 
 Examples
- examples/README
+========
 
-LICENSE AND COPYRIGHT
+    examples/README
+
+License and Copyright
+=====================
 
 Apache License, Version 2.0
 
