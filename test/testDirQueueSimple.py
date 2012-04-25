@@ -84,7 +84,7 @@ class TestQueueSimple(TestDirQueue):
         qs.unlock(elem_name)
     def test07get(self):
         'QueueSimple.get()'
-        data = b'foo'
+        data = 'foo'.encode()
         qs = QueueSimple(self.qdir)
         elem = qs.add(data)
         qs.lock(elem)

@@ -66,23 +66,26 @@ class TestQueueBaseModuleFunctions(TestDirQueueBase):
         
         QueueBase._file_create(self._test_file, 0, False)
         self.failUnlessRaises(OSError, 
-                              QueueBase._file_create, *(self._test_file, 0, False))
+                              QueueBase._file_create,
+                              *(self._test_file, 0, False))
         os.unlink(self._test_file)
         # utf8 data
         QueueBase._file_create(self._test_file, 0, True)
         self.failUnlessRaises(OSError, 
-                              QueueBase._file_create, *(self._test_file, 0, True))
+                              QueueBase._file_create,
+                              *(self._test_file, 0, True))
     def test4_file_write(self):
         'QueueBase._file_write()'
-        QueueBase._file_write(self._test_file, 0, False, b'a\n')
+        QueueBase._file_write(self._test_file, 0, False, 'a\n'.encode())
         os.unlink(self._test_file)
-        QueueBase._file_write(self._test_file, 0, False, b'a'*(2**10)*10)
+        QueueBase._file_write(self._test_file, 0,
+                              False, ('a'*(2**10)*10).encode())
         os.unlink(self._test_file)
         for t in [1, [], (), {}, object]:
             self.failUnlessRaises(TypeError, QueueBase._file_write, ('', t))
     def test5_file_read(self):
         'QueueBase._file_read()'
-        text = b'hello\n'
+        text = 'hello\n'.encode()
         open(self._test_file, 'wb').write(text)
         text_in = QueueBase._file_read(self._test_file, False)
         self.assertEqual(text, text_in)
