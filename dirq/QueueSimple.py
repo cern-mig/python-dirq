@@ -105,11 +105,12 @@ Copyright (C) 2010-2012
 """
 
 import errno
-import re
 import os
+import re
+import sys
 import time
 
-from dirq.QueueBase import QueueBase, _name, _file_create, _special_mkdir,\
+from dirq.QueueBase import QueueBase, _name, _file_create, _special_mkdir, \
     _file_read, _DirectoryRegexp, _ElementRegexp, _special_rmdir, _warn
 
 # suffix indicating a temporary element
@@ -156,9 +157,13 @@ class QueueSimple(QueueBase):
         while 1:
             tmp = '%s/%s/%s%s' % (self.path, _dir, _name(), TEMPORARY_SUFFIX)
             try:
-                fh = _file_create(tmp, umask=self.umask)
-            except EnvironmentError, ex:
-                if ex.errno == errno.ENOENT:
+                if type(data) == bytes:
+                    fh = _file_create(tmp, umask=self.umask, utf8=False)
+                else:
+                    fh = _file_create(tmp, umask=self.umask, utf8=True)
+            except EnvironmentError:
+                error = sys.exc_info()[1]
+                if error.errno == errno.ENOENT:
                     _special_mkdir('%s/%s/' % (self.path, _dir))
                     continue
             else:
@@ -179,9 +184,10 @@ class QueueSimple(QueueBase):
             new = '%s/%s/%s' % (self.path, _dir, name)
             try:
                 os.link(tmp, new)
-            except OSError, ex:
-                if ex.errno != errno.EEXIST:
-                    raise ex
+            except OSError:
+                error = sys.exc_info()[1]
+                if error.errno != errno.EEXIST:
+                    raise error
                 else:
                     continue
             os.unlink(tmp)
@@ -191,7 +197,7 @@ class QueueSimple(QueueBase):
         _list = []
         while self.dirs:
             _dir = self.dirs.pop(0)
-            for name in os.listdir('%s/%s' % (self.path,_dir)):
+            for name in os.listdir('%s/%s' % (self.path, _dir)):
                 if _ElementRegexp.match(name):
                     _list.append(name)
             if not _list:
@@ -249,12 +255,13 @@ class QueueSimple(QueueBase):
         lock = '%s%s' % (path, LOCKED_SUFFIX)
         try:
             os.link(path, lock)
-        except OSError, ex:
-            if permissive and (ex.errno == errno.EEXIST or 
-                                    ex.errno == errno.ENOENT):
+        except OSError:
+            error = sys.exc_info()[1]
+            if permissive and (error.errno == errno.EEXIST or 
+                                    error.errno == errno.ENOENT):
                 return False
-            e = OSError("cannot link(%s, %s): %s" % (path, lock, str(ex)))
-            e.errno = ex.errno
+            e = OSError("cannot link(%s, %s): %s" % (path, lock, error))
+            e.errno = error.errno
             raise e
         else:
             t = time.time()
@@ -277,10 +284,11 @@ class QueueSimple(QueueBase):
         lock = '%s/%s%s' % (self.path, name, LOCKED_SUFFIX)
         try:
             os.unlink(lock)
-        except OSError, ex:
-            if permissive and ex.errno == errno.ENOENT:
+        except OSError:
+            error = sys.exc_info()[1]
+            if permissive and error.errno == errno.ENOENT:
                 return False
-            raise ex
+            raise error
         else:
             return True
 
@@ -335,10 +343,13 @@ class QueueSimple(QueueBase):
             for _dir in dirs:
                 path = '%s/%s' % (self.path, _dir)
                 tmp_lock_elems = [x for x in os.listdir(path) 
-                                        if re.search('(%s|%s)$'%(TEMPORARY_SUFFIX,LOCKED_SUFFIX), x)]
+                                        if re.search('(%s|%s)$' % 
+                                                     (TEMPORARY_SUFFIX,
+                                                      LOCKED_SUFFIX), x)]
                 for old in tmp_lock_elems:
                     stat = os.stat('%s/%s' % (path, old))
-                    if old.endswith(TEMPORARY_SUFFIX) and stat.st_mtime >= oldtemp:
+                    if (old.endswith(TEMPORARY_SUFFIX) and 
+                        stat.st_mtime >= oldtemp):
                         continue
                     if old.endswith(LOCKED_SUFFIX) and stat.st_mtime >= oldlock:
                         continue

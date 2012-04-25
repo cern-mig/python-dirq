@@ -18,7 +18,7 @@ __author__ = dirq.AUTHOR
 __date__ = dirq.DATE
 
 from dirq.QueueBase import QueueBase
-from Exceptions import QueueError
+from dirq.Exceptions import QueueError
 
 class QueueSet(object):
     """Interface to elements on a set of directory based queues.
@@ -89,7 +89,7 @@ class QueueSet(object):
             if not self.elts:
                 return (None, None)
         self.elts.sort(key=lambda x: x[1])
-        for i,qe in enumerate(self.elts):
+        for i, qe in enumerate(self.elts):
             self.elts[i] = (qe[0], qe[0].next())
             if qe[1]:
                 return qe
@@ -138,8 +138,8 @@ class QueueSet(object):
                 type_queue = True
                 self.qset.append(q.copy())
             else:
-                raise TypeError("expected QueueBase object(s) or list/tuple of "+\
-                                 "QueueBase objects")
+                raise TypeError("expected QueueBase object(s) or list/tuple "
+                                "of QueueBase objects")
 
     def add(self, *queues):
         """Add lists of queues to existing ones. Copies of the object
@@ -166,7 +166,7 @@ class QueueSet(object):
         """
         if not isinstance(queue, QueueBase):
             raise TypeError("QueueBase objects expected.")
-        for i,q in enumerate(self.qset):
+        for i, q in enumerate(self.qset):
             if queue.id == q.id:
                 del self.qset[i]
                 if self.elts:

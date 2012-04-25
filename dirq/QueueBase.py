@@ -37,6 +37,11 @@ _ElementRegexp    = re.compile('(%s)$' % __ElementRegexp)
 _DirElemRegexp    = re.compile('^%s/%s$'%(__DirectoryRegexp,
                                           __ElementRegexp))
 
+try:
+    _VALID_STR_TYPES = (str, unicode)
+except NameError:
+    _VALID_STR_TYPES = (str, bytes)
+
 WARN = False
 
 def _warn(text):
@@ -74,9 +79,10 @@ def _directory_contents(path, missingok=True):
     """
     try:
         return os.listdir(path)
-    except StandardError, e:
-        if not missingok and not e.errcode == errno.ENOENT:
-            raise OSError("cannot listdir(%s): %s"%(path, str(e)))
+    except StandardError:
+        error = sys.exc_info()[1]
+        if not missingok and not error.errcode == errno.ENOENT:
+            raise OSError("cannot listdir(%s): %s"%(path, error))
             # RACE: this path does not exist (anymore)
         return []
 
@@ -101,12 +107,13 @@ def _special_mkdir(path, umask=None):
             oldumask = os.umask(umask)
             os.makedirs(path)
             os.umask(oldumask)
-    except OSError, e:
-        if e.errno == errno.EEXIST and not os.path.isfile(path):
+    except OSError:
+        error = sys.exc_info()[1]
+        if error.errno == errno.EEXIST and not os.path.isfile(path):
             return False
-        elif e.errno == errno.EISDIR:
+        elif error.errno == errno.EISDIR:
             return False
-        raise OSError("cannot mkdir(%s): %s"%(path, str(e)))
+        raise OSError("cannot mkdir(%s): %s"%(path, error))
     else:
         return True
 
@@ -122,9 +129,10 @@ def _special_rmdir(path):
     """
     try:
         os.rmdir(path)
-    except StandardError, e:
-        if not e.errno == errno.ENOENT:
-            raise OSError("cannot rmdir(%s): %s"%(path, str(e)))
+    except StandardError:
+        error = sys.exc_info()[1]
+        if not error.errno == errno.ENOENT:
+            raise OSError("cannot rmdir(%s): %s"%(path, error))
             # RACE: this path does not exist (anymore)
         return False
     else:
@@ -142,16 +150,19 @@ def _file_read(path, utf8):
             fh = codecs.open(path, 'r', "utf8")
         else:
             fh = open(path, 'rb')
-    except StandardError, e:
-        raise OSError("cannot open %s: %s"%(path, str(e)))
+    except StandardError:
+        error = sys.exc_info()[1]
+        raise OSError("cannot open %s: %s"%(path, error))
     try:
         data = fh.read()
-    except StandardError, e:
-        raise IOError("cannot read %s: %s"%(path, str(e)))
+    except StandardError:
+        error = sys.exc_info()[1]
+        raise IOError("cannot read %s: %s"%(path, error))
     try:
         fh.close()
-    except StandardError, e:
-        raise OSError("cannot close %s: %s"%(path, str(e)))
+    except StandardError:
+        error = sys.exc_info()[1]
+        raise OSError("cannot close %s: %s"%(path, error))
     return data
 
 def _file_create(path, umask=None, utf8=False):
@@ -169,7 +180,7 @@ def _file_create(path, umask=None, utf8=False):
             raise ex
         fh = codecs.open(path, 'w', 'utf8')
     else:
-        fh = os.fdopen(os.open(path, os.O_WRONLY|os.O_CREAT|os.O_EXCL), 'w')
+        fh = os.fdopen(os.open(path, os.O_WRONLY|os.O_CREAT|os.O_EXCL), 'wb')
     if umask:
         os.umask(oldumask)
 
@@ -185,12 +196,14 @@ def _file_write(path, utf8, umask, data):
     fh = _file_create(path, umask=umask, utf8=utf8)
     try:
         fh.write(data)
-    except StandardError, e:
-        raise IOError("cannot write to %s: %s"%(path, str(e)))
+    except Exception:
+        error = sys.exc_info()[1]
+        raise IOError("cannot write to %s: %s"%(path, error))
     try:
         fh.close()
-    except StandardError, e:
-        raise OSError("cannot close %s: %s"%(path, str(e)))
+    except Exception:
+        error = sys.exc_info()[1]
+        raise OSError("cannot close %s: %s"%(path, error))
 
 class QueueBase(object):
     """QueueBase
@@ -212,7 +225,7 @@ class QueueBase(object):
         self.elts = []
         self._next_exception = False
 
-        if not isinstance(path, (str, unicode)):
+        if type(path) not in _VALID_STR_TYPES:
             raise TypeError("'path' should be str or unicode")
         self.path = path
         if umask != None and not isinstance(umask, int):
@@ -282,7 +295,7 @@ class QueueBase(object):
     def _build_elements(self):
         raise NotImplementedError('Implement in sub-class.')
 
-    def next(self):
+    def __next__(self):
         """Return name of the next element in the queue, only using cached
         information. When queue is empty, depending on the iterator
         protocol - return empty string or raise StopIteration.
@@ -305,6 +318,7 @@ class QueueBase(object):
             raise StopIteration
         else:
             return ''
+    next = __next__
 
     def touch(self, ename):
         """Touch an element directory to indicate that it is still being used.
@@ -322,5 +336,6 @@ class QueueBase(object):
         path = '%s/%s' % (self.path, ename)
         try:
             os.utime(path, None)
-        except (IOError, OSError), e:
-            raise EnvironmentError("cannot utime(%s, None): %s" % (path, str(e)))
+        except (IOError, OSError):
+            error = sys.exc_info()[1]
+            raise EnvironmentError("cannot utime(%s, None): %s" % (path, error))

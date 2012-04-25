@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-
-"""Test program for testing dirq.QueueSet module.
+# -*- coding: utf-8 -*-
+"""
+Test program for testing dirq.QueueSet module.
 """
 
 import os
@@ -39,7 +40,7 @@ def init():
 
     OS,args = parser.parse_args()
     if not OS.path:
-        print "*** mandatory option not set: path"
+        print("*** mandatory option not set: path")
         sys.exit(1)
     if len(args) != 0:
         TEST = args[0]
@@ -175,9 +176,10 @@ def main_complex():
     OS = options()
     try:
         test_complex()
-    except Exception, e:
+    except Exception:
+        error = sys.exc_info()[1]
         shutil.rmtree(OS.path, ignore_errors=True)
-        raise e
+        raise error
     shutil.rmtree(OS.path, ignore_errors=True)
 
 if __name__ == "__main__":
@@ -191,4 +193,4 @@ if __name__ == "__main__":
     elif TEST == "iterate":
         test_iterate()
     else:
-        print "unsupported test:", TEST
+        print("unsupported test:", TEST)

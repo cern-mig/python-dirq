@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import os
 import shutil
@@ -35,8 +36,9 @@ class TestQueue(TestDirQueue):
         for schema in good_schemas:
             try:
                 Queue(path, umask=umask, maxelts=maxelts, schema=schema)
-            except Exception, e:
-                self.fail("Shouldn't have failed. Exception: %s" % str(e))
+            except Exception:
+                error = sys.exc_info()[1]
+                self.fail("Shouldn't have failed. Exception: %s" % error)
         bad_schemas = [['foo'],
                        {'foo':1},
                        {'a':'binary?'}]
@@ -130,13 +132,16 @@ class TestQueueModuleFunctions(TestDirQueue):
         assert queue._hash2string({'a1	a2':'a3	a4'}) == 'a1\\ta2\ta3\\ta4\n'
         assert queue._hash2string({'a1	\na2':'a3	\na4'}) == \
                                     'a1\\t\\na2\ta3\\t\\na4\n'
+    
     def test3_string2hash(self):
         'queue._string2hash()'
         assert queue._string2hash('a1\ta2\nb1\tb2') == {'a1':'a2','b1':'b2'}
         assert queue._string2hash('a1\x5c\ta2\nb1\tb2\\') == \
                                     {'a1\x5c':'a2','b1':'b2\\'}
-        for v in ['','a']:
-            self.failUnlessRaises(queue.QueueError, queue._string2hash, (v))
+        for value in ['a', ]:
+            self.failUnlessRaises(queue.QueueError,
+                                  queue._string2hash,
+                                  (value))
             
     def test3_hash2string2hash(self):
         'queue._hash2string()+queue._string2hash()'

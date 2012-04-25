@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-# encoding: utf-8
-
-"""Test program for testing dirq.queue and dirq.QueueSimple modules.
+# -*- coding: utf-8 -*-
+"""
+Test program for testing dirq.queue and dirq.QueueSimple modules.
 """
 
 import os
@@ -58,7 +58,7 @@ def init():
                       "elements will not be removed.")
     opts,args = parser.parse_args()
     if opts.list:
-        print "Tests: %s" % ', '.join(TESTS)
+        print("Tests: %s" % ', '.join(TESTS))
         sys.exit() 
     if not opts.path:
         _die("*** mandatory option not set: -p/--path")
@@ -173,7 +173,11 @@ def test_add():
             if opts.simple:
                 element = 'Element %i ;-)\n' % done
             else:
-                element['body'] = u'Élément %i \u263A\n' % done
+                try:
+                    element['body'] = ('Élément %d \u263A\n' %
+                                       done).decode("utf-8")
+                except AttributeError:
+                    element['body'] = 'Élément %d \u263A\n' % done
         _ = dirq.add(element)
     time2 = time.time()
     debug("done in %.4f seconds", time2 - time1)
@@ -313,9 +317,10 @@ def main_simple(simple=False):
     try:
         shutil.rmtree(opts.path, ignore_errors=True)
         test_simple()
-    except Exception, e:
+    except Exception:
+        error = sys.exc_info()[1]
         shutil.rmtree(opts.path, ignore_errors=True)
-        raise e
+        raise error
     shutil.rmtree(opts.path, ignore_errors=True)
 
 if __name__ == "__main__":
@@ -330,5 +335,5 @@ if __name__ == "__main__":
         time.sleep(opts.sleep)
     for test in tests:
         test_func = 'test_%s()' % test
-        print '--- %s ---' % test_func
-        exec test_func
+        print('--- %s ---' % test_func)
+        exec(test_func)
