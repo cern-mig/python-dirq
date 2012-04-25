@@ -126,7 +126,7 @@ class TestQueueModuleFunctions(TestDirQueue):
     def test3_hash2string(self):
         'queue._hash2string()'
         assert queue._hash2string({'a1':'a2'}) == 'a1\ta2\n'
-        assert queue._hash2string({'a1\\':'a2'}) == 'a1\\\ta2\n'
+        assert queue._hash2string({'a1\\':'a2'}) == 'a1\\\\\ta2\n'
         assert queue._hash2string({'a1	a2':'a3	a4'}) == 'a1\\ta2\ta3\\ta4\n'
         assert queue._hash2string({'a1	\na2':'a3	\na4'}) == \
                                     'a1\\t\\na2\ta3\\t\\na4\n'
@@ -137,6 +137,14 @@ class TestQueueModuleFunctions(TestDirQueue):
                                     {'a1\x5c':'a2','b1':'b2\\'}
         for v in ['','a']:
             self.failUnlessRaises(queue.QueueError, queue._string2hash, (v))
+            
+    def test3_hash2string2hash(self):
+        'queue._hash2string()+queue._string2hash()'
+        example = {"hi\\t\th\nere" : "h\\ello\twor\nld"}
+        converted = queue._hash2string(example)
+        assert converted == "hi\\\\t\\th\\nere\th\\\\ello\\twor\\nld\n"
+        back = queue._string2hash(converted)
+        assert back == example
 
 def main():
     testcases = [TestQueue,

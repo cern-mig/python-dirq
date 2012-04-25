@@ -298,7 +298,7 @@ __FileRegexp      = "[0-9a-zA-Z]+"
 _FileRegexp       = re.compile("^(%s)$" % __FileRegexp)
 _KeyValRegexp     = re.compile('^([^\x09\x0a]*)\x09([^\x09\x0a]*)$')
 
-_Byte2Esc = {"\x5c" : "\\", "\x09" : "\\t", "\x0a" : "\\n"}
+_Byte2Esc = {"\\" : r"\\", "\t" : r"\t", "\n" : r"\n"}
 _Esc2Byte = dict([(v,k) for k, v in _Byte2Esc.iteritems()])
 
 #
@@ -319,8 +319,8 @@ def _hash2string(hash):
         val = hash[key]
         if type(val) not in [str, unicode]:
             raise QueueError("invalid hash value type: %r"%val)
-        key = re.sub('([\x5c\x09\x0a])', lambda m: _Byte2Esc[m.group(1)], key)
-        val = re.sub('([\x5c\x09\x0a])', lambda m: _Byte2Esc[m.group(1)], val)
+        key = re.sub('(\\\\|\x09|\x0a)', lambda m: _Byte2Esc[m.group(1)], key)
+        val = re.sub('(\\\\|\x09|\x0a)', lambda m: _Byte2Esc[m.group(1)], val)
         string = '%s%s' % (string, '%s\x09%s\x0a'%(key,val))
     return string
 
@@ -338,12 +338,11 @@ def _string2hash(string):
         match = _KeyValRegexp.match(line)
         if not match:
             raise QueueError("unexpected hash line: %s"%line)
-        key = re.sub('(\\\\|\\t|\\n)', lambda m: _Esc2Byte[str(m.group(1))],
+        key = re.sub(r'(\\\\|\\t|\\n)', lambda m: _Esc2Byte[str(m.group(1))],
                      match.group(1))
-        val = re.sub('(\\\\|\\t|\\n)', lambda m: _Esc2Byte[str(m.group(1))],
+        val = re.sub(r'(\\\\|\\t|\\n)', lambda m: _Esc2Byte[str(m.group(1))],
                      match.group(2))
         _hash[key] = val
-        _hash[match.group(1)] = match.group(2)
     return _hash
 
 def _older(path, time):

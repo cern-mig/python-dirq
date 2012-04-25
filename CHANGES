@@ -1,3 +1,6 @@
+* X X X X K. Skaburskas <Konstantin.Skaburskas@gmail.com> - X.X.X
+- fixing bug in hash2string and string2hash
+
 * Wed Mar 28 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.1.2
 - removed "from .<module> import" as we have to support Python <= 2.4 
 
