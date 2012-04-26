@@ -5,4 +5,7 @@ python:
   - "2.7"
   - "3.2"
 # command to run tests
-script: python setup.py test
+script:
+  - python setup.py test
+  - python examples/dirq_simple.py
+  - python examples/dirqset_simple.py
