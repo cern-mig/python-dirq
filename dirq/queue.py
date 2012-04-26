@@ -49,7 +49,7 @@ Usage::
     for count in range(1,101):
         name = dirq.add({"body"  : "element %i"%count,
                          "header": dict(os.environ)})
-        print "# added element %i as %s" %(count, name)
+        print("# added element %i as %s" % (count, name))
 
     # sample consumer
 
@@ -59,7 +59,7 @@ Usage::
         if not dirq.lock(name):
             name = dirq.next()
             continue
-        print "# reading element %s" % name
+        print("# reading element %s" % name)
         data = dirq.get(name)
         # one can use data['body'] and data['header'] here...
         # one could use dirq.unlock(name) to only browse the queue...

@@ -21,7 +21,7 @@ Usage::
     dirq = QueueSimple('/tmp/test')
     for count in range(1,101):
         name = dirq.add("element %i\\n" % count)
-        print "# added element %i as %s" %(count, name)
+        print("# added element %i as %s" % (count, name))
 
     # sample consumer
 
@@ -29,7 +29,7 @@ Usage::
     for name in dirq:
         if not dirq.lock(name):
             continue
-        print "# reading element %s" % name
+        print("# reading element %s" % name)
         data = dirq.get(name)
         # one could use dirq.unlock(name) to only browse the queue...
         dirq.remove(name)

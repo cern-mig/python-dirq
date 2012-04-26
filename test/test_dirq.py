@@ -73,7 +73,8 @@ def init():
         sys.exit()
 
 def _die(format, *arguments):
-    print >> sys.stderr, format % arguments
+    sys.stderr.write(format % arguments + "\n")
+    sys.stderr.flush()
     sys.exit(1)
 
 def debug(format, *arguments):
