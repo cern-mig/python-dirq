@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-# encoding: utf-8
-
-"""Test program for testing dirq.queue and dirq.QueueSimple modules.
+# -*- coding: utf-8 -*-
+"""
+Test program for testing dirq.queue and dirq.QueueSimple modules.
 """
 
 import os
@@ -12,7 +12,7 @@ import random
 import shutil
 from optparse import OptionParser
 
-sys.path.insert(1, re.sub('/\w*$','',os.getcwd()))
+sys.path.insert(1, re.sub('/\w*$', '', os.getcwd()))
 import dirq
 from dirq import queue
 from dirq.QueueSimple import QueueSimple
@@ -23,6 +23,7 @@ TESTS = ['all', 'add', 'count', 'get', 'iterate', 'purge', 'remove', 'simple']
 ProgramName = sys.argv[0]
 
 def init():
+    """ Initialize. """
     global opts, TEST
     parser = OptionParser(usage="%prog [OPTIONS] [--] TEST", 
                           version="%prog "+"%s" % dirq.VERSION)
@@ -49,16 +50,17 @@ def init():
                       default=None, help="time granularity for intermediate "
                       "directories (QueueSimple)")
     parser.add_option("--sleep", dest="sleep", type='float', default=0,
-                      help="sleep this amount of seconds before starting the test(s)")
+                      help="sleep this amount of seconds before starting "
+                            "the test(s)")
     parser.add_option("--maxlock", dest="maxlock", type='int', default=None,
                       help="maximum time for a locked element. 0 - locked "
                       "elements will not be unlocked.")
     parser.add_option("--maxtemp", dest="maxtemp", type='int', default=None,
-                      help="maximum time for a temporary element. 0 - temporary "
-                      "elements will not be removed.")
-    opts,args = parser.parse_args()
+                      help="maximum time for a temporary element. "
+                      "0 - temporary elements will not be removed.")
+    opts, args = parser.parse_args()
     if opts.list:
-        print "Tests: %s" % ', '.join(TESTS)
+        print("Tests: %s" % ', '.join(TESTS))
         sys.exit() 
     if not opts.path:
         _die("*** mandatory option not set: -p/--path")
@@ -73,7 +75,8 @@ def init():
         sys.exit()
 
 def _die(format, *arguments):
-    print >> sys.stderr, format % arguments
+    sys.stderr.write(format % arguments + "\n")
+    sys.stderr.flush()
     sys.exit(1)
 
 def debug(format, *arguments):
@@ -83,9 +86,11 @@ def debug(format, *arguments):
         return
     message = format % arguments
     message = re.sub('\s+$', '.', message)
-    sys.stderr.write("# %s %s[%d]: %s\n"%(
-                        time.strftime("%Y/%m/%d-%H:%M:%S",time.localtime(time.time())),
-                                      os.path.basename(sys.argv[0]),os.getpid(),message))
+    sys.stderr.write("# %s %s[%d]: %s\n" % (
+                        time.strftime("%Y/%m/%d-%H:%M:%S",
+                                      time.localtime(time.time())),
+                                      os.path.basename(sys.argv[0]),
+                                      os.getpid(),message))
 
 def new_dirq(_schema):
     """Create a new Directory::Queue object, optionally with schema.
@@ -173,7 +178,11 @@ def test_add():
             if opts.simple:
                 element = 'Element %i ;-)\n' % done
             else:
-                element['body'] = u'Élément %i \u263A\n' % done
+                try:
+                    element['body'] = ('Élément %d \u263A\n' %
+                                       done).decode("utf-8")
+                except AttributeError:
+                    element['body'] = 'Élément %d \u263A\n' % done
         _ = dirq.add(element)
     time2 = time.time()
     debug("done in %.4f seconds", time2 - time1)
@@ -297,7 +306,7 @@ def main_simple(simple=False):
     """
     global opts
     class options(object):
-        path = '/tmp/dirq-%i'%os.getpid()
+        path = '/tmp/dirq-%i' % os.getpid()
         count = 10
         random = False
         size = False
@@ -313,9 +322,10 @@ def main_simple(simple=False):
     try:
         shutil.rmtree(opts.path, ignore_errors=True)
         test_simple()
-    except Exception, e:
+    except Exception:
+        error = sys.exc_info()[1]
         shutil.rmtree(opts.path, ignore_errors=True)
-        raise e
+        raise error
     shutil.rmtree(opts.path, ignore_errors=True)
 
 if __name__ == "__main__":
@@ -330,5 +340,5 @@ if __name__ == "__main__":
         time.sleep(opts.sleep)
     for test in tests:
         test_func = 'test_%s()' % test
-        print '--- %s ---' % test_func
-        exec test_func
+        print('--- %s ---' % test_func)
+        exec(test_func)

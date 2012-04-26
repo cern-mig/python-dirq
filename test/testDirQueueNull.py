@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import shutil
 import unittest
@@ -6,7 +8,7 @@ import time
 from dirq.QueueNull import QueueNull
 import tempfile
 
-__all__ =['TestQueueNull']
+__all__ = ['TestQueueNull']
 
 def assert_fail(exc, callable, *args, **kwargs):
     try:

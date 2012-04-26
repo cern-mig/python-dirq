@@ -1,17 +1,18 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 
-import os
+import codecs
 import errno
+import os
 import shutil
+import sys
+import tempfile
 import time
 import unittest
-import tempfile
-import codecs
 
 from dirq import QueueBase
 from dirq.QueueBase import QueueBase as QueueBaseClass
 
-__all__ =['TestQueueBase', 'TestQueueBaseModuleFunctions']
+__all__ = ['TestQueueBase', 'TestQueueBaseModuleFunctions']
 
 class TestDirQueueBase(unittest.TestCase):
     def setUp(self):
@@ -30,13 +31,15 @@ class TestQueueBase(TestDirQueueBase):
 class TestQueueBaseModuleFunctions(TestDirQueueBase):
     def setUp(self):
         super(TestQueueBaseModuleFunctions, self).setUp()
-        _,self._test_file = tempfile.mkstemp()
+        _, self._test_file = tempfile.mkstemp()
         try: os.unlink(self._test_file)
         except: pass
     def tearDown(self):
         super(TestQueueBaseModuleFunctions, self).tearDown()
-        try: os.unlink(self._test_file)
-        except: pass
+        try:
+            os.unlink(self._test_file)
+        except:
+            pass
 
     def test1_special_mkdir(self):
         'QueueBase._special_mkdir()'
@@ -57,36 +60,43 @@ class TestQueueBaseModuleFunctions(TestDirQueueBase):
         fn = os.getcwd() + "/nodir-" + str(time.time()) + "/nofile"
         try:
             QueueBase._file_create(fn, 0, False)
-        except OSError, ex:
-            assert ex.errno == errno.ENOENT
+        except OSError:
+            error = sys.exc_info()[1]
+            assert error.errno == errno.ENOENT
         
         QueueBase._file_create(self._test_file, 0, False)
         self.failUnlessRaises(OSError, 
-                              QueueBase._file_create, *(self._test_file, 0, False))
+                              QueueBase._file_create,
+                              *(self._test_file, 0, False))
         os.unlink(self._test_file)
         # utf8 data
         QueueBase._file_create(self._test_file, 0, True)
         self.failUnlessRaises(OSError, 
-                              QueueBase._file_create, *(self._test_file, 0, True))
+                              QueueBase._file_create,
+                              *(self._test_file, 0, True))
     def test4_file_write(self):
         'QueueBase._file_write()'
-        QueueBase._file_write(self._test_file, 0, False, 'a\n')
+        QueueBase._file_write(self._test_file, 0, False, 'a\n'.encode())
         os.unlink(self._test_file)
-        QueueBase._file_write(self._test_file, 0, False, 'a'*(2**10)*10)
+        QueueBase._file_write(self._test_file, 0,
+                              False, ('a'*(2**10)*10).encode())
         os.unlink(self._test_file)
         for t in [1, [], (), {}, object]:
             self.failUnlessRaises(TypeError, QueueBase._file_write, ('', t))
     def test5_file_read(self):
         'QueueBase._file_read()'
-        text = 'hello\n'
-        open(self._test_file,'w').write(text)
+        text = 'hello\n'.encode()
+        open(self._test_file, 'wb').write(text)
         text_in = QueueBase._file_read(self._test_file, False)
-        assert text == text_in
+        self.assertEqual(text, text_in)
         # utf8
-        text = u'Élément \u263A\n'
+        try:
+            text = 'Élément \u263A\n'.decode("utf-8")
+        except AttributeError:
+            text = 'Élément \u263A\n'
         codecs.open(self._test_file, 'w', 'utf8').write(text)
         text_in = QueueBase._file_read(self._test_file, True)
-        assert text == text_in
+        self.assertEqual(text, text_in)
 
 def main():
     testcases = [TestQueueBase,

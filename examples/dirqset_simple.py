@@ -1,65 +1,64 @@
 #!/usr/bin/env python
-
-"""Browse a set of queues.
-"""
+# -*- coding: utf-8 -*-
+""" Browse a set of queues. """
 
 from dirq.queue import Queue, QueueSet
 import os
 
 # root directory for queues
-wd = '/tmp'
+working_dir = '/tmp'
 pid = os.getpid()
 # number of queues
 QUEUES = 4
 
-print "*** Setup & populate queues"
+print("*** Setup & populate queues")
 # generate paths
 paths = []
 for i in range(QUEUES):
-    paths.append(wd+'/test-add-%i-%i'%(i, pid))
+    paths.append(working_dir + '/test-add-%i-%i' % (i, pid))
 COUNT = 5
 
-print "creating %i initial queues. adding %i elements into each." % (QUEUES,
-                                                                     COUNT)
+print("creating %i initial queues. adding %i elements into each." % (QUEUES,
+                                                                     COUNT))
 queues = []
-qn = 0
-while qn < QUEUES:
-    q = Queue(paths[qn], maxelts=5, schema={'body' : 'string'})
-    print "adding %d elements to the queue %s" % (COUNT, paths[qn])
+queue_num = 0
+while queue_num < QUEUES:
+    queue = Queue(paths[queue_num], maxelts=5, schema={'body' : 'string'})
+    print("adding %d elements to the queue %s" % (COUNT, paths[queue_num]))
     element = {}
     done = 0
     while not COUNT or done < COUNT:
         done += 1
-        element['body'] = 'Queue %i. Element %i' % (qn, done)
-        q.add(element)
-    queues.append(q)
-    qn += 1
-print "done."
+        element['body'] = 'Queue %i. Element %i' % (queue_num, done)
+        queue.add(element)
+    queues.append(queue)
+    queue_num += 1
+print("done.")
 
 
-print "*** Browse"
+print("*** Browse")
 i = 2
-qs = QueueSet(queues[0:i])
-print "elements in %i queues: %i" % (i, qs.count())
+queue_set = QueueSet(queues[0:i])
+queue_set_count = queue_set.count()
+print("elements in %i queues: %i" % (i, queue_set_count))
+assert queue_set_count == i * COUNT
 
-print "adding remaining queues to the set."
-qs.add(queues[i:])
-print "total element with added queues:",
-total_inset = qs.count()
-print " %i" % total_inset
-assert total_inset == QUEUES*COUNT
+print("adding remaining queues to the set.")
+queue_set.add(queues[i:])
+total_inset = queue_set.count()
+print("total element with added queues: %d" % total_inset)
+assert total_inset == QUEUES * COUNT
 
-print "removing %i first queues." % i
+print("removing %i first queues." % i)
 for q in queues[0:i]:
-    qs.remove(q)
+    queue_set.remove(q)
 
-print "number of elements left in the set:",
-total_inset = qs.count()
-print " %i" % total_inset
-assert total_inset == QUEUES*COUNT/2
+total_inset = queue_set.count()
+print("number of elements left in the set: %d" % total_inset)
+assert total_inset == (QUEUES - i) * COUNT
 
-print "iterating over the elements left in the queue set"
-for q,name in qs:
-    print q.path,name
-    print q.get_element(name)['body']
-print "done."
+print("iterating over the elements left in the queue set")
+for q, name in queue_set:
+    print(q.path, name)
+    print(q.get_element(name)['body'])
+print("done.")
