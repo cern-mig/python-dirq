@@ -8,7 +8,7 @@ import time
 from dirq.QueueSimple import QueueSimple, LOCKED_SUFFIX
 import tempfile
 
-__all__ =['TestQueueSimple']
+__all__ = ['TestQueueSimple']
 
 class TestDirQueue(unittest.TestCase):
     def setUp(self):

@@ -11,7 +11,7 @@ import time
 import shutil
 from optparse import OptionParser
 
-sys.path.insert(1, re.sub('/\w*$','',os.getcwd()))
+sys.path.insert(1, re.sub('/\w*$', '', os.getcwd()))
 import dirq
 from dirq import queue
 
@@ -19,7 +19,7 @@ OS = ''
 TEST = ''
 
 def init():
-    ''
+    """ Initialize. """
     global OS, TEST
     parser = OptionParser(usage="%prog [OPTIONS] [--] TEST",
                           version=("%prog "+"%s" % dirq.VERSION))
@@ -35,10 +35,10 @@ def init():
                       default=False, help="randomize the body size")
     parser.add_option("--header", dest="header", action="store_true",
                       default=False, help="set header for added elements")
-    parser.add_option("--maxelts", dest="maxelts", type='int',
-                      default=0, help="set the maximum number of elements per directory")
+    parser.add_option("--maxelts", dest="maxelts", type='int', default=0,
+                      help="set the maximum number of elements per directory")
 
-    OS,args = parser.parse_args()
+    OS, args = parser.parse_args()
     if not OS.path:
         print("*** mandatory option not set: path")
         sys.exit(1)
@@ -48,14 +48,14 @@ def init():
         parser.print_help()
         sys.exit()
 
-def debug(format, *arguments):
+def debug(given_format, *arguments):
     """Report a debugging message.
     """
     if not OS.debug:
         return
-    message = format % arguments
+    message = given_format % arguments
     message = re.sub('\s+$', '.', message)
-    sys.stderr.write("# %i [%5d] %s\n"%(time.time(),os.getpid(),message))
+    sys.stderr.write("# %i [%5d] %s\n" % (time.time(), os.getpid(), message))
 
 def new_dirq(path, _schema):
     """Create a new dirq.Queue object, optionally with schema.
@@ -99,7 +99,8 @@ def test_complex():
     for i in range(qn):
         paths.append(wd+'/test-add-%i-%i'%(i, pid))
     count = OS.count or 1000
-    debug("creating %i initial queues. adding %i elements into each."%(qn,count))
+    debug("creating %i initial queues. adding %i elements into each." % 
+          (qn, count))
     queues = []
     t1 = time.time()
     while qn:
@@ -122,13 +123,13 @@ def test_complex():
     i = 3
     qs = queue.QueueSet(queues[0:i])
     debug("created queue set in %.4f seconds", time.time() - time1)
-    debug("elements in %i queues: %i"%(i,qs.count()))
+    debug("elements in %i queues: %i" % (i, qs.count()))
 
     debug("adding remaining queues to the set.")
     t1 = time.time()
     qs.add(queues[i:])
-    debug("done in %.4f sec." % (time.time()-t1))
-    debug("total element with added queues: %i"%qs.count())
+    debug("done in %.4f sec." % (time.time() - t1))
+    debug("total element with added queues: %i" % qs.count())
 
     debug("removing %i first queues." % i)
     t1 = time.time()
@@ -166,7 +167,8 @@ def main_complex():
     """
     global OS
     class options(object):
-        path = '/tmp/dirqset-%i'%os.getpid()
+        """ options class. """
+        path = '/tmp/dirqset-%i' % os.getpid()
         count = 10
         random = False
         size = False

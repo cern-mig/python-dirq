@@ -12,7 +12,7 @@ import unittest
 from dirq import QueueBase
 from dirq.QueueBase import QueueBase as QueueBaseClass
 
-__all__ =['TestQueueBase', 'TestQueueBaseModuleFunctions']
+__all__ = ['TestQueueBase', 'TestQueueBaseModuleFunctions']
 
 class TestDirQueueBase(unittest.TestCase):
     def setUp(self):
@@ -31,7 +31,7 @@ class TestQueueBase(TestDirQueueBase):
 class TestQueueBaseModuleFunctions(TestDirQueueBase):
     def setUp(self):
         super(TestQueueBaseModuleFunctions, self).setUp()
-        _,self._test_file = tempfile.mkstemp()
+        _, self._test_file = tempfile.mkstemp()
         try: os.unlink(self._test_file)
         except: pass
     def tearDown(self):

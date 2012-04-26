@@ -12,7 +12,7 @@ import random
 import shutil
 from optparse import OptionParser
 
-sys.path.insert(1, re.sub('/\w*$','',os.getcwd()))
+sys.path.insert(1, re.sub('/\w*$', '', os.getcwd()))
 import dirq
 from dirq import queue
 from dirq.QueueSimple import QueueSimple
@@ -23,6 +23,7 @@ TESTS = ['all', 'add', 'count', 'get', 'iterate', 'purge', 'remove', 'simple']
 ProgramName = sys.argv[0]
 
 def init():
+    """ Initialize. """
     global opts, TEST
     parser = OptionParser(usage="%prog [OPTIONS] [--] TEST", 
                           version="%prog "+"%s" % dirq.VERSION)
@@ -49,14 +50,15 @@ def init():
                       default=None, help="time granularity for intermediate "
                       "directories (QueueSimple)")
     parser.add_option("--sleep", dest="sleep", type='float', default=0,
-                      help="sleep this amount of seconds before starting the test(s)")
+                      help="sleep this amount of seconds before starting "
+                            "the test(s)")
     parser.add_option("--maxlock", dest="maxlock", type='int', default=None,
                       help="maximum time for a locked element. 0 - locked "
                       "elements will not be unlocked.")
     parser.add_option("--maxtemp", dest="maxtemp", type='int', default=None,
-                      help="maximum time for a temporary element. 0 - temporary "
-                      "elements will not be removed.")
-    opts,args = parser.parse_args()
+                      help="maximum time for a temporary element. "
+                      "0 - temporary elements will not be removed.")
+    opts, args = parser.parse_args()
     if opts.list:
         print("Tests: %s" % ', '.join(TESTS))
         sys.exit() 
@@ -84,9 +86,11 @@ def debug(format, *arguments):
         return
     message = format % arguments
     message = re.sub('\s+$', '.', message)
-    sys.stderr.write("# %s %s[%d]: %s\n"%(
-                        time.strftime("%Y/%m/%d-%H:%M:%S",time.localtime(time.time())),
-                                      os.path.basename(sys.argv[0]),os.getpid(),message))
+    sys.stderr.write("# %s %s[%d]: %s\n" % (
+                        time.strftime("%Y/%m/%d-%H:%M:%S",
+                                      time.localtime(time.time())),
+                                      os.path.basename(sys.argv[0]),
+                                      os.getpid(),message))
 
 def new_dirq(_schema):
     """Create a new Directory::Queue object, optionally with schema.
@@ -302,7 +306,7 @@ def main_simple(simple=False):
     """
     global opts
     class options(object):
-        path = '/tmp/dirq-%i'%os.getpid()
+        path = '/tmp/dirq-%i' % os.getpid()
         count = 10
         random = False
         size = False
