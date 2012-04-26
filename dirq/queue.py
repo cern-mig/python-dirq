@@ -372,7 +372,7 @@ def _older(path, given_time):
     """
     try:
         stat = os.lstat(path)
-    except StandardError:
+    except Exception:
         error = sys.exc_info()[1]
         if error.errno != errno.ENOENT:
             raise OSError("cannot lstat(%s): %s"%(path, error))
@@ -398,7 +398,7 @@ def __subdirs_num_nlink(path):
     """
     try:
         stat = os.lstat(path)
-    except StandardError:
+    except Exception:
         error = sys.exc_info()[1]
         if error.errno != errno.ENOENT:
             raise OSError("cannot lstat(%s): %s"%(path, error))
@@ -553,7 +553,7 @@ class Queue(QueueBase):
         # element exists and locked, and we were asked to act upon its age
         try:
             stat = os.lstat(path)
-        except StandardError:
+        except Exception:
             error = sys.exc_info()[1]
             if error.errno != errno.ENOENT:
                 raise OSError("cannot lstat(%s): %s" % (path, error))
@@ -633,7 +633,7 @@ class Queue(QueueBase):
             else:
                 os.mkdir(path)
             os.lstat(path)
-        except StandardError:
+        except Exception:
             error = sys.exc_info()[1]
             if permissive:
                 # RACE: the locked directory already exists
@@ -646,7 +646,7 @@ class Queue(QueueBase):
             raise OSError("cannot mkdir(%s): %s" % (path, error))
         try:
             os.lstat(path)
-        except StandardError:
+        except Exception:
             error = sys.exc_info()[1]
             if permissive:
                 # RACE: the element directory does not exist anymore (this can
@@ -689,7 +689,7 @@ class Queue(QueueBase):
         path = '%s/%s/%s' % (self.path, ename, LOCKED_DIRECTORY)
         try:
             os.rmdir(path)
-        except StandardError:
+        except Exception:
             error = sys.exc_info()[1]
             if permissive:
                 # RACE: the element directory or its lock does not exist anymore
@@ -725,7 +725,7 @@ class Queue(QueueBase):
             try:
                 os.rename(path, temp)
                 break
-            except StandardError:
+            except Exception:
                 error = sys.exc_info()[1]
                 if error.errno != errno.ENOTEMPTY and \
                     error.errno != errno.EEXIST:
@@ -741,7 +741,7 @@ class Queue(QueueBase):
             path = '%s/%s' % (temp, name)
             try:
                 os.unlink(path)
-            except StandardError:
+            except Exception:
                 error = sys.exc_info()[1]
                 raise OSError("cannot unlink(%s): %s"%(path, error))
         # remove the locked directory
@@ -749,7 +749,7 @@ class Queue(QueueBase):
         while True:
             try:
                 os.rmdir(path)
-            except StandardError:
+            except Exception:
                 error = sys.exc_info()[1]
                 raise OSError("cannot rmdir(%s): %s"%(path, error))
             try:
@@ -941,7 +941,7 @@ class Queue(QueueBase):
             try:
                 os.rename(temp, path)
                 return name
-            except StandardError:
+            except Exception:
                 error = sys.exc_info()[1]
                 if error.errno != errno.ENOTEMPTY and \
                     error.errno != errno.EEXIST:
@@ -1009,7 +1009,7 @@ class Queue(QueueBase):
                         fpath = '%s/%s' % (path, file_name)
                         try:
                             os.unlink(fpath)
-                        except StandardError:
+                        except Exception:
                             error = sys.exc_info()[1]
                             if error.errno != errno.ENOENT:
                                 raise OSError("cannot unlink(%s): %s"%(fpath,

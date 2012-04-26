@@ -78,7 +78,7 @@ def _directory_contents(path, missingok=True):
     """
     try:
         return os.listdir(path)
-    except StandardError:
+    except Exception:
         error = sys.exc_info()[1]
         if not missingok and not error.errcode == errno.ENOENT:
             raise OSError("cannot listdir(%s): %s"%(path, error))
@@ -128,7 +128,7 @@ def _special_rmdir(path):
     """
     try:
         os.rmdir(path)
-    except StandardError:
+    except Exception:
         error = sys.exc_info()[1]
         if not error.errno == errno.ENOENT:
             raise OSError("cannot rmdir(%s): %s"%(path, error))
@@ -149,17 +149,17 @@ def _file_read(path, utf8):
             fileh = codecs.open(path, 'r', "utf8")
         else:
             fileh = open(path, 'rb')
-    except StandardError:
+    except Exception:
         error = sys.exc_info()[1]
         raise OSError("cannot open %s: %s"%(path, error))
     try:
         data = fileh.read()
-    except StandardError:
+    except Exception:
         error = sys.exc_info()[1]
         raise IOError("cannot read %s: %s"%(path, error))
     try:
         fileh.close()
-    except StandardError:
+    except Exception:
         error = sys.exc_info()[1]
         raise OSError("cannot close %s: %s"%(path, error))
     return data
