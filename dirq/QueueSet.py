@@ -72,7 +72,7 @@ class QueueSet(object):
         self._reset()
         return self.next()
 
-    def next(self):
+    def __next__(self):
         """Return (queue, next element) tuple from the queue set, only using
         cached information.
         
@@ -97,6 +97,7 @@ class QueueSet(object):
             raise StopIteration
         else:
             return (None, None)
+    next = __next__
 
     def count(self):
         """Return the number of elements in the queue set, regardless of
@@ -154,7 +155,7 @@ class QueueSet(object):
         self._add(*queues)
         self._reset()
 
-    def remove(self, queue):
+    def remove(self, given_queue):
         """Remove a queue and its respective elements from in memory cache.
         
         Arguments:
@@ -163,10 +164,10 @@ class QueueSet(object):
         Raise:
             TypeError - wrong queue object type provided
         """
-        if not isinstance(queue, QueueBase):
+        if not isinstance(given_queue, QueueBase):
             raise TypeError("QueueBase objects expected.")
         for index, queue in enumerate(self.qset):
-            if queue.id == queue.id:
+            if given_queue.id == queue.id:
                 del self.qset[index]
                 if self.elts:
                     del self.elts[index]
