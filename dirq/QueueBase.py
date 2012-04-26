@@ -146,19 +146,19 @@ def _file_read(path, utf8):
     """
     try:
         if utf8:
-            fh = codecs.open(path, 'r', "utf8")
+            fileh = codecs.open(path, 'r', "utf8")
         else:
-            fh = open(path, 'rb')
+            fileh = open(path, 'rb')
     except StandardError:
         error = sys.exc_info()[1]
         raise OSError("cannot open %s: %s"%(path, error))
     try:
-        data = fh.read()
+        data = fileh.read()
     except StandardError:
         error = sys.exc_info()[1]
         raise IOError("cannot read %s: %s"%(path, error))
     try:
-        fh.close()
+        fileh.close()
     except StandardError:
         error = sys.exc_info()[1]
         raise OSError("cannot close %s: %s"%(path, error))
@@ -177,13 +177,14 @@ def _file_create(path, umask=None, utf8=False):
             ex = OSError("[Errno %i] File exists: %s" % (errno.EEXIST, path))
             ex.errno = errno.EEXIST
             raise ex
-        fh = codecs.open(path, 'w', 'utf8')
+        fileh = codecs.open(path, 'w', 'utf8')
     else:
-        fh = os.fdopen(os.open(path, os.O_WRONLY|os.O_CREAT|os.O_EXCL), 'wb')
+        fileh = os.fdopen(
+                    os.open(path, os.O_WRONLY|os.O_CREAT|os.O_EXCL), 'wb')
     if umask:
         os.umask(oldumask)
 
-    return fh
+    return fileh
 
 def _file_write(path, utf8, umask, data):
     """Write to a file.
@@ -192,14 +193,14 @@ def _file_write(path, utf8, umask, data):
         OSError - problems opening/closing file
         IOError - file write error
     """
-    fh = _file_create(path, umask=umask, utf8=utf8)
+    fileh = _file_create(path, umask=umask, utf8=utf8)
     try:
-        fh.write(data)
+        fileh.write(data)
     except Exception:
         error = sys.exc_info()[1]
         raise IOError("cannot write to %s: %s"%(path, error))
     try:
-        fh.close()
+        fileh.close()
     except Exception:
         error = sys.exc_info()[1]
         raise OSError("cannot close %s: %s"%(path, error))

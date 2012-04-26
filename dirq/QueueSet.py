@@ -41,8 +41,7 @@ class QueueSet(object):
         self._add(*queues)
 
     def __iter__(self):
-        """Return iterator over element names on the set of queues.
-        """
+        """ Return iterator over element names on the set of queues. """
         self._reset()
         self._next_exception = True
         return self
@@ -123,20 +122,20 @@ class QueueSet(object):
             TypeError  - wrong queue object type provided
         """
         type_queue = False
-        for q in queues:
-            if type(q) in [list, tuple] and not type_queue:
-                for _q in q:
-                    if isinstance(_q, QueueBase):
-                        if _q.id in [x.id for x in self.qset]:
+        for queue in queues:
+            if type(queue) in [list, tuple] and not type_queue:
+                for _queue in queue:
+                    if isinstance(_queue, QueueBase):
+                        if _queue.id in [x.id for x in self.qset]:
                             raise QueueError("queue already in the set: %s"%\
-                                              _q.path)
-                        self.qset.append(_q.copy())
+                                              _queue.path)
+                        self.qset.append(_queue.copy())
                     else:
                         raise TypeError("QueueBase objects expected.")
                 break
-            elif isinstance(q, QueueBase):
+            elif isinstance(queue, QueueBase):
                 type_queue = True
-                self.qset.append(q.copy())
+                self.qset.append(queue.copy())
             else:
                 raise TypeError("expected QueueBase object(s) or list/tuple "
                                 "of QueueBase objects")
@@ -166,9 +165,9 @@ class QueueSet(object):
         """
         if not isinstance(queue, QueueBase):
             raise TypeError("QueueBase objects expected.")
-        for i, q in enumerate(self.qset):
-            if queue.id == q.id:
-                del self.qset[i]
+        for index, queue in enumerate(self.qset):
+            if queue.id == queue.id:
+                del self.qset[index]
                 if self.elts:
-                    del self.elts[i]
+                    del self.elts[index]
 

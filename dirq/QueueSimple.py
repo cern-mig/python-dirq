@@ -161,19 +161,19 @@ class QueueSimple(QueueBase):
             tmp = '%s/%s/%s%s' % (self.path, _dir, _name(), TEMPORARY_SUFFIX)
             try:
                 if is_bytes(data):
-                    fh = _file_create(tmp, umask=self.umask, utf8=False)
+                    new_file = _file_create(tmp, umask=self.umask, utf8=False)
                 else:
-                    fh = _file_create(tmp, umask=self.umask, utf8=True)
+                    new_file = _file_create(tmp, umask=self.umask, utf8=True)
             except EnvironmentError:
                 error = sys.exc_info()[1]
                 if error.errno == errno.ENOENT:
                     _special_mkdir('%s/%s/' % (self.path, _dir))
                     continue
             else:
-                if fh:
+                if new_file:
                     break
-        fh.write(data)
-        fh.close()
+        new_file.write(data)
+        new_file.close()
         return _dir, tmp
 
     def _add_path(self, tmp, _dir):
