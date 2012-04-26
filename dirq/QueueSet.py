@@ -59,8 +59,8 @@ class QueueSet(object):
         Raise:
             OSError - can't list directories
         """
-        for q in self.qset:
-            q._reset()
+        for queue in self.qset:
+            queue._reset()
         self.elts = []
 
     def first(self):
@@ -84,15 +84,15 @@ class QueueSet(object):
             OSError       - can't list element directories
         """
         if not self.elts:
-            for q in self.qset:
-                self.elts.append((q, q.next()))
+            for queue in self.qset:
+                self.elts.append((queue, queue.next()))
             if not self.elts:
                 return (None, None)
         self.elts.sort(key=lambda x: x[1])
-        for i, qe in enumerate(self.elts):
-            self.elts[i] = (qe[0], qe[0].next())
-            if qe[1]:
-                return qe
+        for index, queue_elt in enumerate(self.elts):
+            self.elts[index] = (queue_elt[0], queue_elt[0].next())
+            if queue_elt[1]:
+                return queue_elt
         if self._next_exception:
             self._next_exception = False
             raise StopIteration
@@ -106,10 +106,10 @@ class QueueSet(object):
         Raise:
             OSError - can't list/stat element directories
         """
-        c = 0
-        for q in self.qset:
-            c += q.count()
-        return c
+        count = 0
+        for queue in self.qset:
+            count += queue.count()
+        return count
 
     def _add(self, *queues):
         """Add lists of queues to existing ones. Copies of the object

@@ -760,10 +760,10 @@ class Queue(QueueBase):
                 if error.errno != errno.ENOTEMPTY and \
                     error.errno != errno.EEXIST:
                     raise OSError("cannot rmdir(%s): %s"%(temp, error))
-                """ RACE: this can happen if an other process managed to lock
-                this element while it was being removed (see the comment in
-                the lock() method) so we try to remove the lock again
-                and again... """
+                # RACE: this can happen if an other process managed to lock
+                # this element while it was being removed (see the comment in
+                # the lock() method) so we try to remove the lock again
+                # and again...
 
     def dequeue(self, ename, permissive=True):
         """Dequeue an element from the queue. Removes element from the
@@ -782,9 +782,9 @@ class Queue(QueueBase):
         """
         if not self.lock(ename, permissive=permissive):
             raise QueueLockError("couldn't lock element: %s" % ename)
-        e = self.get(ename)
+        element = self.get(ename)
         self.remove(ename)
-        return e
+        return element
 
     def get(self, ename):
         """Get an element data from a locked element.
@@ -876,10 +876,11 @@ class Queue(QueueBase):
             if subdirs < self.maxelts:
                 return name
         else:
-            """RACE: at this point, the directory does not exist anymore,
-            so it must have been purged after we listed the directory
-            contents. We do not try to do more and simply create a new
-            directory"""
+            # RACE: at this point, the directory does not exist anymore,
+            # so it must have been purged after we listed the directory
+            # contents. We do not try to do more and simply create a new
+            # directory
+            pass
         # we need a new directory
         name = '%08x' % (int(name, 16) + 1)
         _special_mkdir('%s/%s' % (self.path, name), self.umask)
@@ -948,8 +949,6 @@ class Queue(QueueBase):
                                                                error))
                     # RACE: the target directory was already present...
     enqueue = add
-    """Alias for add()
-    """
 
     def _volatile(self):
         """Return the list of volatile (i.e. temporary or obsolete) directories.

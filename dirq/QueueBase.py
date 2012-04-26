@@ -28,6 +28,8 @@ import time
 import sys
 import inspect
 
+from dirq.utils import VALID_STR_TYPES
+
 UPID = '%01x' % (os.getpid() % 16)
 
 __DirectoryRegexp = '[0-9a-f]{8}'
@@ -37,17 +39,14 @@ _ElementRegexp    = re.compile('(%s)$' % __ElementRegexp)
 _DirElemRegexp    = re.compile('^%s/%s$'%(__DirectoryRegexp,
                                           __ElementRegexp))
 
-try:
-    _VALID_STR_TYPES = (str, unicode)
-except NameError:
-    _VALID_STR_TYPES = (str, bytes)
-
 WARN = False
 
 def _warn(text):
+    """ Print a warning. """
     if WARN:
         sys.stdout.write('%s, at %s line %s\n' % (text, __name__,
                                         inspect.currentframe().f_back.f_lineno))
+        sys.stdout.flush()
 
 def _name():
     """
@@ -64,8 +63,8 @@ def _name():
     * reasonably compact
     * matching $_ElementRegexp
     """
-    t = time.time()
-    return "%08x%05x%s" % (t, (t % 1.0)*100000, UPID)
+    now = time.time()
+    return "%08x%05x%s" % (now, (now % 1.0)*100000, UPID)
 
 def _directory_contents(path, missingok=True):
     """Get the contents of a directory as a list of names, without . and ..
@@ -225,7 +224,7 @@ class QueueBase(object):
         self.elts = []
         self._next_exception = False
 
-        if type(path) not in _VALID_STR_TYPES:
+        if type(path) not in VALID_STR_TYPES:
             raise TypeError("'path' should be str or unicode")
         self.path = path
         if umask != None and not isinstance(umask, int):
@@ -263,10 +262,10 @@ class QueueBase(object):
         * the other structured attributes (including schema) are not cloned
         """
         import copy
-        c = copy.deepcopy(self)
-        c.dirs = []
-        c.elts = []
-        return c
+        new = copy.deepcopy(self)
+        new.dirs = []
+        new.elts = []
+        return new
 
     def _reset(self):
         """Regenerate list of intermediate directories. Drop cached
@@ -293,6 +292,7 @@ class QueueBase(object):
         return self.next()
 
     def _build_elements(self):
+        """ This should be implemented by sub classes. """
         raise NotImplementedError('Implement in sub-class.')
 
     def __next__(self):

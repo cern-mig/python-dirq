@@ -112,6 +112,7 @@ import time
 
 from dirq.QueueBase import QueueBase, _name, _file_create, _special_mkdir, \
     _file_read, _DirectoryRegexp, _ElementRegexp, _special_rmdir, _warn
+from dirq.utils import is_bytes
 
 # suffix indicating a temporary element
 TEMPORARY_SUFFIX = ".tmp"
@@ -140,11 +141,13 @@ class QueueSimple(QueueBase):
             self._add_dir = self.__add_dir_timecurrent
 
     def _add_dir(self):
-        t = time.time()
-        t -= t % self.granularity
-        return "%08x" % t
+        """ Return new directory name based on time. """
+        now = time.time()
+        now -= now % self.granularity
+        return "%08x" % now
 
     def __add_dir_timecurrent(self):
+        """ Return new directory name with current time. """
         return "%08x" % time.time()
 
     def _add_data(self, data):
@@ -157,7 +160,7 @@ class QueueSimple(QueueBase):
         while 1:
             tmp = '%s/%s/%s%s' % (self.path, _dir, _name(), TEMPORARY_SUFFIX)
             try:
-                if type(data) == bytes:
+                if is_bytes(data):
                     fh = _file_create(tmp, umask=self.umask, utf8=False)
                 else:
                     fh = _file_create(tmp, umask=self.umask, utf8=True)
@@ -216,7 +219,7 @@ class QueueSimple(QueueBase):
         return self._add_path(path, _dir)
 
     add_ref = add
-    "Defined to comply with Directory::Queue interface."
+    """ Defined to comply with Directory::Queue interface."""
 
     def add_path(self, path):
         """Add the given file (identified by its path) to the queue and return
@@ -236,6 +239,7 @@ class QueueSimple(QueueBase):
     "Get locked element. Defined to comply with Directory::Queue interface."
 
     def get_path(self, name):
+        """ Return the path given the name. """
         return '%s/%s%s' % (self.path, name, LOCKED_SUFFIX) 
 
     def lock(self, name, permissive=True):
@@ -260,12 +264,13 @@ class QueueSimple(QueueBase):
             if permissive and (error.errno == errno.EEXIST or 
                                     error.errno == errno.ENOENT):
                 return False
-            e = OSError("cannot link(%s, %s): %s" % (path, lock, error))
-            e.errno = error.errno
-            raise e
+            new_error = OSError("cannot link(%s, %s): %s" %
+                                (path, lock, error))
+            new_error.errno = error.errno
+            raise new_error
         else:
-            t = time.time()
-            os.utime(path, (t, t))
+            now = time.time()
+            os.utime(path, (now, now))
             return True
 
     def unlock(self, name, permissive=False):
@@ -317,8 +322,8 @@ class QueueSimple(QueueBase):
         self.__get_list_of_interm_dirs(dirs)
         # count elements in sub-directories
         for name in dirs:
-            for el in os.listdir('%s/%s' % (self.path, name)):
-                if _ElementRegexp.match(el):
+            for element in os.listdir('%s/%s' % (self.path, name)):
+                if _ElementRegexp.match(element):
                     count += 1
         return count
 
