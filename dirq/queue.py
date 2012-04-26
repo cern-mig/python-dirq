@@ -280,6 +280,7 @@ from dirq.QueueBase import (_name,
                        _directory_contents,
                         _warn) 
 from dirq.Exceptions import QueueError, QueueLockError
+from dirq.utils import VALID_STR_TYPES, VALID_INT_TYPES
 
 # name of the directory holding temporary elements
 TEMPORARY_DIRECTORY = "temporary"
@@ -293,15 +294,6 @@ LOCKED_DIRECTORY = "locked"
 #
 # global variables
 #
-
-try:
-    _VALID_INT_TYPES = (int, long)
-except NameError:
-    _VALID_INT_TYPES = (int, )
-try:
-    _VALID_STR_TYPES = (str, unicode)
-except NameError:
-    _VALID_STR_TYPES = (str, bytes)
 
 __FileRegexp      = "[0-9a-zA-Z]+"
 _FileRegexp       = re.compile("^(%s)$" % __FileRegexp)
@@ -326,7 +318,7 @@ def _hash2string(data):
     string = ''
     for key in sorted(data.keys()):
         val = data[key]
-        if type(val) not in _VALID_STR_TYPES:
+        if type(val) not in VALID_STR_TYPES:
             raise QueueError("invalid hash value type: %r"%val)
         key = re.sub('(\\\\|\x09|\x0a)', lambda m: _Byte2Esc[m.group(1)], key)
         val = re.sub('(\\\\|\x09|\x0a)', lambda m: _Byte2Esc[m.group(1)], val)
@@ -473,7 +465,7 @@ class Queue(QueueBase):
         """
         super(Queue, self).__init__(path, umask=umask)
 
-        if type(maxelts) in _VALID_INT_TYPES:
+        if type(maxelts) in VALID_INT_TYPES:
             self.maxelts = maxelts
         else:
             raise TypeError("'maxelts' should be int or long")
@@ -914,12 +906,12 @@ class Queue(QueueBase):
             if name not in self.type:
                 raise QueueError("unexpected data: %s"%name)
             if self.type[name] == 'binary':
-                if type(data[name]) not in _VALID_STR_TYPES:
+                if type(data[name]) not in VALID_STR_TYPES:
                     raise QueueError("unexpected binary data in %s: %r"%(name,
                                                                     data[name]))
                 _file_write('%s/%s' % (temp, name), 0, self.umask, data[name])
             elif self.type[name] == 'string':
-                if type(data[name]) not in _VALID_STR_TYPES:
+                if type(data[name]) not in VALID_STR_TYPES:
                     raise QueueError("unexpected string data in %s: %r"%(name,
                                                                     data[name]))
                 _file_write('%s/%s' % (temp, name), 1, self.umask, data[name])

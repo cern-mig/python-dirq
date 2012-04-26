@@ -23,6 +23,11 @@ if _py2:
     VALID_STR_TYPES = (str, unicode)
 else:
     VALID_STR_TYPES = (str, bytes)
+    
+if _py2:
+    VALID_INT_TYPES = (int, long)
+else:
+    VALID_INT_TYPES = (int, )
 
 def is_bytes(string):
     """ Check if given string is a byte string. """
