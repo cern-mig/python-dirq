@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import shutil
 import unittest
@@ -6,7 +8,7 @@ import time
 from dirq.QueueSimple import QueueSimple, LOCKED_SUFFIX
 import tempfile
 
-__all__ =['TestQueueSimple']
+__all__ = ['TestQueueSimple']
 
 class TestDirQueue(unittest.TestCase):
     def setUp(self):
@@ -77,16 +79,16 @@ class TestQueueSimple(TestDirQueue):
         fh.write(data)
         fh.flush()
         fh.close()
-        assert qs.lock(elem_name) == 1
+        self.assertEqual(qs.lock(elem_name), 1)
         self.failUnless(os.path.exists(elem_full_path + LOCKED_SUFFIX))
         qs.unlock(elem_name)
     def test07get(self):
         'QueueSimple.get()'
-        data = 'foo'
+        data = 'foo'.encode()
         qs = QueueSimple(self.qdir)
         elem = qs.add(data)
         qs.lock(elem)
-        assert qs.get(elem) == data
+        self.assertEqual(qs.get(elem), data)
     def test08count(self):
         'QueueSimple.count()'
         qs = QueueSimple(self.qdir)
@@ -95,7 +97,7 @@ class TestQueueSimple(TestDirQueue):
         # simply add a file (fake element) into the elements directory
         fake_elem = os.listdir(self.qdir)[0] + '/' + 'foo.bar' 
         open(self.qdir + '/' + fake_elem, 'w').write('')
-        assert qs.count() == 1
+        self.assertEqual(qs.count(), 1)
     def test09remove(self):
         'QueueSimple.remove()'
         qs = QueueSimple(self.qdir, granularity=1)
@@ -105,21 +107,21 @@ class TestQueueSimple(TestDirQueue):
         for elem in qs:
             qs.lock(elem)
             qs.remove(elem)
-        assert qs.count() == 0
+        self.assertEqual(qs.count(), 0)
     def test10purge_oneDirOneElement(self):
         'QueueSimple.purge() one directory & element'
         qs = QueueSimple(self.qdir)
         qs.add('foo')
-        assert qs.count() == 1
+        self.assertEqual(qs.count(), 1)
         elem = qs.first()
         qs.lock(elem)
         elem_path_lock = self.qdir + '/' + elem + LOCKED_SUFFIX
-        assert os.path.exists(elem_path_lock) == True
+        self.assert_(os.path.exists(elem_path_lock) == True)
         time.sleep(2)
         qs.purge(maxlock=1)
-        assert os.path.exists(elem_path_lock) == False
-        assert qs.count() == 1
-        assert len(os.listdir(self.qdir)) == 1
+        self.assert_(os.path.exists(elem_path_lock) == False)
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(len(os.listdir(self.qdir)), 1)
     def test11purge_multDirMultElement(self):
         'QueueSimple.purge() multiple directories & elements'
         qs = QueueSimple(self.qdir, granularity=1)

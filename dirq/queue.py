@@ -49,7 +49,7 @@ Usage::
     for count in range(1,101):
         name = dirq.add({"body"  : "element %i"%count,
                          "header": dict(os.environ)})
-        print "# added element %i as %s" %(count, name)
+        print("# added element %i as %s" % (count, name))
 
     # sample consumer
 
@@ -59,7 +59,7 @@ Usage::
         if not dirq.lock(name):
             name = dirq.next()
             continue
-        print "# reading element %s" % name
+        print("# reading element %s" % name)
         data = dirq.get(name)
         # one can use data['body'] and data['header'] here...
         # one could use dirq.unlock(name) to only browse the queue...
@@ -262,24 +262,25 @@ __author__ = dirq.AUTHOR
 __version__ = dirq.VERSION
 __date__ = dirq.DATE
 
+import errno
 import os
+import re
 import sys
 import time
-import errno
-import re
 
-__all__ = ['Queue','QueueSet','QueueError']
+__all__ = ['Queue', 'QueueSet', 'QueueError']
 
-from dirq.QueueBase import QueueBase, _DirElemRegexp, _DirectoryRegexp,\
+from dirq.QueueBase import QueueBase, _DirElemRegexp, _DirectoryRegexp, \
     _ElementRegexp
-from QueueBase import (_name,
+from dirq.QueueBase import (_name,
                        _special_mkdir,
                        _special_rmdir,
                        _file_read,
                        _file_write,
                        _directory_contents,
                         _warn) 
-from Exceptions import QueueError, QueueLockError
+from dirq.Exceptions import QueueError, QueueLockError
+from dirq.utils import VALID_STR_TYPES, VALID_INT_TYPES
 
 # name of the directory holding temporary elements
 TEMPORARY_DIRECTORY = "temporary"
@@ -298,14 +299,14 @@ __FileRegexp      = "[0-9a-zA-Z]+"
 _FileRegexp       = re.compile("^(%s)$" % __FileRegexp)
 _KeyValRegexp     = re.compile('^([^\x09\x0a]*)\x09([^\x09\x0a]*)$')
 
-_Byte2Esc = {"\x5c" : "\\", "\x09" : "\\t", "\x0a" : "\\n"}
-_Esc2Byte = dict([(v,k) for k, v in _Byte2Esc.iteritems()])
+_Byte2Esc = {"\\" : r"\\", "\t" : r"\t", "\n" : r"\n"}
+_Esc2Byte = dict([(value, key) for key, value in _Byte2Esc.items()])
 
 #
 # Helper Functions
 #
 
-def _hash2string(hash):
+def _hash2string(data):
     """Transform a hash of strings into a string.
 
     Raise:
@@ -315,16 +316,16 @@ def _hash2string(hash):
         the keys are sorted so that identical hashes yield to identical strings
     """
     string = ''
-    for key in sorted(hash.keys()):
-        val = hash[key]
-        if type(val) not in [str, unicode]:
+    for key in sorted(data.keys()):
+        val = data[key]
+        if type(val) not in VALID_STR_TYPES:
             raise QueueError("invalid hash value type: %r"%val)
-        key = re.sub('([\x5c\x09\x0a])', lambda m: _Byte2Esc[m.group(1)], key)
-        val = re.sub('([\x5c\x09\x0a])', lambda m: _Byte2Esc[m.group(1)], val)
-        string = '%s%s' % (string, '%s\x09%s\x0a'%(key,val))
+        key = re.sub('(\\\\|\x09|\x0a)', lambda m: _Byte2Esc[m.group(1)], key)
+        val = re.sub('(\\\\|\x09|\x0a)', lambda m: _Byte2Esc[m.group(1)], val)
+        string = '%s%s' % (string, '%s\x09%s\x0a' % (key, val))
     return string
 
-def _string2hash(string):
+def _string2hash(given):
     """Transform a string into a hash of strings.
     
     Raise:
@@ -333,20 +334,21 @@ def _string2hash(string):
     Note:
         duplicate keys are not checked (the last one wins)
     """
-    _hash = {}
-    for line in string.strip('\n').split('\x0a'):
+    _hash = dict()
+    if not given:
+        return _hash
+    for line in given.strip('\n').split('\x0a'):
         match = _KeyValRegexp.match(line)
         if not match:
-            raise QueueError("unexpected hash line: %s"%line)
-        key = re.sub('(\\\\|\\t|\\n)', lambda m: _Esc2Byte[str(m.group(1))],
+            raise QueueError("unexpected hash line: %s" % line)
+        key = re.sub(r'(\\\\|\\t|\\n)', lambda m: _Esc2Byte[str(m.group(1))],
                      match.group(1))
-        val = re.sub('(\\\\|\\t|\\n)', lambda m: _Esc2Byte[str(m.group(1))],
+        val = re.sub(r'(\\\\|\\t|\\n)', lambda m: _Esc2Byte[str(m.group(1))],
                      match.group(2))
         _hash[key] = val
-        _hash[match.group(1)] = match.group(2)
     return _hash
 
-def _older(path, time):
+def _older(path, given_time):
     """
     Check if a path is old enough:
     
@@ -362,13 +364,14 @@ def _older(path, time):
     """
     try:
         stat = os.lstat(path)
-    except StandardError, e:
-        if e.errno != errno.ENOENT:
-            raise OSError("cannot lstat(%s): %s"%(path, str(e)))
+    except Exception:
+        error = sys.exc_info()[1]
+        if error.errno != errno.ENOENT:
+            raise OSError("cannot lstat(%s): %s"%(path, error))
             # RACE: this path does not exist (anymore)
         return False
     else:
-        return stat.st_mtime < time
+        return stat.st_mtime < given_time
 
 def __subdirs_num_nlink(path):
     """Count the number of sub-directories in the given directory:
@@ -387,9 +390,10 @@ def __subdirs_num_nlink(path):
     """
     try:
         stat = os.lstat(path)
-    except StandardError, e:
-        if e.errno != errno.ENOENT:
-            raise OSError("cannot lstat(%s): %s"%(path, str(e)))
+    except Exception:
+        error = sys.exc_info()[1]
+        if error.errno != errno.ENOENT:
+            raise OSError("cannot lstat(%s): %s"%(path, error))
             # RACE: this path does not exist (anymore)
         return 0
     else:
@@ -427,7 +431,7 @@ def _count(path):
     """
     count = 0
     for name in [x for x in _directory_contents(path)]:
-        subdirs = _subdirs_num('%s/%s'%(path,name))
+        subdirs = _subdirs_num('%s/%s' % (path, name))
         if subdirs:
             count += subdirs
     return count
@@ -439,7 +443,7 @@ def _count(path):
 class Queue(QueueBase):
     """Directory based queue.
     """
-    def __init__(self, path, umask=None, maxelts=16000, schema={}):
+    def __init__(self, path, umask=None, maxelts=16000, schema=dict()):
         """Check and set schema. Build the queue directory structure.
         
         Arguments:
@@ -461,7 +465,7 @@ class Queue(QueueBase):
         """
         super(Queue, self).__init__(path, umask=umask)
 
-        if type(maxelts) in [int, long]:
+        if type(maxelts) in VALID_INT_TYPES:
             self.maxelts = maxelts
         else:
             raise TypeError("'maxelts' should be int or long")
@@ -477,17 +481,19 @@ class Queue(QueueBase):
                 if not isinstance(schema[name], str):
                     raise QueueError("invalid data type for schema "+\
                                     "specification: %r"%type(schema[name]))
-                m = re.match('(binary|string|table)([\?\*]{0,2})?$', schema[name])
-                if not m:
-                    raise QueueError("invalid schema data type: %r"%schema[name])
-                self.type[name] = m.group(1)
-                if not re.search('\?', m.group(2)):
+                match = re.match('(binary|string|table)([\?\*]{0,2})?$',
+                             schema[name])
+                if not match:
+                    raise QueueError("invalid schema data type: %r" % 
+                                     schema[name])
+                self.type[name] = match.group(1)
+                if not re.search('\?', match.group(2)):
                     self.mandatory[name] = True
             if not self.mandatory:
                 raise QueueError("invalid schema: no mandatory data")
         # create directories
-        for d in (TEMPORARY_DIRECTORY, OBSOLETE_DIRECTORY):
-            _special_mkdir('%s/%s'%(self.path,d), self.umask)
+        for directory in (TEMPORARY_DIRECTORY, OBSOLETE_DIRECTORY):
+            _special_mkdir('%s/%s'%(self.path, directory), self.umask)
 
     def _is_locked_nlink(self, ename, _time=None):
         """Check if an element is locked.
@@ -515,9 +521,10 @@ class Queue(QueueBase):
         path = '%s/%s' % (self.path, ename)
         try:
             stat = os.lstat(path)
-        except StandardError, e:
-            if e.errno != errno.ENOENT:
-                raise OSError("cannot lstat(%s): %s" % (path, str(e)))
+        except Exception:
+            error = sys.exc_info()[1]
+            if error.errno != errno.ENOENT:
+                raise OSError("cannot lstat(%s): %s" % (path, error))
             return False
         # locking increases number of links
         if not stat.st_nlink > 2:
@@ -538,9 +545,10 @@ class Queue(QueueBase):
         # element exists and locked, and we were asked to act upon its age
         try:
             stat = os.lstat(path)
-        except StandardError, e:
-            if e.errno != errno.ENOENT:
-                raise OSError("cannot lstat(%s): %s" % (path, str(e)))
+        except Exception:
+            error = sys.exc_info()[1]
+            if error.errno != errno.ENOENT:
+                raise OSError("cannot lstat(%s): %s" % (path, error))
             return False
         return stat.st_mtime < _time
 
@@ -556,14 +564,15 @@ class Queue(QueueBase):
             OSError - can't list element directories
         """
         while self.dirs:
-            dir = self.dirs.pop(0)
+            directory = self.dirs.pop(0)
             _list = []
-            for name in _directory_contents('%s/%s'%(self.path,dir), True):
+            for name in _directory_contents(
+                            '%s/%s'%(self.path, directory), True):
                 if _ElementRegexp.match(name):
                     _list.append(name)
             if not _list:
                 continue
-            self.elts = ['%s/%s'%(dir, x) for x in sorted(_list)]
+            self.elts = ['%s/%s' % (directory, x) for x in sorted(_list)]
             return True
         return False
 
@@ -616,27 +625,29 @@ class Queue(QueueBase):
             else:
                 os.mkdir(path)
             os.lstat(path)
-        except StandardError, e:
+        except Exception:
+            error = sys.exc_info()[1]
             if permissive:
                 # RACE: the locked directory already exists
-                if e.errno == errno.EEXIST:
+                if error.errno == errno.EEXIST:
                     return False
                 # RACE: the element directory does not exist anymore
-                if e.errno == errno.ENOENT:
+                if error.errno == errno.ENOENT:
                     return False
             # otherwise this is unexpected...
-            raise OSError("cannot mkdir(%s): %s"%(path, str(e)))
+            raise OSError("cannot mkdir(%s): %s" % (path, error))
         try:
             os.lstat(path)
-        except StandardError, e:
+        except Exception:
+            error = sys.exc_info()[1]
             if permissive:
                 # RACE: the element directory does not exist anymore (this can
                 # happen if an other process locked & removed the element
                 # while our mkdir() was in progress... yes, this can happen!)
-                if e.errno == errno.ENOENT:
+                if error.errno == errno.ENOENT:
                     return False
             # otherwise this is unexpected...
-            raise OSError("cannot lstat(%s): %s"%(path, str(e)))
+            raise OSError("cannot lstat(%s): %s"%(path, str(error)))
         return True
 
     def unlock(self, ename, permissive=False):
@@ -670,12 +681,13 @@ class Queue(QueueBase):
         path = '%s/%s/%s' % (self.path, ename, LOCKED_DIRECTORY)
         try:
             os.rmdir(path)
-        except StandardError, e:
+        except Exception:
+            error = sys.exc_info()[1]
             if permissive:
                 # RACE: the element directory or its lock does not exist anymore
-                if e.errno == errno.ENOENT:
+                if error.errno == errno.ENOENT:
                     return False
-            raise OSError("cannot rmdir(%s): %s"%(path, str(e)))
+            raise OSError("cannot rmdir(%s): %s"%(path, error))
         else:
             return True
 
@@ -705,10 +717,12 @@ class Queue(QueueBase):
             try:
                 os.rename(path, temp)
                 break
-            except StandardError, e:
-                if e.errno != errno.ENOTEMPTY and e.errno != errno.EEXIST:
+            except Exception:
+                error = sys.exc_info()[1]
+                if error.errno != errno.ENOTEMPTY and \
+                    error.errno != errno.EEXIST:
                     raise OSError("cannot rename(%s, %s): %s"%(ename, temp,
-                                                               str(e)))
+                                                               error))
                     # RACE: the target directory was already present...
         # remove the data files
         for name in _directory_contents(temp):
@@ -719,24 +733,29 @@ class Queue(QueueBase):
             path = '%s/%s' % (temp, name)
             try:
                 os.unlink(path)
-            except StandardError, e:
-                raise OSError("cannot unlink(%s): %s"%(path, str(e)))
+            except Exception:
+                error = sys.exc_info()[1]
+                raise OSError("cannot unlink(%s): %s"%(path, error))
         # remove the locked directory
         path = '%s/%s' % (temp, LOCKED_DIRECTORY)
         while True:
             try:
                 os.rmdir(path)
-            except StandardError, e:
-                raise OSError("cannot rmdir(%s): %s"%(path, str(e)))
+            except Exception:
+                error = sys.exc_info()[1]
+                raise OSError("cannot rmdir(%s): %s"%(path, error))
             try:
                 os.rmdir(temp)
                 return
-            except Exception, e:
-                if e.errno != errno.ENOTEMPTY and e.errno != errno.EEXIST:
-                    raise OSError("cannot rmdir(%s): %s"%(temp, str(e)))
+            except Exception:
+                error = sys.exc_info()[1]
+                if error.errno != errno.ENOTEMPTY and \
+                    error.errno != errno.EEXIST:
+                    raise OSError("cannot rmdir(%s): %s"%(temp, error))
                 # RACE: this can happen if an other process managed to lock
                 # this element while it was being removed (see the comment in
-                # the lock() method) so we try to remove the lock again and agian ...
+                # the lock() method) so we try to remove the lock again
+                # and again...
 
     def dequeue(self, ename, permissive=True):
         """Dequeue an element from the queue. Removes element from the
@@ -755,9 +774,9 @@ class Queue(QueueBase):
         """
         if not self.lock(ename, permissive=permissive):
             raise QueueLockError("couldn't lock element: %s" % ename)
-        e = self.get(ename)
+        element = self.get(ename)
         self.remove(ename)
-        return e
+        return element
 
     def get(self, ename):
         """Get an element data from a locked element.
@@ -786,10 +805,11 @@ class Queue(QueueBase):
             path = '%s/%s/%s' % (self.path, ename, dname)
             try:
                 os.lstat(path)
-            except StandardError, e:
-                if e.errno != errno.ENOENT:
-                    raise OSError("cannot lstat(%s): %s"%(path, str(e)))
-                if self.mandatory.has_key(dname):
+            except Exception:
+                error = sys.exc_info()[1]
+                if error.errno != errno.ENOENT:
+                    raise OSError("cannot lstat(%s): %s"%(path, error))
+                if dname in self.mandatory:
                     raise QueueError("missing data file: %s"%path)
                 else:
                     continue
@@ -815,9 +835,9 @@ class Queue(QueueBase):
         """
         if not self.lock(ename, permissive=permissive):
             raise QueueLockError("couldn't lock element: %s" % ename)
-        e = self.get(ename)
+        element = self.get(ename)
         self.unlock(ename, permissive=permissive)
-        return e
+        return element
 
     def _insertion_directory(self):
         """Return the name of the intermediate directory that can be used for
@@ -838,23 +858,24 @@ class Queue(QueueBase):
         # handle the case with no directories yet
         if not _list:
             name = '%08x' % 0
-            _special_mkdir('%s/%s'%(self.path,name), self.umask)
+            _special_mkdir('%s/%s' % (self.path, name), self.umask)
             return name
         # check the last directory
         _list.sort()
         name = _list[-1]
-        subdirs = _subdirs_num('%s/%s'%(self.path,name))
+        subdirs = _subdirs_num('%s/%s' % (self.path, name))
         if subdirs:
             if subdirs < self.maxelts:
                 return name
         else:
-            """RACE: at this point, the directory does not exist anymore,
-            so it must have been purged after we listed the directory
-            contents. We do not try to do more and simply create a new
-            directory"""
+            # RACE: at this point, the directory does not exist anymore,
+            # so it must have been purged after we listed the directory
+            # contents. We do not try to do more and simply create a new
+            # directory
+            pass
         # we need a new directory
         name = '%08x' % (int(name, 16) + 1)
-        _special_mkdir('%s/%s'%(self.path,name), self.umask)
+        _special_mkdir('%s/%s' % (self.path, name), self.umask)
         return name
 
     def add(self, data):
@@ -882,29 +903,29 @@ class Queue(QueueBase):
             if _special_mkdir(temp, self.umask):
                 break
         for name in data.keys():
-            if not self.type.has_key(name):
+            if name not in self.type:
                 raise QueueError("unexpected data: %s"%name)
             if self.type[name] == 'binary':
-                if type(data[name]) not in [str, unicode]:
+                if type(data[name]) not in VALID_STR_TYPES:
                     raise QueueError("unexpected binary data in %s: %r"%(name,
                                                                     data[name]))
-                _file_write('%s/%s'%(temp,name), 0, self.umask, data[name])
+                _file_write('%s/%s' % (temp, name), 0, self.umask, data[name])
             elif self.type[name] == 'string':
-                if type(data[name]) not in [str, unicode]:
+                if type(data[name]) not in VALID_STR_TYPES:
                     raise QueueError("unexpected string data in %s: %r"%(name,
                                                                     data[name]))
-                _file_write('%s/%s'%(temp,name), 1, self.umask, data[name])
+                _file_write('%s/%s' % (temp, name), 1, self.umask, data[name])
             elif self.type[name] == 'table':
                 if not isinstance(data[name], dict):
                     raise QueueError("unexpected table data in %s: %r"%(name,
                                                                     data[name]))
-                _file_write('%s/%s'%(temp,name), 1, self.umask,
+                _file_write('%s/%s' % (temp, name), 1, self.umask,
                             _hash2string(data[name]))
             else:
                 raise QueueError("unexpected data type in %s: %r"%(name,
                                                             self.type[name]))
         for name in self.mandatory.keys():
-            if not data.has_key(name):
+            if name not in data:
                 raise QueueError("missing mandatory data: %s"%name)
         while True:
             name = '%s/%s' % (self._insertion_directory(), _name())
@@ -912,23 +933,25 @@ class Queue(QueueBase):
             try:
                 os.rename(temp, path)
                 return name
-            except StandardError, e:
-                if e.errno != errno.ENOTEMPTY and e.errno != errno.EEXIST:
+            except Exception:
+                error = sys.exc_info()[1]
+                if error.errno != errno.ENOTEMPTY and \
+                    error.errno != errno.EEXIST:
                     raise OSError("cannot rename(%s, %s): %s"%(temp, path,
-                                                               str(e)))
+                                                               error))
                     # RACE: the target directory was already present...
     enqueue = add
-    """Alias for add()
-    """
 
     def _volatile(self):
         """Return the list of volatile (i.e. temporary or obsolete) directories.
         """
         _list = []
-        for name in _directory_contents('%s/%s'%(self.path,TEMPORARY_DIRECTORY), True):
+        for name in _directory_contents(
+                            '%s/%s'%(self.path,TEMPORARY_DIRECTORY), True):
             if _ElementRegexp.match(name):
                 _list.append('%s/%s' % (TEMPORARY_DIRECTORY, name))
-        for name in _directory_contents('%s/%s'%(self.path,OBSOLETE_DIRECTORY), True):
+        for name in _directory_contents(
+                            '%s/%s'%(self.path,OBSOLETE_DIRECTORY), True):
             if _ElementRegexp.match(name):
                 _list.append('%s/%s' % (OBSOLETE_DIRECTORY, name))
         return _list
@@ -972,16 +995,17 @@ class Queue(QueueBase):
                 path = '%s/%s' % (self.path, name)
                 if _older(path, oldtime):
                     _warn("* removing too old volatile element: %s" % name)
-                    for file in _directory_contents(path, True):
-                        if file == LOCKED_DIRECTORY:
+                    for file_name in _directory_contents(path, True):
+                        if file_name == LOCKED_DIRECTORY:
                             continue
-                        fpath = '%s/%s' % (path, file)
+                        fpath = '%s/%s' % (path, file_name)
                         try:
                             os.unlink(fpath)
-                        except StandardError, e:
-                            if e.errno != errno.ENOENT:
+                        except Exception:
+                            error = sys.exc_info()[1]
+                            if error.errno != errno.ENOENT:
                                 raise OSError("cannot unlink(%s): %s"%(fpath,
-                                                                       str(e)))
+                                                                       error))
                 _special_rmdir('%s/%s' % (path, LOCKED_DIRECTORY))
                 _special_rmdir(path)
         # iterate to find abandoned locked entries
@@ -990,10 +1014,11 @@ class Queue(QueueBase):
             name = self.first()
             while name:
                 if self._is_locked(name, oldtime):
-                    # TODO: check if remove_element is needed or "unlocking" instead.
+                    # TODO: check if remove_element is needed or
+                    # "unlocking" instead.
                     _warn("* removing too old locked element: %s" % name)
                     self.unlock(name, True)
                 name = self.next()
 
 # For backward compatibility.
-from QueueSet import QueueSet
+from dirq.QueueSet import QueueSet

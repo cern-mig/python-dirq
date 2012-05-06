@@ -18,7 +18,7 @@ __author__ = dirq.AUTHOR
 __date__ = dirq.DATE
 
 from dirq.QueueBase import QueueBase
-from Exceptions import QueueError
+from dirq.Exceptions import QueueError
 
 class QueueSet(object):
     """Interface to elements on a set of directory based queues.
@@ -41,8 +41,7 @@ class QueueSet(object):
         self._add(*queues)
 
     def __iter__(self):
-        """Return iterator over element names on the set of queues.
-        """
+        """ Return iterator over element names on the set of queues. """
         self._reset()
         self._next_exception = True
         return self
@@ -59,8 +58,8 @@ class QueueSet(object):
         Raise:
             OSError - can't list directories
         """
-        for q in self.qset:
-            q._reset()
+        for queue in self.qset:
+            queue._reset()
         self.elts = []
 
     def first(self):
@@ -73,7 +72,7 @@ class QueueSet(object):
         self._reset()
         return self.next()
 
-    def next(self):
+    def __next__(self):
         """Return (queue, next element) tuple from the queue set, only using
         cached information.
         
@@ -84,20 +83,21 @@ class QueueSet(object):
             OSError       - can't list element directories
         """
         if not self.elts:
-            for q in self.qset:
-                self.elts.append((q, q.next()))
+            for queue in self.qset:
+                self.elts.append((queue, queue.next()))
             if not self.elts:
                 return (None, None)
         self.elts.sort(key=lambda x: x[1])
-        for i,qe in enumerate(self.elts):
-            self.elts[i] = (qe[0], qe[0].next())
-            if qe[1]:
-                return qe
+        for index, queue_elt in enumerate(self.elts):
+            self.elts[index] = (queue_elt[0], queue_elt[0].next())
+            if queue_elt[1]:
+                return queue_elt
         if self._next_exception:
             self._next_exception = False
             raise StopIteration
         else:
             return (None, None)
+    next = __next__
 
     def count(self):
         """Return the number of elements in the queue set, regardless of
@@ -106,10 +106,10 @@ class QueueSet(object):
         Raise:
             OSError - can't list/stat element directories
         """
-        c = 0
-        for q in self.qset:
-            c += q.count()
-        return c
+        count = 0
+        for queue in self.qset:
+            count += queue.count()
+        return count
 
     def _add(self, *queues):
         """Add lists of queues to existing ones. Copies of the object
@@ -123,23 +123,23 @@ class QueueSet(object):
             TypeError  - wrong queue object type provided
         """
         type_queue = False
-        for q in queues:
-            if type(q) in [list, tuple] and not type_queue:
-                for _q in q:
-                    if isinstance(_q, QueueBase):
-                        if _q.id in [x.id for x in self.qset]:
+        for queue in queues:
+            if type(queue) in [list, tuple] and not type_queue:
+                for _queue in queue:
+                    if isinstance(_queue, QueueBase):
+                        if _queue.id in [x.id for x in self.qset]:
                             raise QueueError("queue already in the set: %s"%\
-                                              _q.path)
-                        self.qset.append(_q.copy())
+                                              _queue.path)
+                        self.qset.append(_queue.copy())
                     else:
                         raise TypeError("QueueBase objects expected.")
                 break
-            elif isinstance(q, QueueBase):
+            elif isinstance(queue, QueueBase):
                 type_queue = True
-                self.qset.append(q.copy())
+                self.qset.append(queue.copy())
             else:
-                raise TypeError("expected QueueBase object(s) or list/tuple of "+\
-                                 "QueueBase objects")
+                raise TypeError("expected QueueBase object(s) or list/tuple "
+                                "of QueueBase objects")
 
     def add(self, *queues):
         """Add lists of queues to existing ones. Copies of the object
@@ -155,7 +155,7 @@ class QueueSet(object):
         self._add(*queues)
         self._reset()
 
-    def remove(self, queue):
+    def remove(self, given_queue):
         """Remove a queue and its respective elements from in memory cache.
         
         Arguments:
@@ -164,11 +164,11 @@ class QueueSet(object):
         Raise:
             TypeError - wrong queue object type provided
         """
-        if not isinstance(queue, QueueBase):
+        if not isinstance(given_queue, QueueBase):
             raise TypeError("QueueBase objects expected.")
-        for i,q in enumerate(self.qset):
-            if queue.id == q.id:
-                del self.qset[i]
+        for index, queue in enumerate(self.qset):
+            if given_queue.id == queue.id:
+                del self.qset[index]
                 if self.elts:
-                    del self.elts[i]
+                    del self.elts[index]
 
