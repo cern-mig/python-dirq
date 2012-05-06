@@ -1,8 +1,8 @@
-* X X X X K. Skaburskas <Konstantin.Skaburskas@gmail.com> - X.X.X
-- fixing escaping bug in hash2string and string2hash
-- fixing string2hash bug when given string is empty
-- cleaning to make pylint happier
-- adding python3 support
+* Sun May 06 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.2.1
+- [Massimo Paladin] fixing escaping bug in hash2string and string2hash
+- [Massimo Paladin] fixing string2hash bug when given string is empty
+- [Massimo Paladin] cleaning to make pylint happier
+- [Massimo Paladin] adding python3 support
 
 * Wed Mar 28 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.1.2
 - removed "from .<module> import" as we have to support Python <= 2.4 
