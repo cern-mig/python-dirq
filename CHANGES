@@ -1,3 +1,6 @@
+* Mon Jun 04 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.2.2
+- fixed race condition in QueueSimple.lock()
+
 * Sun May 06 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.2.1
 - [Massimo Paladin] fixing escaping bug in hash2string and string2hash
 - [Massimo Paladin] fixing string2hash bug when given string is empty
