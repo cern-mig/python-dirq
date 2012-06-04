@@ -269,9 +269,22 @@ class QueueSimple(QueueBase):
             new_error.errno = error.errno
             raise new_error
         else:
-            now = time.time()
-            os.utime(path, (now, now))
-            return True
+            try:
+                os.utime(path, None)
+            except OSError:
+                # RACE: the element file does not exist anymore
+                # (this can happen if an other process locked & removed the element
+                #  while our link() was in progress... yes, this can happen!)
+                error = sys.exc_info()[1]
+                if permissive and error.errno == errno.ENOENT:
+                    os.unlink(lock)
+                    return False
+                new_error = OSError("cannot utime(%s, %s): %s" %
+                                    (path, lock, error))
+                new_error.errno = error.errno
+                raise new_error
+            else:
+                return True
 
     def unlock(self, name, permissive=False):
         """Unlock an element.
