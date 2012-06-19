@@ -15,7 +15,10 @@ from optparse import OptionParser
 sys.path.insert(1, re.sub('/\w*$', '', os.getcwd()))
 import dirq
 from dirq import queue
-from dirq.QueueRedis import QueueRedis
+try:
+    from dirq.QueueRedis import QueueRedis
+except ImportError:
+    pass
 from dirq.QueueSimple import QueueSimple
 
 opts = None

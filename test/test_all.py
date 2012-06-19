@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 try:
     import redis
+    import testDirQueueRedis
 except ImportError:
     pass
 import testDirQueueBase
 import testDirQueue
 import testDirQueueSimple
-import testDirQueueRedis
 import testDirQueueNull
 import testDirQueueSet
 import test_dirq
