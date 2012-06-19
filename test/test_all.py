@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-import redis
+try:
+    import redis
+except ImportError:
+    pass
 import testDirQueueBase
 import testDirQueue
 import testDirQueueSimple
@@ -10,12 +13,14 @@ import test_dirq
 import test_dirqset
 
 def main():
-    red = redis.Redis()
-    redis_test = True
-    try:
-        red.set("foo", "bar")
-    except redis.exceptions.ConnectionError:
-        redis_test = False
+    redis_test = False
+    if "redis" in globals():
+        red = redis.Redis()
+        redis_test = True
+        try:
+            red.set("foo", "bar")
+        except redis.exceptions.ConnectionError:
+            redis_test = False
     print('=' * 25)
     print('Running unit tests.')
     print('=' * 25)
