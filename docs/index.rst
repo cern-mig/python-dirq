@@ -13,6 +13,7 @@ Contents:
 
    queuesimple
    queue
+   queueredis
    queuenull
    queuebase
    Exceptions
