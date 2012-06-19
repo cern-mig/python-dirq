@@ -307,8 +307,6 @@ class QueueBase(object):
         Raise:
             StopIteration - when used as Python iterator via
                             __iter__() method
-                            
-            OSError       - can't list element directories
         """
         if self.elts:
             return self.elts.pop(0)

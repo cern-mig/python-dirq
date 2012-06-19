@@ -1,19 +1,31 @@
 # -*- coding: utf-8 -*-
+import redis
 import testDirQueueBase
 import testDirQueue
 import testDirQueueSimple
+import testDirQueueRedis
 import testDirQueueNull
 import testDirQueueSet
 import test_dirq
 import test_dirqset
 
 def main():
+    red = redis.Redis()
+    redis_test = True
+    try:
+        red.set("foo", "bar")
+    except redis.exceptions.ConnectionError:
+        redis_test = False
     print('=' * 25)
     print('Running unit tests.')
     print('=' * 25)
     testDirQueueBase.main()
     testDirQueue.main()
     testDirQueueSimple.main()
+    if redis_test:
+        testDirQueueRedis.main()
+    else:
+        print("*** Redis test: redis not found")
     testDirQueueNull.main()
     testDirQueueSet.main()
     print('=' * 25)
@@ -23,6 +35,11 @@ def main():
     test_dirq.main_simple()
     print('*** QueueSimple')
     test_dirq.main_simple(simple=True)
+    if redis_test:
+        print('*** QueueRedis')
+        test_dirq.main_simple(redis=True)
+    else:
+        print("*** Redis test: redis not found")
     print('*** QueueSet')
     test_dirqset.main_complex()
 
