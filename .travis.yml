@@ -4,6 +4,9 @@ python:
   - "2.6"
   - "2.7"
   - "3.2"
+# command to install dependencies
+install:
+  - pip install redis --use-mirrors || echo "ok"
 # command to run tests
 script:
   - python setup.py test
