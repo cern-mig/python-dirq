@@ -12,7 +12,7 @@ import tempfile
 
 __all__ = ['TestQueueRedis']
 
-PATH = ''.join(random.choice(string.letters) for i in xrange(10))
+PATH = ''.join(random.choice(string.letters) for i in range(10))
 redis_params = {"path": PATH}
 
 
