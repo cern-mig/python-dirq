@@ -52,7 +52,6 @@ ASL 2.0
 Copyright (C) 2010-2012
 """
 
-import os
 import re
 import sys
 import time
@@ -98,8 +97,8 @@ class QueueRedis(QueueBase):
             self._redis.set(name, data)
         except ConnectionError:
             error = sys.exc_info()[1]
-            raise QueueError("Redis connection error: %s:%s" %
-                             (self._host, self._port))
+            raise QueueError("Redis connection error %s:%s: %s" %
+                             (self._host, self._port, error))
         return name
 
     add_ref = add
