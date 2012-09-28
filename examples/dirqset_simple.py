@@ -23,7 +23,7 @@ print("creating %i initial queues. adding %i elements into each." % (QUEUES,
 queues = []
 queue_num = 0
 while queue_num < QUEUES:
-    queue = Queue(paths[queue_num], maxelts=5, schema={'body' : 'string'})
+    queue = Queue(paths[queue_num], maxelts=5, schema={'body': 'string'})
     print("adding %d elements to the queue %s" % (COUNT, paths[queue_num]))
     element = {}
     done = 0

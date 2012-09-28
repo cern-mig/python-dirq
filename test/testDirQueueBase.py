@@ -14,26 +14,36 @@ from dirq.QueueBase import QueueBase as QueueBaseClass
 
 __all__ = ['TestQueueBase', 'TestQueueBaseModuleFunctions']
 
+
 class TestDirQueueBase(unittest.TestCase):
+
     def setUp(self):
-        self.path = os.getcwd()+'/directory'
+        self.path = os.getcwd() + '/directory'
         shutil.rmtree(self.path, ignore_errors=True)
+
     def tearDown(self):
         shutil.rmtree(self.path, ignore_errors=True)
 
+
 class TestQueueBase(TestDirQueueBase):
+
     def test1init(self):
         'QueueBase.__init__()'
         path = self.path + '/aaa/bbb/ccc'
         QueueBaseClass(path, umask=None)
-        assert os.path.exists(path) == True
+        assert os.path.exists(path) is True
+
 
 class TestQueueBaseModuleFunctions(TestDirQueueBase):
+
     def setUp(self):
         super(TestQueueBaseModuleFunctions, self).setUp()
         _, self._test_file = tempfile.mkstemp()
-        try: os.unlink(self._test_file)
-        except: pass
+        try:
+            os.unlink(self._test_file)
+        except:
+            pass
+
     def tearDown(self):
         super(TestQueueBaseModuleFunctions, self).tearDown()
         try:
@@ -43,17 +53,19 @@ class TestQueueBaseModuleFunctions(TestDirQueueBase):
 
     def test1_special_mkdir(self):
         'QueueBase._special_mkdir()'
-        assert QueueBase._special_mkdir(self.path) == True
-        assert QueueBase._special_mkdir(self.path) == False
+        assert QueueBase._special_mkdir(self.path) is True
+        assert QueueBase._special_mkdir(self.path) is False
         # test against a file
         test_file = os.path.join(self.path, 'foo')
         open(test_file, 'w').write('bar')
         self.failUnlessRaises(OSError, QueueBase._special_mkdir, (test_file))
+
     def test2_name(self):
         'QueueBase._name()'
         n = QueueBase._name()
         assert len(n) == 14
         assert n.endswith('%01x' % (os.getpid() % 16))
+
     def test3_file_create(self):
         'QueueBase._file_create()'
         # File in non existent directory should produce ENOENT.
@@ -63,26 +75,28 @@ class TestQueueBaseModuleFunctions(TestDirQueueBase):
         except OSError:
             error = sys.exc_info()[1]
             assert error.errno == errno.ENOENT
-        
+
         QueueBase._file_create(self._test_file, 0, False)
-        self.failUnlessRaises(OSError, 
+        self.failUnlessRaises(OSError,
                               QueueBase._file_create,
                               *(self._test_file, 0, False))
         os.unlink(self._test_file)
         # utf8 data
         QueueBase._file_create(self._test_file, 0, True)
-        self.failUnlessRaises(OSError, 
+        self.failUnlessRaises(OSError,
                               QueueBase._file_create,
                               *(self._test_file, 0, True))
+
     def test4_file_write(self):
         'QueueBase._file_write()'
         QueueBase._file_write(self._test_file, 0, False, 'a\n'.encode())
         os.unlink(self._test_file)
         QueueBase._file_write(self._test_file, 0,
-                              False, ('a'*(2**10)*10).encode())
+                              False, ('a' * (2 ** 10) * 10).encode())
         os.unlink(self._test_file)
         for t in [1, [], (), {}, object]:
             self.failUnlessRaises(TypeError, QueueBase._file_write, ('', t))
+
     def test5_file_read(self):
         'QueueBase._file_read()'
         text = 'hello\n'.encode()
@@ -97,6 +111,7 @@ class TestQueueBaseModuleFunctions(TestDirQueueBase):
         codecs.open(self._test_file, 'w', 'utf8').write(text)
         text_in = QueueBase._file_read(self._test_file, True)
         self.assertEqual(text, text_in)
+
 
 def main():
     testcases = [TestQueueBase,

@@ -39,12 +39,16 @@ CLASSIFIERS = [
 from distutils.core import setup, Command
 import sys
 
+
 class test(Command):
     user_options = []
+
     def initialize_options(self):
         pass
+
     def finalize_options(self):
         pass
+
     def run(self):
         sys.path.insert(0, 'test/')
         import test_all
@@ -62,5 +66,4 @@ setup(name=NAME,
       download_url=DOWNLOAD_URL,
       classifiers=CLASSIFIERS,
       packages=['dirq'],
-      cmdclass={'test': test},
-     )
+      cmdclass={'test': test}, )

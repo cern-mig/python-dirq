@@ -13,8 +13,10 @@ ASL 2.0
 Copyright (C) 2010-2012
 """
 
+
 class QueueError(Exception):
     """QueueError"""
+
 
 class QueueLockError(QueueError):
     """QueueLockError"""

@@ -13,10 +13,12 @@ import tempfile
 __all__ = ['TestQueueRedis']
 
 PATH = ''.join(random.choice(string.letters) for i in xrange(10))
-redis_params = {"path" : PATH}
+redis_params = {"path": PATH}
+
 
 class TestQueueRedis(unittest.TestCase):
     _qr = None
+
     def _clean_it(self):
         if self._qr is None:
             self._qr = QueueRedis(**redis_params)
@@ -24,14 +26,18 @@ class TestQueueRedis(unittest.TestCase):
         for elem in self._qr:
             if self._qr.lock(elem):
                 self._qr.remove(elem)
+
     def setUp(self):
         self._clean_it()
+
     def tearDown(self):
         self._clean_it()
+
     def test01init(self):
         'QueueRedis.__init__()'
         qr = QueueRedis(**redis_params)
         assert qr._path == redis_params["path"]
+
     def test02add(self):
         'QueueRedis.add()'
         data = 'foo bar'
@@ -39,6 +45,7 @@ class TestQueueRedis(unittest.TestCase):
         elem = qr.add(data)
         assert qr.get(elem) == data
         self._clean_it()
+
     def test03lockunlok(self):
         'QueueRedis.lock()'
         data = 'foo bar'
@@ -50,6 +57,7 @@ class TestQueueRedis(unittest.TestCase):
         qr.unlock(elem)
         self.failUnless(qr.get("%s%s" % (elem, LOCKED_SUFFIX)) is None)
         self._clean_it()
+
     def test04get(self):
         'QueueRedis.get()'
         self._clean_it()
@@ -61,6 +69,7 @@ class TestQueueRedis(unittest.TestCase):
         qr.lock(elem)
         qr.remove(elem)
         self._clean_it()
+
     def test05count(self):
         'QueueRedis.count()'
         self._clean_it()
@@ -71,6 +80,7 @@ class TestQueueRedis(unittest.TestCase):
         qr.lock(elem)
         qr.remove(elem)
         self._clean_it()
+
     def test06remove(self):
         'QueueRedis.remove()'
         self._clean_it()
@@ -84,6 +94,7 @@ class TestQueueRedis(unittest.TestCase):
             qr.remove(elem)
         self.assertEqual(qr.count(), 0)
         self._clean_it()
+
     def test07purge(self):
         'QueueRedis.purge()'
         qr = QueueRedis(**redis_params)
@@ -97,6 +108,7 @@ class TestQueueRedis(unittest.TestCase):
         qr.purge(maxlock=1)
         self.assert_(qr.get(elem_path_lock) is None)
         self.assertEqual(qr.count(), 1)
+
     def test08purge_multElement(self):
         'QueueRedis.purge() multiple elements'
         qr = QueueRedis(**redis_params)
@@ -130,12 +142,13 @@ class TestQueueRedis(unittest.TestCase):
         elem2 = qr.next()
         lock_path2 = elem2 + LOCKED_SUFFIX
         self.assert_(qr.get(lock_path2) is not None)
-        
+
         self.assertEqual(qr.count(), 2)
         for elem in qr:
             qr.lock(elem)
             qr.remove(elem)
         self.assertEqual(qr.count(), 0)
+
 
 def main():
     testcases = [TestQueueRedis]

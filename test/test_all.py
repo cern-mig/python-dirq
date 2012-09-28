@@ -12,6 +12,7 @@ import testDirQueueSet
 import test_dirq
 import test_dirqset
 
+
 def main():
     redis_test = False
     if "redis" in globals():

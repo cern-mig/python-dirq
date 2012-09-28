@@ -10,14 +10,19 @@ import tempfile
 
 __all__ = ['TestQueueSimple']
 
+
 class TestDirQueue(unittest.TestCase):
+
     def setUp(self):
         self.qdir = tempfile.mkdtemp(prefix='directory-qsimple', dir='/tmp')
         shutil.rmtree(self.qdir, ignore_errors=True)
+
     def tearDown(self):
         shutil.rmtree(self.qdir, ignore_errors=True)
 
+
 class TestQueueSimple(TestDirQueue):
+
     def test01init(self):
         'QueueSimple.__init__()'
         path = self.qdir + '/aaa/bbb/ccc'
@@ -25,6 +30,7 @@ class TestQueueSimple(TestDirQueue):
         qs = QueueSimple(path, granularity=granularity)
         assert qs.path == path
         assert qs.granularity == granularity
+
     def test02_add_data(self):
         'QueueSimple._add_data()'
         data = 'foo'
@@ -39,6 +45,7 @@ class TestQueueSimple(TestDirQueue):
         fn = subdir + '/' + files[0]
         assert _fullFnOrig == fn
         assert open(fn, 'r').read() == data
+
     def test03_add_path(self):
         'QueueSimple._add_path()'
         data = 'abc'
@@ -51,12 +58,14 @@ class TestQueueSimple(TestDirQueue):
         newName = qs._add_path(_tmpName, _dir)
         assert len(os.listdir(elems_dir)) == 1
         assert open(self.qdir + '/' + newName).read() == data
+
     def test04add(self):
         'QueueSimple.add()'
         data = 'foo bar'
         qs = QueueSimple(self.qdir)
         elem = qs.add(data)
         assert open(self.qdir + '/' + elem).read() == data
+
     def test05add_path(self):
         'QueueSimple.add_path()'
         qs = QueueSimple(self.qdir)
@@ -69,6 +78,7 @@ class TestQueueSimple(TestDirQueue):
         elem = qs.add_path(path)
         assert open(self.qdir + '/' + elem).read() == data
         self.failIf(os.path.exists(path))
+
     def test06lockunlok(self):
         'QueueSimple.lock()'
         qs = QueueSimple(self.qdir)
@@ -82,6 +92,7 @@ class TestQueueSimple(TestDirQueue):
         self.assertEqual(qs.lock(elem_name), 1)
         self.failUnless(os.path.exists(elem_full_path + LOCKED_SUFFIX))
         qs.unlock(elem_name)
+
     def test07get(self):
         'QueueSimple.get()'
         data = 'foo'.encode()
@@ -89,15 +100,17 @@ class TestQueueSimple(TestDirQueue):
         elem = qs.add(data)
         qs.lock(elem)
         self.assertEqual(qs.get(elem), data)
+
     def test08count(self):
         'QueueSimple.count()'
         qs = QueueSimple(self.qdir)
         # add "normal" element
         qs.add('foo')
         # simply add a file (fake element) into the elements directory
-        fake_elem = os.listdir(self.qdir)[0] + '/' + 'foo.bar' 
+        fake_elem = os.listdir(self.qdir)[0] + '/' + 'foo.bar'
         open(self.qdir + '/' + fake_elem, 'w').write('')
         self.assertEqual(qs.count(), 1)
+
     def test09remove(self):
         'QueueSimple.remove()'
         qs = QueueSimple(self.qdir, granularity=1)
@@ -108,6 +121,7 @@ class TestQueueSimple(TestDirQueue):
             qs.lock(elem)
             qs.remove(elem)
         self.assertEqual(qs.count(), 0)
+
     def test10purge_oneDirOneElement(self):
         'QueueSimple.purge() one directory & element'
         qs = QueueSimple(self.qdir)
@@ -116,12 +130,13 @@ class TestQueueSimple(TestDirQueue):
         elem = qs.first()
         qs.lock(elem)
         elem_path_lock = self.qdir + '/' + elem + LOCKED_SUFFIX
-        self.assert_(os.path.exists(elem_path_lock) == True)
+        self.assert_(os.path.exists(elem_path_lock) is True)
         time.sleep(2)
         qs.purge(maxlock=1)
-        self.assert_(os.path.exists(elem_path_lock) == False)
+        self.assert_(os.path.exists(elem_path_lock) is False)
         self.assertEqual(qs.count(), 1)
         self.assertEqual(len(os.listdir(self.qdir)), 1)
+
     def test11purge_multDirMultElement(self):
         'QueueSimple.purge() multiple directories & elements'
         qs = QueueSimple(self.qdir, granularity=1)
@@ -149,14 +164,15 @@ class TestQueueSimple(TestDirQueue):
             qs.lock(elem)
         elem1 = qs.first()
         lock_path1 = self.qdir + '/' + elem1 + LOCKED_SUFFIX
-        assert os.path.exists(lock_path1) == True
+        assert os.path.exists(lock_path1) is True
         os.utime(lock_path1, (time.time() - 25, time.time() - 25))
         qs.purge(maxlock=10)
-        assert os.path.exists(lock_path1) == False
+        assert os.path.exists(lock_path1) is False
 
         elem2 = qs.next()
         lock_path2 = self.qdir + '/' + elem2 + LOCKED_SUFFIX
-        assert os.path.exists(lock_path2) == True
+        assert os.path.exists(lock_path2) is True
+
 
 def main():
     testcases = [TestQueueSimple]

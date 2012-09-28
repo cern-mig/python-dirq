@@ -14,7 +14,7 @@ path = '/tmp/dirq-test-%i' % os.getpid()
 # max elements per elements directory
 maxelts = 3
 # element's schema
-schema = {'body'  : 'string',
+schema = {'body': 'string',
           'header': 'table?'}
 
 # ========
@@ -30,7 +30,7 @@ while done <= COUNT:
         element['body'] = ('Élément %i \u263A\n' % done).decode("utf-8")
     except AttributeError:
         element['body'] = 'Élément %i \u263A\n' % done
-    if done % 2: # header only for odd sequential elements
+    if done % 2:  # header only for odd sequential elements
         element['header'] = dict(os.environ)
     name = dirq_p.enqueue(element)
     #name = dirq_p.add(element) # same
@@ -51,12 +51,12 @@ miss = 0
 # for i,name in enumerate(dirq_b): # same (object returns Python iterator over
                                    # the names of elements)
 for i, name in enumerate(dirq_b.names()):
-    i += 1 # enumerate(o, start=1) in Python 2.6
+    i += 1  # enumerate(o, start=1) in Python 2.6
     print("element: %s %s" % (path, name))
     try:
-        if i in [1, 4, 5]: # artificially lock some elements
+        if i in [1, 4, 5]:  # artificially lock some elements
             os.mkdir('%s/%s/locked' % (path, name))
-        e = dirq_b.get_element(name) # lock(name), get(name), unlock(name)
+        e = dirq_b.get_element(name)  # lock(name), get(name), unlock(name)
     except QueueLockError:
         error = sys.exc_info()[1]
         print(error)
@@ -102,10 +102,10 @@ print("*** CONSUMER: Python iterator protocol.")
 dirq_c = Queue(path, schema=schema)
 miss = 0
 for i, name in enumerate(dirq_c):
-    i += 1 # enumerate(o, start=1) in Python 2.6
+    i += 1  # enumerate(o, start=1) in Python 2.6
     print("element %i: %s %s" % (i, path, name))
     try:
-        e = dirq_c.dequeue(name) # lock(name), get(name), remove(name)
+        e = dirq_c.dequeue(name)  # lock(name), get(name), remove(name)
     except QueueError:
         error = sys.exc_info()[1]
         print(error)
@@ -116,7 +116,7 @@ for i, name in enumerate(dirq_c):
         print(error)
         break
     print(e.keys())
-print("consumed %i elements out of %i seen" % (i-miss, i))
+print("consumed %i elements out of %i seen" % (i - miss, i))
 total_left = dirq_c.count()
 print("elements left in the queue: %d" % total_left)
 assert total_left == miss
@@ -134,7 +134,7 @@ while done <= COUNT:
         element['body'] = ('Élément %i \u263A\n' % done).decode("utf-8")
     except AttributeError:
         element['body'] = 'Élément %i \u263A\n' % done
-    if done % 2: # header only for odd sequential elements
+    if done % 2:  # header only for odd sequential elements
         element['header'] = dict(os.environ)
     name = dirq_p.enqueue(element)
     print("added %.2i: %s" % (done, name))

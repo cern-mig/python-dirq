@@ -1,6 +1,6 @@
 """Base class and common code for :py:mod:`dirq` package.
 
-It is used internally by :py:mod:`dirq` modules and should not 
+It is used internally by :py:mod:`dirq` modules and should not
 be used elsewhere.
 
 Author
@@ -33,20 +33,22 @@ from dirq.utils import VALID_STR_TYPES
 UPID = '%01x' % (os.getpid() % 16)
 
 __DirectoryRegexp = '[0-9a-f]{8}'
-_DirectoryRegexp  = re.compile('(%s)$' % __DirectoryRegexp)
-__ElementRegexp   = '[0-9a-f]{14}'
-_ElementRegexp    = re.compile('(%s)$' % __ElementRegexp)
-_DirElemRegexp    = re.compile('^%s/%s$'%(__DirectoryRegexp,
-                                          __ElementRegexp))
+_DirectoryRegexp = re.compile('(%s)$' % __DirectoryRegexp)
+__ElementRegexp = '[0-9a-f]{14}'
+_ElementRegexp = re.compile('(%s)$' % __ElementRegexp)
+_DirElemRegexp = re.compile('^%s/%s$' % (__DirectoryRegexp, __ElementRegexp))
 
 WARN = False
+
 
 def _warn(text):
     """ Print a warning. """
     if WARN:
-        sys.stdout.write('%s, at %s line %s\n' % (text, __name__,
-                                        inspect.currentframe().f_back.f_lineno))
+        sys.stdout.write('%s, at %s line %s\n' %
+                         (text, __name__,
+                          inspect.currentframe().f_back.f_lineno))
         sys.stdout.flush()
+
 
 def _name():
     """
@@ -64,14 +66,15 @@ def _name():
     * matching $_ElementRegexp
     """
     now = time.time()
-    return "%08x%05x%s" % (now, (now % 1.0)*100000, UPID)
+    return "%08x%05x%s" % (now, (now % 1.0) * 100000, UPID)
+
 
 def _directory_contents(path, missingok=True):
     """Get the contents of a directory as a list of names, without . and ..
-    
+
     Raise:
         OSError - can't list directory
-        
+
     Note:
     * if the optional second argument is true, it is not an error if the
       directory does not exist (anymore)
@@ -81,9 +84,10 @@ def _directory_contents(path, missingok=True):
     except Exception:
         error = sys.exc_info()[1]
         if not missingok and not error.errcode == errno.ENOENT:
-            raise OSError("cannot listdir(%s): %s"%(path, error))
+            raise OSError("cannot listdir(%s): %s" % (path, error))
             # RACE: this path does not exist (anymore)
         return []
+
 
 def _special_mkdir(path, umask=None):
     """
@@ -94,13 +98,13 @@ def _special_mkdir(path, umask=None):
 
     Raise:
         OSError - can't make directory
-    
+
     Note:
     * in case something with the same name already exists, we do not check
       that this is indeed a directory as this should always be the case here
     """
     try:
-        if umask == None:
+        if umask is None:
             os.makedirs(path)
         else:
             oldumask = os.umask(umask)
@@ -112,9 +116,10 @@ def _special_mkdir(path, umask=None):
             return False
         elif error.errno == errno.EISDIR:
             return False
-        raise OSError("cannot mkdir(%s): %s"%(path, error))
+        raise OSError("cannot mkdir(%s): %s" % (path, error))
     else:
         return True
+
 
 def _special_rmdir(path):
     """
@@ -122,7 +127,7 @@ def _special_rmdir(path):
     * return true on success
     * return false if the path does not exist (anymore)
     * die in case of any other error
-     
+
     Raise:
         OSError - can't delete given directory
     """
@@ -131,15 +136,16 @@ def _special_rmdir(path):
     except Exception:
         error = sys.exc_info()[1]
         if not error.errno == errno.ENOENT:
-            raise OSError("cannot rmdir(%s): %s"%(path, error))
+            raise OSError("cannot rmdir(%s): %s" % (path, error))
             # RACE: this path does not exist (anymore)
         return False
     else:
         return True
 
+
 def _file_read(path, utf8):
     """Read from a file.
-    
+
     Raise:
         OSError - problems opening/closing file
         IOError - file read error
@@ -151,22 +157,23 @@ def _file_read(path, utf8):
             fileh = open(path, 'rb')
     except Exception:
         error = sys.exc_info()[1]
-        raise OSError("cannot open %s: %s"%(path, error))
+        raise OSError("cannot open %s: %s" % (path, error))
     try:
         data = fileh.read()
     except Exception:
         error = sys.exc_info()[1]
-        raise IOError("cannot read %s: %s"%(path, error))
+        raise IOError("cannot read %s: %s" % (path, error))
     try:
         fileh.close()
     except Exception:
         error = sys.exc_info()[1]
-        raise OSError("cannot close %s: %s"%(path, error))
+        raise OSError("cannot close %s: %s" % (path, error))
     return data
+
 
 def _file_create(path, umask=None, utf8=False):
     """Open a file defined by 'path' and return file handler.
-    
+
     Raises:
         OSError - if file exists
     """
@@ -180,15 +187,16 @@ def _file_create(path, umask=None, utf8=False):
         fileh = codecs.open(path, 'w', 'utf8')
     else:
         fileh = os.fdopen(
-                    os.open(path, os.O_WRONLY|os.O_CREAT|os.O_EXCL), 'wb')
+            os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL), 'wb')
     if umask:
         os.umask(oldumask)
 
     return fileh
 
+
 def _file_write(path, utf8, umask, data):
     """Write to a file.
-    
+
     Raise:
         OSError - problems opening/closing file
         IOError - file write error
@@ -198,12 +206,13 @@ def _file_write(path, utf8, umask, data):
         fileh.write(data)
     except Exception:
         error = sys.exc_info()[1]
-        raise IOError("cannot write to %s: %s"%(path, error))
+        raise IOError("cannot write to %s: %s" % (path, error))
     try:
         fileh.close()
     except Exception:
         error = sys.exc_info()[1]
-        raise OSError("cannot close %s: %s"%(path, error))
+        raise OSError("cannot close %s: %s" % (path, error))
+
 
 class QueueBase(object):
     """QueueBase
@@ -216,7 +225,7 @@ class QueueBase(object):
             umask
                 the umask to use when creating files and directories
                 (default: use the running process' umask)
-        
+
         Raise:
             TypeError  - wrong input data types provided
             OSError    - can't create directory structure
@@ -228,7 +237,7 @@ class QueueBase(object):
         if type(path) not in VALID_STR_TYPES:
             raise TypeError("'path' should be str or unicode")
         self.path = path
-        if umask != None and not isinstance(umask, int):
+        if umask is not None and not isinstance(umask, int):
             raise TypeError("'umask' should be integer")
         self.umask = umask
 
@@ -271,7 +280,7 @@ class QueueBase(object):
     def _reset(self):
         """Regenerate list of intermediate directories. Drop cached
         elements list.
-        
+
         Raise:
             OSError - can't list directories
         """
@@ -285,7 +294,7 @@ class QueueBase(object):
     def first(self):
         """Return the first element in the queue and cache information about
         the next ones.
-        
+
         Raise:
             OSError - can't list directories
         """
@@ -300,10 +309,10 @@ class QueueBase(object):
         """Return name of the next element in the queue, only using cached
         information. When queue is empty, depending on the iterator
         protocol - return empty string or raise StopIteration.
-        
+
         Return:
             name of the next element in the queue
-            
+
         Raise:
             StopIteration - when used as Python iterator via
                             __iter__() method
@@ -321,9 +330,9 @@ class QueueBase(object):
 
     def touch(self, ename):
         """Touch an element directory to indicate that it is still being used.
-        
+
         Note:
-            this is only really useful for locked elements but we allow it 
+            this is only really useful for locked elements but we allow it
             for all.
 
         Raises:
@@ -337,4 +346,5 @@ class QueueBase(object):
             os.utime(path, None)
         except (IOError, OSError):
             error = sys.exc_info()[1]
-            raise EnvironmentError("cannot utime(%s, None): %s" % (path, error))
+            raise EnvironmentError("cannot utime(%s, None): %s" %
+                                   (path, error))

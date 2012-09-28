@@ -3,7 +3,7 @@ QueueNull - object oriented interface to a null directory based queue.
 
 A port of Perl module Directory::Queue::Null
 http://search.cpan.org/~lcons/Directory-Queue/
-The documentation from Directory::Queue::Null module was 
+The documentation from Directory::Queue::Null module was
 adapted for Python.
 
 =================
@@ -25,19 +25,19 @@ Usage::
 
 Description
 -----------
-    
+
     The goal of this module is to offer a "null" queue system using the
     same API as the other directory queue implementations. The queue will
     behave like a black hole: added data will disappear immediately so the
     queue will therefore always appear empty.
-    
+
     This can be used for testing purposes or to discard data like one
     would do on Unix by redirecting output to */dev/null*.
-    
+
     Please refer to :py:mod:`dirq.queue` for general information about
     directory queues.
 
-    
+
 Author
 ------
 
@@ -53,6 +53,7 @@ Copyright (C) 2010-2012
 
 import os
 from dirq.QueueBase import QueueBase
+
 
 class QueueNull(QueueBase):
     """

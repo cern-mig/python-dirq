@@ -26,15 +26,16 @@ TEST = ''
 TESTS = ['all', 'add', 'count', 'get', 'iterate', 'purge', 'remove', 'simple']
 ProgramName = sys.argv[0]
 
+
 def init():
     """ Initialize. """
     global opts, TEST
-    parser = OptionParser(usage="%prog [OPTIONS] [--] TEST", 
-                          version="%prog "+"%s" % dirq.VERSION)
+    parser = OptionParser(usage="%prog [OPTIONS] [--] TEST",
+                          version="%%prog %s" % dirq.VERSION)
     parser.add_option('-l', '--list', dest='list', action="store_true",
-                       default=False, help="list available tests")
+                      default=False, help="list available tests")
     parser.add_option('-d', '--debug', dest='debug', action="store_true",
-                       default=False, help="show debugging information")
+                      default=False, help="show debugging information")
     parser.add_option('-p', '--path', dest='path', type='string', default='',
                       help="set the queue path")
     parser.add_option('-c', '--count', dest='count', type='int', default=0,
@@ -57,7 +58,7 @@ def init():
                       "directories (QueueSimple)")
     parser.add_option("--sleep", dest="sleep", type='float', default=0,
                       help="sleep this amount of seconds before starting "
-                            "the test(s)")
+                           "the test(s)")
     parser.add_option("--maxlock", dest="maxlock", type='int', default=None,
                       help="maximum time for a locked element. 0 - locked "
                       "elements will not be unlocked.")
@@ -67,23 +68,25 @@ def init():
     opts, args = parser.parse_args()
     if opts.list:
         print("Tests: %s" % ', '.join(TESTS))
-        sys.exit() 
+        sys.exit()
     if not opts.path:
         _die("*** mandatory option not set: -p/--path")
         sys.exit(1)
     if len(args) != 0:
         TEST = args[0]
         if TEST not in TESTS:
-            _die("Unsupported test '%s'.\nTEST should be one of: %s" % (TEST, 
-                                                              ', '.join(TESTS)))
+            _die("Unsupported test '%s'.\nTEST should be one of: %s" %
+                 (TEST, ', '.join(TESTS)))
     else:
         parser.print_help()
         sys.exit()
+
 
 def _die(format, *arguments):
     sys.stderr.write(format % arguments + "\n")
     sys.stderr.flush()
     sys.exit(1)
+
 
 def debug(format, *arguments):
     """Report a debugging message.
@@ -92,30 +95,32 @@ def debug(format, *arguments):
         return
     message = format % arguments
     message = re.sub('\s+$', '.', message)
-    sys.stderr.write("# %s %s[%d]: %s\n" % (
-                        time.strftime("%Y/%m/%d-%H:%M:%S",
-                                      time.localtime(time.time())),
-                                      os.path.basename(sys.argv[0]),
-                                      os.getpid(),message))
+    sys.stderr.write("# %s %s[%d]: %s\n" %
+                     (time.strftime("%Y/%m/%d-%H:%M:%S",
+                                    time.localtime(time.time())),
+                      os.path.basename(sys.argv[0]),
+                      os.getpid(), message))
+
 
 def new_dirq(_schema):
     """Create a new Directory::Queue object, optionally with schema.
     """
     kwargs = {}
     if opts.simple:
-        if opts.granularity != None:
+        if opts.granularity is not None:
             kwargs['granularity'] = opts.granularity
         return QueueSimple(opts.path, **kwargs)
     elif opts.redis:
         return QueueRedis(opts.path, **kwargs)
     else:
         if _schema:
-            schema = {'body'  : 'string',
+            schema = {'body': 'string',
                       'header': 'table?'}
             kwargs['schema'] = schema
         if opts.maxelts:
-            kwargs['maxelts'] = opts.maxelts 
+            kwargs['maxelts'] = opts.maxelts
         return queue.Queue(opts.path, **kwargs)
+
 
 def test_count():
     """Count the elements in the queue.
@@ -127,6 +132,7 @@ def test_count():
     debug("queue has %d elements", count)
     debug("done in %.4f seconds", time2 - time1)
 
+
 def test_purge():
     """Purge the queue.
     """
@@ -134,13 +140,14 @@ def test_purge():
     dirq = new_dirq(0)
     time1 = time.time()
     pwkargs = {}
-    if opts.maxtemp != None:
+    if opts.maxtemp is not None:
         pwkargs['maxtemp'] = opts.maxtemp
-    if opts.maxlock != None:
+    if opts.maxlock is not None:
         pwkargs['maxlock'] = opts.maxlock
     dirq.purge(**pwkargs)
     time2 = time.time()
     debug("done in %.4f seconds", time2 - time1)
+
 
 def _body(size, rand):
     ''
@@ -155,6 +162,7 @@ def _body(size, rand):
     if size < 1:
         return ''
     return "A" * (size - 1) + "\n"
+
 
 def test_add():
     """Add elements to the queue.
@@ -195,6 +203,7 @@ def test_add():
     time2 = time.time()
     debug("done in %.4f seconds", time2 - time1)
 
+
 def test_remove():
     """Remove elements from the queue.
     """
@@ -231,7 +240,9 @@ def test_remove():
             done += 1
             name = dirq.next()
         time2 = time.time()
-        debug("done in %.4f seconds (%d elements removed)", time2 - time1, done)
+        debug("done in %.4f seconds (%d elements removed)",
+              time2 - time1, done)
+
 
 def test_iterate():
     """Iterate through the queue (only lock+unlock).
@@ -259,6 +270,7 @@ def test_iterate():
     time2 = time.time()
     debug("done in %.4f seconds (%d elements)", time2 - time1, done)
 
+
 def test_get():
     """Get all elements from the queue.
     """
@@ -278,6 +290,7 @@ def test_get():
     time2 = time.time()
     debug("done in %.4f seconds (%d elements)", time2 - time1, done)
 
+
 def test_simple():
     """Simple test filling and emptying a brand new queue.
     """
@@ -293,6 +306,7 @@ def test_simple():
     test_remove()
     test_purge()
     time2 = time.time()
+
     def directory_contents(path):
         try:
             return os.listdir(path)
@@ -311,10 +325,12 @@ def test_simple():
     shutil.rmtree(path, ignore_errors=True)
     debug("done in %.4f seconds", time2 - time1)
 
+
 def main_simple(simple=False, redis=False):
     """A wrapper to run from a library.
     """
     global opts
+
     class options(object):
         path = '/tmp/dirq-%i' % os.getpid()
         count = 10

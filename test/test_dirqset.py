@@ -18,13 +18,14 @@ from dirq import queue
 OS = ''
 TEST = ''
 
+
 def init():
     """ Initialize. """
     global OS, TEST
     parser = OptionParser(usage="%prog [OPTIONS] [--] TEST",
-                          version=("%prog "+"%s" % dirq.VERSION))
+                          version=("%%prog %s" % dirq.VERSION))
     parser.add_option('-d', '--debug', dest='debug', action="store_true",
-                       default=False, help="show debugging information")
+                      default=False, help="show debugging information")
     parser.add_option('-p', '--path', dest='path', type='string', default='',
                       help="set the queue path")
     parser.add_option('-c', '--count', dest='count', type='int', default=0,
@@ -48,6 +49,7 @@ def init():
         parser.print_help()
         sys.exit()
 
+
 def debug(given_format, *arguments):
     """Report a debugging message.
     """
@@ -57,14 +59,16 @@ def debug(given_format, *arguments):
     message = re.sub('\s+$', '.', message)
     sys.stderr.write("# %i [%5d] %s\n" % (time.time(), os.getpid(), message))
 
+
 def new_dirq(path, _schema):
     """Create a new dirq.Queue object, optionally with schema.
     """
     if _schema:
-        schema = {'body' : 'string'}
+        schema = {'body': 'string'}
     else:
         schema = {}
     return queue.Queue(path, maxelts=OS.maxelts, schema=schema)
+
 
 def new_dirqs():
     """Create a new Directory::Queue object, optionally with schema.
@@ -73,6 +77,7 @@ def new_dirqs():
     qs = queue.QueueSet(OS.path.split(','))
     debug("created queue set in %.4f seconds", time.time() - time1)
     return qs
+
 
 def test_count():
     """Count the elements in the queue.
@@ -84,9 +89,11 @@ def test_count():
     debug("queue set has %d elements", count)
     debug("done in %.4f seconds", time2 - time1)
 
+
 def test_add():
     """Add elements to the queue.
     """
+
 
 def test_complex():
     """Add elements to the queue.
@@ -97,14 +104,14 @@ def test_complex():
     qn = 6
     paths = []
     for i in range(qn):
-        paths.append(wd+'/test-add-%i-%i'%(i, pid))
+        paths.append(wd + '/test-add-%i-%i' % (i, pid))
     count = OS.count or 1000
-    debug("creating %i initial queues. adding %i elements into each." % 
+    debug("creating %i initial queues. adding %i elements into each." %
           (qn, count))
     queues = []
     t1 = time.time()
     while qn:
-        q = new_dirq(paths[qn-1], 1)
+        q = new_dirq(paths[qn - 1], 1)
         debug("adding %d elements to the queue...", count)
         element = {}
         done = 0
@@ -135,7 +142,7 @@ def test_complex():
     t1 = time.time()
     for q in queues[0:i]:
         qs.remove(q)
-    debug("done in %.4f sec." % (time.time()-t1))
+    debug("done in %.4f sec." % (time.time() - t1))
 
     debug("number of elements left: %i" % qs.count())
 
@@ -143,6 +150,7 @@ def test_complex():
     for path in paths:
         shutil.rmtree(path, ignore_errors=True)
     debug("done.")
+
 
 def test_iterate():
     """Iterate through the set of queues (only lock+unlock).
@@ -162,10 +170,12 @@ def test_iterate():
     time2 = time.time()
     debug("done in %.4f seconds (%d elements)", time2 - time1, done)
 
+
 def main_complex():
     """A wrapper to run from a library.
     """
     global OS
+
     class options(object):
         """ options class. """
         path = '/tmp/dirqset-%i' % os.getpid()

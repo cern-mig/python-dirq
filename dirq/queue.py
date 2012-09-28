@@ -18,7 +18,7 @@ Provides
 Classes:
 
 * :py:class:`dirq.queue.Queue`       directory based queue
-* :py:class:`dirq.QueueSimple.QueueSimple` simple directory based queue 
+* :py:class:`dirq.QueueSimple.QueueSimple` simple directory based queue
 * :py:class:`dirq.queue.QueueSet`    set of directory based queues
 * :py:class:`dirq.Exceptions.QueueError`  exception
 
@@ -152,10 +152,10 @@ Schema
     mark to the type, this piece of data will be marked as optional. See
     the comments in the *Usage* section for more information.
 
-    To comply with Directory::Queue implementation it is allowed to 
-    append '*' (asterisk) to data type specification, which in 
-    Directory::Queue means switching to working with element references in 
-    add() and get() operations. This is irrelevant for the Python 
+    To comply with Directory::Queue implementation it is allowed to
+    append '*' (asterisk) to data type specification, which in
+    Directory::Queue means switching to working with element references in
+    add() and get() operations. This is irrelevant for the Python
     implementation.
 
 Directory Structure
@@ -272,13 +272,14 @@ __all__ = ['Queue', 'QueueSet', 'QueueError']
 
 from dirq.QueueBase import QueueBase, _DirElemRegexp, _DirectoryRegexp, \
     _ElementRegexp
-from dirq.QueueBase import (_name,
-                       _special_mkdir,
-                       _special_rmdir,
-                       _file_read,
-                       _file_write,
-                       _directory_contents,
-                        _warn) 
+from dirq.QueueBase import (
+    _name,
+    _special_mkdir,
+    _special_rmdir,
+    _file_read,
+    _file_write,
+    _directory_contents,
+    _warn)
 from dirq.Exceptions import QueueError, QueueLockError
 from dirq.utils import VALID_STR_TYPES, VALID_INT_TYPES
 
@@ -295,23 +296,25 @@ LOCKED_DIRECTORY = "locked"
 # global variables
 #
 
-__FileRegexp      = "[0-9a-zA-Z]+"
-_FileRegexp       = re.compile("^(%s)$" % __FileRegexp)
-_KeyValRegexp     = re.compile('^([^\x09\x0a]*)\x09([^\x09\x0a]*)$')
+__FileRegexp = "[0-9a-zA-Z]+"
+_FileRegexp = re.compile("^(%s)$" % __FileRegexp)
+_KeyValRegexp = re.compile('^([^\x09\x0a]*)\x09([^\x09\x0a]*)$')
 
-_Byte2Esc = {"\\" : r"\\", "\t" : r"\t", "\n" : r"\n"}
+_Byte2Esc = {"\\": r"\\", "\t": r"\t", "\n": r"\n"}
 _Esc2Byte = dict([(value, key) for key, value in _Byte2Esc.items()])
 
 #
 # Helper Functions
 #
 
+
 def _hash2string(data):
     """Transform a hash of strings into a string.
 
     Raise:
-        QueueError - invalid type of a value in hash (allowed string or unicode)
-    
+        QueueError - invalid type of a value in hash
+                     (allowed string or unicode)
+
     Note:
         the keys are sorted so that identical hashes yield to identical strings
     """
@@ -319,18 +322,19 @@ def _hash2string(data):
     for key in sorted(data.keys()):
         val = data[key]
         if type(val) not in VALID_STR_TYPES:
-            raise QueueError("invalid hash value type: %r"%val)
+            raise QueueError("invalid hash value type: %r" % val)
         key = re.sub('(\\\\|\x09|\x0a)', lambda m: _Byte2Esc[m.group(1)], key)
         val = re.sub('(\\\\|\x09|\x0a)', lambda m: _Byte2Esc[m.group(1)], val)
         string = '%s%s' % (string, '%s\x09%s\x0a' % (key, val))
     return string
 
+
 def _string2hash(given):
     """Transform a string into a hash of strings.
-    
+
     Raise:
         QueueError - unexpected hash line
-    
+
     Note:
         duplicate keys are not checked (the last one wins)
     """
@@ -348,17 +352,18 @@ def _string2hash(given):
         _hash[key] = val
     return _hash
 
+
 def _older(path, given_time):
     """
     Check if a path is old enough:
-    
+
     * return true if the path exists and is (strictly) older than given time
     * return false if it does not exist or it is newer
     * die in case of any other error
-     
+
     Raise:
         OSError - can't stat given path
-    
+
     Note:
         lstat() is used so symlinks are not followed
     """
@@ -367,23 +372,24 @@ def _older(path, given_time):
     except Exception:
         error = sys.exc_info()[1]
         if error.errno != errno.ENOENT:
-            raise OSError("cannot lstat(%s): %s"%(path, error))
+            raise OSError("cannot lstat(%s): %s" % (path, error))
             # RACE: this path does not exist (anymore)
         return False
     else:
         return stat.st_mtime < given_time
 
+
 def __subdirs_num_nlink(path):
     """Count the number of sub-directories in the given directory:
-    
+
     * return 0 if the directory does not exist (anymore)
     * die in case of any other error
 
     Raise:
         OSError - can't stat given path
-    
+
     Note:
-    
+
     * lstat() is used so symlinks are not followed
     * this only checks the number of links
     * we do not even check that the path indeed points to a directory!
@@ -393,17 +399,18 @@ def __subdirs_num_nlink(path):
     except Exception:
         error = sys.exc_info()[1]
         if error.errno != errno.ENOENT:
-            raise OSError("cannot lstat(%s): %s"%(path, error))
+            raise OSError("cannot lstat(%s): %s" % (path, error))
             # RACE: this path does not exist (anymore)
         return 0
     else:
         return stat.st_nlink - 2
 
+
 def __subdirs_num_count(path):
     """Count the number of sub-directories in the given directory:
      - return 0 if the directory does not exist (anymore)
 
-    For systems where we cannot rely on the number of links, so we simply count 
+    For systems where we cannot rely on the number of links, so we simply count
     the number of sub-directories.
     """
     return len(_directory_contents(path, missingok=True))
@@ -413,14 +420,16 @@ if sys.platform in ['win32', 'cygwin']:
 else:
     _subdirs_num = __subdirs_num_nlink
 
+
 def _check_element(name):
     """Check the given string to make sure it represents a valid element name.
-    
+
     Raise:
         QueueError - given element is invalid
     """
     if not _DirElemRegexp.match(name):
-        raise QueueError("invalid element name: %s"%name)
+        raise QueueError("invalid element name: %s" % name)
+
 
 def _count(path):
     """Return the number of elements in the queue, regardless of
@@ -440,12 +449,13 @@ def _count(path):
 # Object Oriented Interface
 #
 
+
 class Queue(QueueBase):
     """Directory based queue.
     """
     def __init__(self, path, umask=None, maxelts=16000, schema=dict()):
         """Check and set schema. Build the queue directory structure.
-        
+
         Arguments:
             path
                 the queue toplevel directory
@@ -474,17 +484,17 @@ class Queue(QueueBase):
         self.mandatory = {}
         if schema:
             if not isinstance(schema, dict):
-                raise QueueError("invalid schema: %r"%schema)
+                raise QueueError("invalid schema: %r" % schema)
             for name in schema.keys():
                 if not _FileRegexp.match(name):
-                    raise QueueError("invalid schema name: %r"%name)
+                    raise QueueError("invalid schema name: %r" % name)
                 if not isinstance(schema[name], str):
-                    raise QueueError("invalid data type for schema "+\
-                                    "specification: %r"%type(schema[name]))
+                    raise QueueError("invalid data type for schema " +
+                                     "specification: %r" % type(schema[name]))
                 match = re.match('(binary|string|table)([\?\*]{0,2})?$',
-                             schema[name])
+                                 schema[name])
                 if not match:
-                    raise QueueError("invalid schema data type: %r" % 
+                    raise QueueError("invalid schema data type: %r" %
                                      schema[name])
                 self.type[name] = match.group(1)
                 if not re.search('\?', match.group(2)):
@@ -493,15 +503,15 @@ class Queue(QueueBase):
                 raise QueueError("invalid schema: no mandatory data")
         # create directories
         for directory in (TEMPORARY_DIRECTORY, OBSOLETE_DIRECTORY):
-            _special_mkdir('%s/%s'%(self.path, directory), self.umask)
+            _special_mkdir('%s/%s' % (self.path, directory), self.umask)
 
     def _is_locked_nlink(self, ename, _time=None):
         """Check if an element is locked.
-        
+
         Note:
             this is only an indication as the state may be changed by another
             process
-            
+
         Uses number of links (st_nlink) returned by os.lstat() applied to the
         element directory.
 
@@ -512,7 +522,7 @@ class Queue(QueueBase):
         Return:
             True  - if element exists and locked. If _time is provided, only
             return True on locks older than this time (needed by purge).
-            
+
             False - in other cases
 
         Raises:
@@ -559,7 +569,7 @@ class Queue(QueueBase):
 
     def _build_elements(self):
         """Build list of elements.
-        
+
         Raise:
             OSError - can't list element directories
         """
@@ -567,7 +577,7 @@ class Queue(QueueBase):
             directory = self.dirs.pop(0)
             _list = []
             for name in _directory_contents(
-                            '%s/%s'%(self.path, directory), True):
+                    '%s/%s' % (self.path, directory), True):
                 if _ElementRegexp.match(name):
                     _list.append(name)
             if not _list:
@@ -579,7 +589,7 @@ class Queue(QueueBase):
     def count(self):
         """Return the number of elements in the queue, regardless of
         their state.
-        
+
         Raise:
             OSError - can't list/stat element directories
         """
@@ -587,25 +597,25 @@ class Queue(QueueBase):
 
     def lock(self, ename, permissive=True):
         """Lock an element.
-        
+
         Arguments:
             ename - name of an element
             permissive - work in permissive mode
-            
+
         Return:
-        
+
         * True on success
         * False in case the element could not be locked (in permissive
           mode)
-           
+
         Raise:
             QueueError - invalid element name
             OSError    - can't create lock (mkdir()/lstat() failed)
-        
+
         Note:
-        
+
         * locking can fail:
-        
+
           * if the element has been locked by somebody else (EEXIST)
           * if the element has been removed by somebody else (ENOENT)
         * if the optional second argument is true, it is not an error if
@@ -618,7 +628,7 @@ class Queue(QueueBase):
         _check_element(ename)
         path = '%s/%s/%s' % (self.path, ename, LOCKED_DIRECTORY)
         try:
-            if self.umask != None:
+            if self.umask is not None:
                 oldumask = os.umask(self.umask)
                 os.mkdir(path)
                 os.umask(oldumask)
@@ -647,30 +657,30 @@ class Queue(QueueBase):
                 if error.errno == errno.ENOENT:
                     return False
             # otherwise this is unexpected...
-            raise OSError("cannot lstat(%s): %s"%(path, str(error)))
+            raise OSError("cannot lstat(%s): %s" % (path, str(error)))
         return True
 
     def unlock(self, ename, permissive=False):
         """Unlock an element.
-        
+
         Arguments:
             ename - name of an element
             permissive - work in permissive mode
-            
+
         Return:
-        
+
         * true on success
         * false in case the element could not be unlocked (in permissive
           mode)
-          
+
         Raise:
             QueueError - invalid element name
             OSError    - can't remove lock (rmdir() failed)
-            
+
         Note:
-        
+
         * unlocking can fail:
-        
+
             * if the element has been unlocked by somebody else (ENOENT)
             * if the element has been removed by somebody else (ENOENT)
         * if the optional second argument is true, it is not an error if
@@ -684,32 +694,32 @@ class Queue(QueueBase):
         except Exception:
             error = sys.exc_info()[1]
             if permissive:
-                # RACE: the element directory or its lock does not exist anymore
+                # RACE: the element folder or its lock does not exist anymore
                 if error.errno == errno.ENOENT:
                     return False
-            raise OSError("cannot rmdir(%s): %s"%(path, error))
+            raise OSError("cannot rmdir(%s): %s" % (path, error))
         else:
             return True
 
     def remove(self, ename):
         """Remove locked element from the queue.
-        
+
         Arguments:
             ename - name of an element
-            
+
         Raise:
             QueueError - invalid element name; element not locked;
                          unexpected file in the element directory
-                         
+
             OSError    - can't rename/remove a file/directory
-            
+
         Note:
             doesn't return anything explicitly (i.e. returns NoneType)
             or fails
         """
         _check_element(ename)
         if not self._is_locked(ename):
-            raise QueueError("cannot remove %s: not locked"%ename)
+            raise QueueError("cannot remove %s: not locked" % ename)
         # move the element out of its intermediate directory
         path = '%s/%s' % (self.path, ename)
         while True:
@@ -720,22 +730,22 @@ class Queue(QueueBase):
             except Exception:
                 error = sys.exc_info()[1]
                 if error.errno != errno.ENOTEMPTY and \
-                    error.errno != errno.EEXIST:
-                    raise OSError("cannot rename(%s, %s): %s"%(ename, temp,
-                                                               error))
+                        error.errno != errno.EEXIST:
+                    raise OSError("cannot rename(%s, %s): %s" %
+                                  (ename, temp, error))
                     # RACE: the target directory was already present...
         # remove the data files
         for name in _directory_contents(temp):
             if name == LOCKED_DIRECTORY:
                 continue
             if not _FileRegexp.match(name):
-                raise QueueError("unexpected file in %s: %s"%(temp, name))
+                raise QueueError("unexpected file in %s: %s" % (temp, name))
             path = '%s/%s' % (temp, name)
             try:
                 os.unlink(path)
             except Exception:
                 error = sys.exc_info()[1]
-                raise OSError("cannot unlink(%s): %s"%(path, error))
+                raise OSError("cannot unlink(%s): %s" % (path, error))
         # remove the locked directory
         path = '%s/%s' % (temp, LOCKED_DIRECTORY)
         while True:
@@ -743,15 +753,15 @@ class Queue(QueueBase):
                 os.rmdir(path)
             except Exception:
                 error = sys.exc_info()[1]
-                raise OSError("cannot rmdir(%s): %s"%(path, error))
+                raise OSError("cannot rmdir(%s): %s" % (path, error))
             try:
                 os.rmdir(temp)
                 return
             except Exception:
                 error = sys.exc_info()[1]
                 if error.errno != errno.ENOTEMPTY and \
-                    error.errno != errno.EEXIST:
-                    raise OSError("cannot rmdir(%s): %s"%(temp, error))
+                        error.errno != errno.EEXIST:
+                    raise OSError("cannot rmdir(%s): %s" % (temp, error))
                 # RACE: this can happen if an other process managed to lock
                 # this element while it was being removed (see the comment in
                 # the lock() method) so we try to remove the lock again
@@ -760,13 +770,13 @@ class Queue(QueueBase):
     def dequeue(self, ename, permissive=True):
         """Dequeue an element from the queue. Removes element from the
         queue. Performs operations: lock(name), get(name), remove(name)
-        
+
         Arguments:
             ename - name of an element
-            
+
         Return:
             dictionary representing an element
-        
+
         Raise:
             QueueLockError - coulnd't lock element
             QueueError     - problems with schema/data types/etc.
@@ -780,18 +790,18 @@ class Queue(QueueBase):
 
     def get(self, ename):
         """Get an element data from a locked element.
-        
+
         Arguments:
             ename - name of an element
-            
+
         Return:
             dictionary representing an element
-            
+
         Raise:
             QueueError - schema is unknown; unexpected data type in
                          the schema specification; missing mandatory
                          file of the element
-                         
+
             OSError    - problems opening/closing file
             IOError    - file read error
         """
@@ -799,7 +809,7 @@ class Queue(QueueBase):
             raise QueueError("unknown schema")
         _check_element(ename)
         if not self._is_locked(ename):
-            raise QueueError("cannot get %s: not locked"%ename)
+            raise QueueError("cannot get %s: not locked" % ename)
         data = {}
         for dname in self.type.keys():
             path = '%s/%s/%s' % (self.path, ename, dname)
@@ -808,9 +818,9 @@ class Queue(QueueBase):
             except Exception:
                 error = sys.exc_info()[1]
                 if error.errno != errno.ENOENT:
-                    raise OSError("cannot lstat(%s): %s"%(path, error))
+                    raise OSError("cannot lstat(%s): %s" % (path, error))
                 if dname in self.mandatory:
-                    raise QueueError("missing data file: %s"%path)
+                    raise QueueError("missing data file: %s" % path)
                 else:
                     continue
             if self.type[dname] == 'binary':
@@ -820,16 +830,16 @@ class Queue(QueueBase):
             elif self.type[dname] == 'table':
                 data[dname] = _string2hash(_file_read(path, 1))
             else:
-                raise QueueError("unexpected data type: %s"%self.type[dname])
+                raise QueueError("unexpected data type: %s" % self.type[dname])
         return data
 
     def get_element(self, ename, permissive=True):
         """Get an element from the queue. Element will not be removed.
         Operations performed: lock(name), get(name), unlock(name)
-        
+
         Arguments:
             ename - name of an element
-            
+
         Raise:
             QueueLockError - couldn't lock element
         """
@@ -842,11 +852,11 @@ class Queue(QueueBase):
     def _insertion_directory(self):
         """Return the name of the intermediate directory that can be used for
         insertion:
-        
+
         * if there is none, an initial one will be created
         * if it is full, a new one will be created
         * in any case the name will match $_DirectoryRegexp
-        
+
         Raise:
             OSError - can't list/make element directories
         """
@@ -881,16 +891,16 @@ class Queue(QueueBase):
     def add(self, data):
         """Add a new element to the queue and return its name.
         Arguments:
-        
+
             data - element as a dictionary (should conform to the schema)
-            
+
         Raise:
-        
+
             QueueError - problem with schema definition or data
             OSError    - problem putting element on disk
-            
+
         Note:
-        
+
           the destination directory must _not_ be created beforehand as
           it would be seen as a valid (but empty) element directory by
           another process, we therefore use rename() from a temporary
@@ -904,29 +914,29 @@ class Queue(QueueBase):
                 break
         for name in data.keys():
             if name not in self.type:
-                raise QueueError("unexpected data: %s"%name)
+                raise QueueError("unexpected data: %s" % name)
             if self.type[name] == 'binary':
                 if type(data[name]) not in VALID_STR_TYPES:
-                    raise QueueError("unexpected binary data in %s: %r"%(name,
-                                                                    data[name]))
+                    raise QueueError("unexpected binary data in %s: %r" %
+                                     (name, data[name]))
                 _file_write('%s/%s' % (temp, name), 0, self.umask, data[name])
             elif self.type[name] == 'string':
                 if type(data[name]) not in VALID_STR_TYPES:
-                    raise QueueError("unexpected string data in %s: %r"%(name,
-                                                                    data[name]))
+                    raise QueueError("unexpected string data in %s: %r" %
+                                     (name, data[name]))
                 _file_write('%s/%s' % (temp, name), 1, self.umask, data[name])
             elif self.type[name] == 'table':
                 if not isinstance(data[name], dict):
-                    raise QueueError("unexpected table data in %s: %r"%(name,
-                                                                    data[name]))
+                    raise QueueError("unexpected table data in %s: %r" %
+                                     (name, data[name]))
                 _file_write('%s/%s' % (temp, name), 1, self.umask,
                             _hash2string(data[name]))
             else:
-                raise QueueError("unexpected data type in %s: %r"%(name,
-                                                            self.type[name]))
+                raise QueueError("unexpected data type in %s: %r" %
+                                 (name, self.type[name]))
         for name in self.mandatory.keys():
             if name not in data:
-                raise QueueError("missing mandatory data: %s"%name)
+                raise QueueError("missing mandatory data: %s" % name)
         while True:
             name = '%s/%s' % (self._insertion_directory(), _name())
             path = '%s/%s' % (self.path, name)
@@ -936,41 +946,42 @@ class Queue(QueueBase):
             except Exception:
                 error = sys.exc_info()[1]
                 if error.errno != errno.ENOTEMPTY and \
-                    error.errno != errno.EEXIST:
-                    raise OSError("cannot rename(%s, %s): %s"%(temp, path,
-                                                               error))
+                        error.errno != errno.EEXIST:
+                    raise OSError("cannot rename(%s, %s): %s" %
+                                  (temp, path, error))
                     # RACE: the target directory was already present...
     enqueue = add
 
     def _volatile(self):
-        """Return the list of volatile (i.e. temporary or obsolete) directories.
+        """
+        Return the list of volatile (i.e. temporary or obsolete) directories.
         """
         _list = []
         for name in _directory_contents(
-                            '%s/%s'%(self.path,TEMPORARY_DIRECTORY), True):
+                '%s/%s' % (self.path, TEMPORARY_DIRECTORY), True):
             if _ElementRegexp.match(name):
                 _list.append('%s/%s' % (TEMPORARY_DIRECTORY, name))
         for name in _directory_contents(
-                            '%s/%s'%(self.path,OBSOLETE_DIRECTORY), True):
+                '%s/%s' % (self.path, OBSOLETE_DIRECTORY), True):
             if _ElementRegexp.match(name):
                 _list.append('%s/%s' % (OBSOLETE_DIRECTORY, name))
         return _list
 
     def purge(self, maxtemp=300, maxlock=600):
         """Purge the queue:
-        
+
         * delete unused intermediate directories
         * delete too old temporary directories
         * unlock too old locked directories
-         
+
         Arguments:
             maxtemp - maximum time for a temporary element. If 0, temporary
                       elements will not be removed.
-            maxlock - maximum time for a locked element. If 0, locked 
+            maxlock - maximum time for a locked element. If 0, locked
                       elements will not be unlocked.
         Raise:
             OSError - problem deleting element from disk
-            
+
         Note:
             this uses first()/next() to iterate so this will reset the cursor
         """
@@ -1004,8 +1015,8 @@ class Queue(QueueBase):
                         except Exception:
                             error = sys.exc_info()[1]
                             if error.errno != errno.ENOENT:
-                                raise OSError("cannot unlink(%s): %s"%(fpath,
-                                                                       error))
+                                raise OSError("cannot unlink(%s): %s" %
+                                              (fpath, error))
                 _special_rmdir('%s/%s' % (path, LOCKED_DIRECTORY))
                 _special_rmdir(path)
         # iterate to find abandoned locked entries

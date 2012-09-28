@@ -3,7 +3,7 @@ QueueSimple - object oriented interface to a simple directory based queue.
 
 A port of Perl module Directory::Queue::Simple
 http://search.cpan.org/~lcons/Directory-Queue/
-The documentation from Directory::Queue::Simple module was 
+The documentation from Directory::Queue::Simple module was
 adapted for Python.
 
 =================
@@ -54,7 +54,7 @@ Description
 
     Please refer to :py:mod:`dirq.queue` for general information about
     directory queues.
-    
+
 Directory Structure
 -------------------
 
@@ -120,6 +120,7 @@ TEMPORARY_SUFFIX = ".tmp"
 # suffix indicating a locked element
 LOCKED_SUFFIX = ".lck"
 
+
 class QueueSimple(QueueBase):
     """
     QueueSimple
@@ -127,8 +128,8 @@ class QueueSimple(QueueBase):
     def __init__(self, path, umask=None, granularity=60):
         """
         * path - queue top level directory
-        * umask - the umask to use when creating files and directories (default:
-                use the running process' umask)
+        * umask - the umask to use when creating files and directories
+                  (default: use the running process' umask)
         * granularity - the time granularity for intermediate directories
                       (default: 60)
         """
@@ -152,7 +153,7 @@ class QueueSimple(QueueBase):
 
     def _add_data(self, data):
         """Write 'data' to a file.
-        
+
         Return: (tuple) directory name where the file was written, full path to
         the temporary file.
         """
@@ -179,7 +180,7 @@ class QueueSimple(QueueBase):
     def _add_path(self, tmp, _dir):
         """Given temporary file and directory where it resides: create a hard
         link to that file and remove initial one.
-        
+
         Return: element name (<directory name>/<file name>).
         """
         while 1:
@@ -212,7 +213,7 @@ class QueueSimple(QueueBase):
 
     def add(self, data):
         """Add data to the queue as a file.
-        
+
         Return: element name (<directory name>/<file name>).
         """
         _dir, path = self._add_data(data)
@@ -240,17 +241,17 @@ class QueueSimple(QueueBase):
 
     def get_path(self, name):
         """ Return the path given the name. """
-        return '%s/%s%s' % (self.path, name, LOCKED_SUFFIX) 
+        return '%s/%s%s' % (self.path, name, LOCKED_SUFFIX)
 
     def lock(self, name, permissive=True):
         """Lock an element.
-        
+
         Arguments:
             name - name of an element
             permissive - work in permissive mode
-            
+
         Return:
-        
+
         * true on success
         * false in case the element could not be locked (in permissive
           mode)
@@ -261,8 +262,8 @@ class QueueSimple(QueueBase):
             os.link(path, lock)
         except OSError:
             error = sys.exc_info()[1]
-            if permissive and (error.errno == errno.EEXIST or 
-                                    error.errno == errno.ENOENT):
+            if permissive and (error.errno == errno.EEXIST or
+                               error.errno == errno.ENOENT):
                 return False
             new_error = OSError("cannot link(%s, %s): %s" %
                                 (path, lock, error))
@@ -273,8 +274,9 @@ class QueueSimple(QueueBase):
                 os.utime(path, None)
             except OSError:
                 # RACE: the element file does not exist anymore
-                # (this can happen if an other process locked & removed the element
-                #  while our link() was in progress... yes, this can happen!)
+                # (this can happen if an other process locked & removed the
+                # element while our link() was in progress...
+                # yes, this can happen!)
                 error = sys.exc_info()[1]
                 if permissive and error.errno == errno.ENOENT:
                     os.unlink(lock)
@@ -288,13 +290,13 @@ class QueueSimple(QueueBase):
 
     def unlock(self, name, permissive=False):
         """Unlock an element.
-        
+
         Arguments:
             name - name of an element
             permissive - work in permissive mode
-            
+
         Return:
-        
+
         * true on success
         * false in case the element could not be unlocked (in permissive
           mode)
@@ -326,7 +328,7 @@ class QueueSimple(QueueBase):
                 dirs.append(name)
 
     def count(self):
-        """Return the number of elements in the queue, locked or not 
+        """Return the number of elements in the queue, locked or not
         (but not temporary).
         """
         count = 0
@@ -341,14 +343,16 @@ class QueueSimple(QueueBase):
         return count
 
     def purge(self, maxtemp=300, maxlock=600):
-        """Purge the queue by removing unused intermediate directories, removing
-        too old temporary elements and unlocking too old locked elements (aka
-        staled locks); note: this can take a long time on queues with many
-        elements.
+        """Purge the queue by removing unused intermediate directories,
+        removing too old temporary elements and unlocking too old locked
+        elements (aka staled locks); note: this can take a long time on
+        queues with many elements.
 
-        maxtemp - maximum time for a temporary element (in seconds, default 300);
+        maxtemp - maximum time for a temporary element
+                  (in seconds, default 300);
                   if set to 0, temporary elements will not be removed
-        maxlock - maximum time for a locked element (in seconds, default 600);
+        maxlock - maximum time for a locked element
+                  (in seconds, default 600);
                   if set to 0, locked elements will not be unlocked
         """
         # get list of intermediate directories
@@ -360,19 +364,20 @@ class QueueSimple(QueueBase):
         if oldtemp or oldlock:
             for _dir in dirs:
                 path = '%s/%s' % (self.path, _dir)
-                tmp_lock_elems = [x for x in os.listdir(path) 
-                                        if re.search('(%s|%s)$' % 
-                                                     (TEMPORARY_SUFFIX,
-                                                      LOCKED_SUFFIX), x)]
+                tmp_lock_elems = [x for x in os.listdir(path)
+                                  if re.search('(%s|%s)$' %
+                                               (TEMPORARY_SUFFIX,
+                                                LOCKED_SUFFIX), x)]
                 for old in tmp_lock_elems:
                     stat = os.stat('%s/%s' % (path, old))
-                    if (old.endswith(TEMPORARY_SUFFIX) and 
-                        stat.st_mtime >= oldtemp):
+                    if (old.endswith(TEMPORARY_SUFFIX) and
+                            stat.st_mtime >= oldtemp):
                         continue
-                    if old.endswith(LOCKED_SUFFIX) and stat.st_mtime >= oldlock:
+                    if old.endswith(LOCKED_SUFFIX) and \
+                            stat.st_mtime >= oldlock:
                         continue
-                    _warn("WARNING: removing too old volatile file: %s/%s" % (
-                                                                self.path, old))
+                    _warn("WARNING: removing too old volatile file: %s/%s" %
+                          (self.path, old))
                     os.unlink('%s/%s' % (path, old))
         # try to purge all but the last intermediate directory
         if len(dirs) > 1:

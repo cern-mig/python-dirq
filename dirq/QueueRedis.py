@@ -31,14 +31,14 @@ Usage::
 
 Description
 -----------
-    
+
     The goal of this module is to offer a "redis" queue system using the
     same API as the other directory queue implementations.
-    
+
     Please refer to :py:mod:`dirq.queue` for general information about
     directory queues.
 
-    
+
 Author
 ------
 
@@ -65,6 +65,7 @@ from redis.exceptions import ConnectionError
 LOCKED_SUFFIX = ".lck"
 ISLOCK = re.compile(".*\.lck$")
 
+
 class QueueRedis(QueueBase):
     """
     QueueRedis
@@ -79,7 +80,7 @@ class QueueRedis(QueueBase):
         * maxlock - life of the lock
         """
         super(QueueRedis, self).__init__(path)
-        
+
         self._path = path
         self._host = host
         self._port = port
@@ -89,7 +90,7 @@ class QueueRedis(QueueBase):
 
     def add(self, data):
         """Add data to the queue.
-        
+
         Return: element name.
         """
         name = "%s.%s" % (self._path, _name())
@@ -116,7 +117,7 @@ class QueueRedis(QueueBase):
             raise QueueError("Redis connection error: %s:%s" %
                              (self._host, self._port))
         return element
-    
+
     get_ref = get
     "Get locked element. Defined to comply with Directory::Queue interface."
 
@@ -127,22 +128,22 @@ class QueueRedis(QueueBase):
     def lock(self, name):
         """
         Lock an element.
-        
+
         For locking following recommendations at:
         http://redis.io/commands/setnx
-        
+
         Arguments:
             name - name of an element
-            
+
         Return:
-        
+
         * true on success
         * false in case the element could not be locked
         """
         elem_key = name
         lock_key = "%s%s" % (name, LOCKED_SUFFIX)
         value = self._redis.get(elem_key)
-        if value == None:
+        if value is None:
             raise QueueError("element not found: %s" % name)
         if self._redis.setnx(lock_key, time.time()):
             # lock gained
@@ -151,22 +152,22 @@ class QueueRedis(QueueBase):
         now = time.time()
         # expired lock? get it!
         if current and (float(current) + self.maxlock) < now and \
-            self._redis.getset(lock_key, now) == now:
-                    return True
+                self._redis.getset(lock_key, now) == now:
+            return True
         return False
 
     def unlock(self, name, permissive=False):
         """
         Unlock an element.
-        
+
         For unlocking following recommendations at:
         http://redis.io/commands/setnx
-        
+
         Arguments:
             name - name of an element
-            
+
         Return:
-        
+
         * true on success
         * false in case the element could not be unlocked
         """
@@ -188,7 +189,7 @@ class QueueRedis(QueueBase):
         except ConnectionError:
             raise QueueError("Redis connection error: %s:%s" %
                              (self._host, self._port))
-    
+
     def count(self):
         """ Return the number of elements in the queue. """
         elts = [el for el in self._redis.keys("%s.*" % self._path)
@@ -197,7 +198,7 @@ class QueueRedis(QueueBase):
 
     def purge(self, maxlock=600):
         """ Purge the queue by removing expired locks.
-        
+
         maxlock - maximum time for a locked element (in seconds, default 600);
                   if set to 0, locked elements will not be unlocked"""
         if maxlock == 0:
@@ -208,7 +209,7 @@ class QueueRedis(QueueBase):
             now = time.time()
             if value and (float(value) + maxlock) < now:
                 self._redis.delete(elem)
-                
+
     def _reset(self):
         """ Regenerate list, drop cached elements list. """
         self.elts = []
@@ -217,15 +218,15 @@ class QueueRedis(QueueBase):
         if tmp:
             tmp.sort()
             self.elts = tmp
-        
+
     def __next__(self):
         """Return name of the next element in the queue, only using cached
         information. When queue is empty, depending on the iterator
         protocol - return empty string or raise StopIteration.
-        
+
         Return:
             name of the next element in the queue
-            
+
         Raise:
             StopIteration - when used as Python iterator via
                             __iter__() method
