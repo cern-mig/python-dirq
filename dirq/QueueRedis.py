@@ -116,6 +116,8 @@ class QueueRedis(QueueBase):
         except ConnectionError:
             raise QueueError("Redis connection error: %s:%s" %
                              (self._host, self._port))
+        if element is not None:
+            return element.decode()
         return element
 
     get_ref = get
@@ -193,7 +195,7 @@ class QueueRedis(QueueBase):
     def count(self):
         """ Return the number of elements in the queue. """
         elts = [el for el in self._redis.keys("%s.*" % self._path)
-                if not ISLOCK.match(el)]
+                if not ISLOCK.match(el.decode())]
         return len(elts)
 
     def purge(self, maxlock=600):
@@ -213,8 +215,8 @@ class QueueRedis(QueueBase):
     def _reset(self):
         """ Regenerate list, drop cached elements list. """
         self.elts = []
-        tmp = [el for el in self._redis.keys("%s.*" % self._path)
-               if ISLOCK.match(el) is None]
+        tmp = [el.decode() for el in self._redis.keys("%s.*" % self._path)
+               if ISLOCK.match(el.decode()) is None]
         if tmp:
             tmp.sort()
             self.elts = tmp

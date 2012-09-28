@@ -12,7 +12,12 @@ import tempfile
 
 __all__ = ['TestQueueRedis']
 
-PATH = ''.join(random.choice(string.letters) for i in range(10))
+try:
+    ascii_letters = string.ascii_letters
+except AttributeError:
+    ascii_letters = string.letters
+
+PATH = ''.join(random.choice(ascii_letters) for i in range(10))
 redis_params = {"path": PATH}
 
 
@@ -36,32 +41,32 @@ class TestQueueRedis(unittest.TestCase):
     def test01init(self):
         'QueueRedis.__init__()'
         qr = QueueRedis(**redis_params)
-        assert qr._path == redis_params["path"]
+        self.assertEquals(qr._path, redis_params["path"])
 
     def test02add(self):
         'QueueRedis.add()'
+        self._clean_it()
         data = 'foo bar'
         qr = QueueRedis(**redis_params)
         elem = qr.add(data)
-        assert qr.get(elem) == data
-        self._clean_it()
+        self.assertEquals(qr.get(elem), data)
 
     def test03lockunlok(self):
         'QueueRedis.lock()'
+        self._clean_it()
         data = 'foo bar'
         qr = QueueRedis(**redis_params)
         elem = qr.add(data)
-        assert qr.get(elem) == data
+        self.assertEquals(qr.get(elem), data)
         self.assert_(qr.lock(elem))
         self.failUnless(qr.get("%s%s" % (elem, LOCKED_SUFFIX)) is not None)
         qr.unlock(elem)
         self.failUnless(qr.get("%s%s" % (elem, LOCKED_SUFFIX)) is None)
-        self._clean_it()
 
     def test04get(self):
         'QueueRedis.get()'
         self._clean_it()
-        data = 'foo'.encode()
+        data = 'foo'
         qr = QueueRedis(**redis_params)
         elem = qr.add(data)
         qr.lock(elem)
@@ -93,10 +98,10 @@ class TestQueueRedis(unittest.TestCase):
             qr.lock(elem)
             qr.remove(elem)
         self.assertEqual(qr.count(), 0)
-        self._clean_it()
 
     def test07purge(self):
         'QueueRedis.purge()'
+        self._clean_it()
         qr = QueueRedis(**redis_params)
         qr.add('foo')
         self.assertEqual(qr.count(), 1)
@@ -111,6 +116,7 @@ class TestQueueRedis(unittest.TestCase):
 
     def test08purge_multElement(self):
         'QueueRedis.purge() multiple elements'
+        self._clean_it()
         qr = QueueRedis(**redis_params)
 
         qr.add('foo')
