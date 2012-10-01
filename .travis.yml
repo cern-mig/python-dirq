@@ -6,9 +6,11 @@ python:
   - "3.2"
 # command to install dependencies
 install:
-  - pip install redis --use-mirrors || echo "ok"
+  - pip install redis --use-mirrors
+  - pip install pep8 --use-mirrors
 # command to run tests
 script:
+  - pep8 examples/ dirq/ test/
   - python setup.py test
   - python setup.py install
   - python examples/dirq_simple.py
