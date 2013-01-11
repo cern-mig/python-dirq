@@ -24,7 +24,7 @@ License and Copyright
 
 ASL 2.0
 
-Copyright (C) 2010-2012
+Copyright (C) 2010-2013
 """
 
 AUTHOR = "Konstantin Skaburskas <konstantin.skaburskas@gmail.com>"

@@ -11,7 +11,7 @@ License and Copyright
 
 ASL 2.0
 
-Copyright (C) 2010-2012
+Copyright (C) 2010-2013
 """
 
 import sys
