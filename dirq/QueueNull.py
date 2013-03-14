@@ -3,7 +3,7 @@ QueueNull - object oriented interface to a null directory based queue.
 
 A port of Perl module Directory::Queue::Null
 http://search.cpan.org/dist/Directory-Queue/
-The documentation from Directory::Queue::Null module was 
+The documentation from Directory::Queue::Null module was
 adapted for Python.
 
 =================

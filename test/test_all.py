@@ -7,6 +7,7 @@ import testDirQueueSet
 import test_dirq
 import test_dirqset
 
+
 def main():
     print('=' * 25)
     print('Running unit tests.')
