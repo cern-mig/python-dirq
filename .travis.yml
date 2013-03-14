@@ -6,7 +6,6 @@ python:
   - "3.2"
 # command to install dependencies
 install:
-  - pip install redis --use-mirrors
   - pip install pep8 --use-mirrors
 # command to run tests
 script:
