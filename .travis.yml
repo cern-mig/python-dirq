@@ -1,3 +1,6 @@
+notifications:
+  email:
+    - mig-travis@cern.ch
 language: python
 python:
   - "2.5"
