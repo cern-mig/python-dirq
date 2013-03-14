@@ -15,10 +15,6 @@ from optparse import OptionParser
 sys.path.insert(1, re.sub('/\w*$', '', os.getcwd()))
 import dirq
 from dirq import queue
-try:
-    from dirq.QueueRedis import QueueRedis
-except ImportError:
-    pass
 from dirq.QueueSimple import QueueSimple
 
 opts = None
@@ -49,8 +45,6 @@ def init():
     parser.add_option("--maxelts", dest="maxelts", type='int',
                       default=0, help="set the maximum number of elements per "
                       "directory")
-    parser.add_option("--redis", dest="redis", action="store_true",
-                      default=False, help="test QueueRedis")
     parser.add_option("--simple", dest="simple", action="store_true",
                       default=False, help="test QueueSimple")
     parser.add_option("--granularity", dest="granularity", type='int',
@@ -110,8 +104,6 @@ def new_dirq(_schema):
         if opts.granularity is not None:
             kwargs['granularity'] = opts.granularity
         return QueueSimple(opts.path, **kwargs)
-    elif opts.redis:
-        return QueueRedis(opts.path, **kwargs)
     else:
         if _schema:
             schema = {'body': 'string',
@@ -316,8 +308,6 @@ def test_simple():
     subdirs = directory_contents(path)
     if opts.simple:
         num_subdirs = 1
-    elif opts.redis:
-        num_subdirs = 0
     else:
         num_subdirs = 3
     if len(subdirs) != num_subdirs:
@@ -326,7 +316,7 @@ def test_simple():
     debug("done in %.4f seconds", time2 - time1)
 
 
-def main_simple(simple=False, redis=False):
+def main_simple(simple=False):
     """A wrapper to run from a library.
     """
     global opts
@@ -339,14 +329,12 @@ def main_simple(simple=False, redis=False):
         header = False
         debug = True
         maxelts = 0
-        redis = False
         simple = False
         granularity = None
         maxtemp = None
         maxlock = None
     opts = options()
     opts.simple = simple
-    opts.redis = redis
     try:
         shutil.rmtree(opts.path, ignore_errors=True)
         test_simple()
