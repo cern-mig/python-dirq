@@ -1,7 +1,7 @@
 """Directory based queue.
 
 A port of Perl module Directory::Queue
-http://search.cpan.org/~lcons/Directory-Queue/
+http://search.cpan.org/dist/Directory-Queue/
 The documentation from Directory::Queue module was adapted for Python.
 
 The goal of this module is to offer a simple queue system using the
