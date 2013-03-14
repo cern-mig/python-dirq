@@ -1,4 +1,3 @@
-
 import dirq
 
 NAME = 'dirq'
@@ -8,10 +7,9 @@ LONG_DESCRIPTION = """
 A port of Perl module Directory::Queue
 http://search.cpan.org/dist/Directory-Queue/
 
-The goal of this module is to offer a simple queue system using the
-underlying filesystem for storage, security and to prevent race
-conditions via atomic operations. It focuses on simplicity, robustness
-and scalability.
+The goal of this module is to offer a queue system using the underlying
+filesystem for storage, security and to prevent race conditions via atomic
+operations. It focuses on simplicity, robustness and scalability.
 
 This module allows multiple concurrent readers and writers to interact
 with the same queue."""
@@ -19,8 +17,7 @@ AUTHOR = 'Konstantin Skaburskas'
 AUTHOR_EMAIL = 'konstantin.skaburskas@gmail.com'
 LICENSE = "ASL 2.0"
 PLATFORMS = "Any"
-URL = "http://code.google.com/p/dirq/"
-DOWNLOAD_URL = "http://dirq.googlecode.com/files/dirq-%s.tar.gz" % VERSION
+URL = "https://github.com/cern-mig/python-dirq"
 # Cheese shop (PyPI)
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
@@ -59,7 +56,6 @@ setup(name=NAME,
       license=LICENSE,
       platforms=PLATFORMS,
       url=URL,
-      download_url=DOWNLOAD_URL,
       classifiers=CLASSIFIERS,
       packages=['dirq'],
       cmdclass={'test': test},
