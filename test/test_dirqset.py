@@ -50,14 +50,18 @@ def init():
         sys.exit()
 
 
-def debug(given_format, *arguments):
+def debug(format, *arguments):
     """Report a debugging message.
     """
     if not OS.debug:
         return
-    message = given_format % arguments
+    message = format % arguments
     message = re.sub('\s+$', '.', message)
-    sys.stderr.write("# %i [%5d] %s\n" % (time.time(), os.getpid(), message))
+    sys.stderr.write("# %s %s[%d]: %s\n" %
+                     (time.strftime("%Y/%m/%d-%H:%M:%S",
+                                    time.localtime(time.time())),
+                      os.path.basename(sys.argv[0]),
+                      os.getpid(), message))
 
 
 def new_dirq(path, _schema):
