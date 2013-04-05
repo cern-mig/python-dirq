@@ -356,5 +356,4 @@ if __name__ == "__main__":
         time.sleep(opts.sleep)
     for test in tests:
         test_func = 'test_%s()' % test
-        print('--- %s ---' % test_func)
         exec(test_func)
