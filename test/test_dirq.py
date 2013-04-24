@@ -28,37 +28,37 @@ def init():
     global opts, TEST
     parser = OptionParser(usage="%prog [OPTIONS] [--] TEST",
                           version="%%prog %s" % dirq.VERSION)
-    parser.add_option('-l', '--list', dest='list', action="store_true",
+    parser.add_option("-l", "--list", dest="list", action="store_true",
                       default=False, help="list available tests")
-    parser.add_option('-d', '--debug', dest='debug', action="store_true",
+    parser.add_option("-d", "--debug", dest="debug", action="store_true",
                       default=False, help="show debugging information")
-    parser.add_option('-p', '--path', dest='path', type='string', default='',
+    parser.add_option("-p", "--path", dest="path", type="string", default="",
                       help="set the queue path")
-    parser.add_option('-c', '--count', dest='count', type='int', default=0,
+    parser.add_option("-c", "--count", dest="count", type="int", default=0,
                       help="set the elements count")
-    parser.add_option("-s", "--size", dest="size", type='int', default=0,
+    parser.add_option("-s", "--size", dest="size", type="int", default=0,
                       help="set the body size for added elements")
     parser.add_option("-r", "--random", dest="random", action="store_true",
                       default=False, help="randomize the body size")
-    parser.add_option("--header", dest="header", action="store_true",
-                      default=False, help="set header for added elements")
-    parser.add_option("--maxelts", dest="maxelts", type='int',
-                      default=0, help="set the maximum number of elements per "
-                      "directory")
-    parser.add_option("--simple", dest="simple", action="store_true",
-                      default=False, help="test QueueSimple")
-    parser.add_option("--granularity", dest="granularity", type='int',
+    parser.add_option("--granularity", dest="granularity", type="int",
                       default=None, help="time granularity for intermediate "
                       "directories (QueueSimple)")
-    parser.add_option("--sleep", dest="sleep", type='float', default=0,
-                      help="sleep this amount of seconds before starting "
-                           "the test(s)")
-    parser.add_option("--maxlock", dest="maxlock", type='int', default=None,
+    parser.add_option("--header", dest="header", action="store_true",
+                      default=False, help="set header for added elements")
+    parser.add_option("--maxelts", dest="maxelts", type="int",
+                      default=0, help="set the maximum number of elements per "
+                      "directory")
+    parser.add_option("--maxlock", dest="maxlock", type="int", default=None,
                       help="maximum time for a locked element. 0 - locked "
                       "elements will not be unlocked.")
-    parser.add_option("--maxtemp", dest="maxtemp", type='int', default=None,
+    parser.add_option("--maxtemp", dest="maxtemp", type="int", default=None,
                       help="maximum time for a temporary element. "
                       "0 - temporary elements will not be removed.")
+    parser.add_option("--sleep", dest="sleep", type="float", default=0,
+                      help="sleep this amount of seconds before starting "
+                           "the test(s)")
+    parser.add_option("--type", dest="type", type="string", default="simple",
+                      help="set the type of dirq (simple|normal)")
     opts, args = parser.parse_args()
     if opts.list:
         print("Tests: %s" % ', '.join(TESTS))
@@ -100,7 +100,7 @@ def new_dirq(_schema):
     """Create a new Directory::Queue object, optionally with schema.
     """
     kwargs = {}
-    if opts.simple:
+    if opts.type == "simple":
         if opts.granularity is not None:
             kwargs['granularity'] = opts.granularity
         return QueueSimple(opts.path, **kwargs)
@@ -167,7 +167,7 @@ def test_add():
     else:
         debug("adding elements to the queue forever...")
     dirq = new_dirq(1)
-    if opts.simple:
+    if opts.type == "simple":
         element = ''
     else:
         element = {}
@@ -178,12 +178,12 @@ def test_add():
     while not count or done < count:
         done += 1
         if size:
-            if opts.simple:
+            if opts.type == "simple":
                 element = _body(size, random)
             else:
                 element['body'] = _body(size, random)
         else:
-            if opts.simple:
+            if opts.type == "simple":
                 element = 'Element %i ;-)\n' % done
             else:
                 try:
@@ -306,7 +306,7 @@ def test_simple():
             _die("%s: couldn't listdir(%s)", ProgramName, path)
             sys.exit(1)
     subdirs = directory_contents(path)
-    if opts.simple:
+    if opts.type == "simple":
         num_subdirs = 1
     else:
         num_subdirs = 3
@@ -316,25 +316,25 @@ def test_simple():
     debug("done in %.4f seconds", time2 - time1)
 
 
-def main_simple(simple=False):
+def main_simple(type="simple"):
     """A wrapper to run from a library.
     """
     global opts
 
     class options(object):
-        path = '/tmp/dirq-%i' % os.getpid()
-        count = 10
-        random = False
-        size = False
-        header = False
         debug = True
-        maxelts = 0
-        simple = False
+        path = '/tmp/dirq-%i' % os.getpid()
+        count = 100
+        size = False
+        random = False
         granularity = None
+        header = False
+        maxelts = 0
         maxtemp = None
         maxlock = None
+        type = "simple"
     opts = options()
-    opts.simple = simple
+    opts.type = type
     try:
         shutil.rmtree(opts.path, ignore_errors=True)
         test_simple()

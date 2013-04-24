@@ -21,9 +21,9 @@ def main():
     print('Running functional tests.')
     print('=' * 25)
     print('*** Queue')
-    test_dirq.main_simple()
+    test_dirq.main_simple(type="normal")
     print('*** QueueSimple')
-    test_dirq.main_simple(simple=True)
+    test_dirq.main_simple(type="simple")
     print('*** QueueSet')
     test_dirqset.main_complex()
 
