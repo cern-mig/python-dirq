@@ -255,7 +255,7 @@ License and Copyright
 
 ASL 2.0
 
-Copyright (C) 2010-2013 CERN
+Copyright (C) CERN 2011-2013
 """
 import dirq
 __author__ = dirq.AUTHOR
