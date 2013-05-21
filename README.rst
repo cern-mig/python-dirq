@@ -3,6 +3,7 @@ python-dirq
 ===========
 
 .. image:: https://secure.travis-ci.org/cern-mig/python-dirq.png?branch=master
+   :target: https://travis-ci.org/cern-mig/python-dirq
 
 Overview
 ========
