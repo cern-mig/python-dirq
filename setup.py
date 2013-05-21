@@ -11,8 +11,8 @@ The goal of this module is to offer a queue system using the underlying
 filesystem for storage, security and to prevent race conditions via atomic
 operations. It focuses on simplicity, robustness and scalability.
 
-This module allows multiple concurrent readers and writers to interact
-with the same queue."""
+This module allows multiple concurrent readers and writers to interact with
+the same queue."""
 AUTHOR = 'Konstantin Skaburskas'
 AUTHOR_EMAIL = 'konstantin.skaburskas@gmail.com'
 LICENSE = "ASL 2.0"
