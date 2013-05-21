@@ -1,11 +1,18 @@
+* Tue May 21 2013 Lionel Cons <lionel.cons@cern.ch> - 1.3
+- [lc] improved the test scripts
+- [mp] improved Python3 support
+- [lc] cleanup the documentation and added a TODO file
+- [mp] added pep8 complaince
+- [lc] fixed the mode of newly created files
+
 * Mon Jun 04 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.2.2
 - fixed race condition in QueueSimple.lock()
 
 * Sun May 06 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.2.1
-- [Massimo Paladin] fixing escaping bug in hash2string and string2hash
-- [Massimo Paladin] fixing string2hash bug when given string is empty
-- [Massimo Paladin] cleaning to make pylint happier
-- [Massimo Paladin] adding python3 support
+- [mp] fixing escaping bug in hash2string and string2hash
+- [mp] fixing string2hash bug when given string is empty
+- [mp] cleaning to make pylint happier
+- [mp] adding python3 support
 
 * Wed Mar 28 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.1.2
 - removed "from .<module> import" as we have to support Python <= 2.4 
@@ -15,7 +22,7 @@
 - updated test of dirq.Queue.touch()
 
 * Thu Mar 01 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.1.0
-- [Massimo Paladin] added QueueNull which is kind of a black hole
+- [mp] added QueueNull which is kind of a black hole
 - Fixed a bug with providing umask to QueueBase constructor
 
 * Mon Dec 05 2011 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.0.1
@@ -42,3 +49,7 @@
 
 * Mon Jun 21 2010 K. Skaburskas <Konstantin.Skaburskas@cern.ch> - 0.0.4-1
 - Initial release 0.0.4-1
+
+[ks] = Konstantin Skaburskas <konstantin.skaburskas@gmail.com>
+[lc] = Lionel Cons <lionel.cons@cern.ch>
+[mp] = Massimo Paladin <massimo.paladin@gmail.com>

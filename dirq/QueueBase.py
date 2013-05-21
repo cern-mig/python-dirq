@@ -187,7 +187,7 @@ def _file_create(path, umask=None, utf8=False):
         fileh = codecs.open(path, 'w', 'utf8')
     else:
         fileh = os.fdopen(
-            os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL), 'wb')
+            os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0666), 'wb')
     if umask:
         os.umask(oldumask)
 
