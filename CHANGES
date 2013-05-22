@@ -1,4 +1,4 @@
-* Tue May 21 2013 Lionel Cons <lionel.cons@cern.ch> - 1.3
+* Wed May 22 2013 Lionel Cons <lionel.cons@cern.ch> - 1.3
 - [lc] improved the test scripts
 - [mp] improved Python3 support
 - [lc] cleanup the documentation and added a TODO file
