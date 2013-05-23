@@ -17,7 +17,7 @@ install:
 # command to run tests
 script:
   - pep8 dirq examples test
-  - sh pylint.sh dirq examples test || echo "*ignored*"
+  - sh pylint.sh dirq test examples/*.py || echo "*ignored*"
   - python setup.py test
   - python setup.py install
   - python examples/dirq_simple.py
