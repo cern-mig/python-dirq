@@ -10,10 +10,14 @@ python:
   - "3.3"
 # command to install dependencies
 install:
-  - pip install pep8 --use-mirrors
+  - pip install --use-mirrors pep8
+  - pip install --use-mirrors pylint
+  - curl -O -R -S -f -s https://raw.github.com/cern-mig/dev-tools/master/python/pylint.sh
+  - curl -O -R -S -f -s https://raw.github.com/cern-mig/dev-tools/master/python/.pylintrc
 # command to run tests
 script:
-  - pep8 examples/ dirq/ test/
+  - pep8 dirq examples test
+  - sh pylint.sh --rcfile .pylintrc dirq examples test || echo "*ignored*"
   - python setup.py test
   - python setup.py install
   - python examples/dirq_simple.py
