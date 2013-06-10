@@ -9,17 +9,17 @@ import test_dirqset
 
 
 def main():
-    print('=' * 25)
-    print('Running unit tests.')
-    print('=' * 25)
+    print('=' * 32)
+    print('Running unit tests...')
+    print('=' * 32)
     testDirQueueBase.main()
     testDirQueue.main()
     testDirQueueSimple.main()
     testDirQueueNull.main()
     testDirQueueSet.main()
-    print('=' * 25)
-    print('Running functional tests.')
-    print('=' * 25)
+    print('=' * 32)
+    print('Running functional tests...')
+    print('=' * 32)
     print('*** Queue')
     test_dirq.main_simple(type="normal")
     print('*** QueueSimple')
