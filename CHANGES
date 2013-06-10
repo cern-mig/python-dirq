@@ -1,5 +1,6 @@
 * ???
 - [lc] fixed a bug with element name generation
+- [lc] added support for the rndhex attribute as in Perl's Directory::Queue
 
 * Wed May 22 2013 Lionel Cons <lionel.cons@cern.ch> - 1.3
 - [lc] improved the test scripts

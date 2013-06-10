@@ -125,15 +125,17 @@ class QueueSimple(QueueBase):
     """
     QueueSimple
     """
-    def __init__(self, path, umask=None, granularity=60):
+    def __init__(self, path, umask=None, rndhex=None, granularity=60):
         """
         * path - queue top level directory
         * umask - the umask to use when creating files and directories
                   (default: use the running process' umask)
+        * rndhex - the hexadecimal digit to use in names
+                  (default: randomly chosen)
         * granularity - the time granularity for intermediate directories
                       (default: 60)
         """
-        super(QueueSimple, self).__init__(path, umask=umask)
+        super(QueueSimple, self).__init__(path, umask=umask, rndhex=rndhex)
 
         if not isinstance(granularity, int):
             raise TypeError('granularity should be integer.')
@@ -159,7 +161,8 @@ class QueueSimple(QueueBase):
         """
         _dir = self._add_dir()
         while 1:
-            tmp = '%s/%s/%s%s' % (self.path, _dir, _name(), TEMPORARY_SUFFIX)
+            tmp = '%s/%s/%s%s' % (self.path, _dir, _name(self.rndhex),
+                                  TEMPORARY_SUFFIX)
             try:
                 if is_bytes(data):
                     new_file = _file_create(tmp, umask=self.umask, utf8=False)
@@ -184,7 +187,7 @@ class QueueSimple(QueueBase):
         Return: element name (<directory name>/<file name>).
         """
         while 1:
-            name = _name()
+            name = _name(self.rndhex)
             new = '%s/%s/%s' % (self.path, _dir, name)
             try:
                 os.link(tmp, new)

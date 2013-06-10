@@ -98,7 +98,7 @@ class TestQueue(TestDirQueue):
         name0 = '%08x' % 0
         assert q._insertion_directory() == name0
         assert os.path.exists(self.path + '/' + name0)
-        os.mkdir('%s/%s/%s' % (self.path, name0, queue._name()))
+        os.mkdir('%s/%s/%s' % (self.path, name0, queue._name(q.rndhex)))
         name1 = '%08x' % 1
         assert q._insertion_directory() == name1
         assert os.path.exists(self.path + '/' + name1)

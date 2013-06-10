@@ -20,13 +20,14 @@ __author__ = dirq.AUTHOR
 __version__ = dirq.VERSION
 __date__ = dirq.DATE
 
-import re
 import codecs
 import errno
-import os
-import time
-import sys
 import inspect
+import os
+import random
+import re
+import sys
+import time
 
 from dirq.utils import VALID_STR_TYPES
 
@@ -50,7 +51,7 @@ def _warn(text):
         sys.stdout.flush()
 
 
-def _name():
+def _name(rndhex):
     """
     Return the name of a new element to (try to) use with:
     * 8 hexadecimal digits for the number of seconds since the Epoch
@@ -66,7 +67,7 @@ def _name():
     * matching $_ElementRegexp
     """
     now = time.time()
-    return "%08x%05x%s" % (now, (now % 1.0) * 1000000, UPID)
+    return "%08x%05x%01x" % (now, (now % 1.0) * 1000000, rndhex)
 
 
 def _directory_contents(path, missingok=True):
@@ -217,7 +218,7 @@ def _file_write(path, utf8, umask, data):
 class QueueBase(object):
     """QueueBase
     """
-    def __init__(self, path, umask=None):
+    def __init__(self, path, umask=None, rndhex=None):
         """
         Arguments:
             path
@@ -225,6 +226,9 @@ class QueueBase(object):
             umask
                 the umask to use when creating files and directories
                 (default: use the running process' umask)
+            rndhex
+                the hexadecimal digit to use in names
+                (default: randomly chosen)
 
         Raise:
             TypeError  - wrong input data types provided
@@ -240,6 +244,12 @@ class QueueBase(object):
         if umask is not None and not isinstance(umask, int):
             raise TypeError("'umask' should be integer")
         self.umask = umask
+        if rndhex is not None and not isinstance(rndhex, int):
+            raise TypeError("'rndhex' should be integer")
+        if rndhex is None:
+            self.rndhex = random.randint(0, 15)
+        else:
+            self.rndhex = rndhex % 16
 
         # create top level directory
         _special_mkdir(path, self.umask)

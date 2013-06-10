@@ -453,7 +453,8 @@ def _count(path):
 class Queue(QueueBase):
     """Directory based queue.
     """
-    def __init__(self, path, umask=None, maxelts=16000, schema=dict()):
+    def __init__(self, path, umask=None, rndhex=None, maxelts=16000,
+                 schema=dict()):
         """Check and set schema. Build the queue directory structure.
 
         Arguments:
@@ -462,6 +463,9 @@ class Queue(QueueBase):
             umask
                 the umask to use when creating files and directories
                 (default: use the running process' umask)
+            rndhex
+                the hexadecimal digit to use in names
+                (default: randomly chosen)
             maxelts
                 the maximum number of elements that an intermediate
                 directory can hold (default: 16,000)
@@ -473,7 +477,7 @@ class Queue(QueueBase):
             QueueError - problems with the queue schema definition
             OSError    - can't create directory structure
         """
-        super(Queue, self).__init__(path, umask=umask)
+        super(Queue, self).__init__(path, umask=umask, rndhex=rndhex)
 
         if type(maxelts) in VALID_INT_TYPES:
             self.maxelts = maxelts
@@ -723,7 +727,8 @@ class Queue(QueueBase):
         # move the element out of its intermediate directory
         path = '%s/%s' % (self.path, ename)
         while True:
-            temp = '%s/%s/%s' % (self.path, OBSOLETE_DIRECTORY, _name())
+            temp = '%s/%s/%s' % (self.path, OBSOLETE_DIRECTORY,
+                                 _name(self.rndhex))
             try:
                 os.rename(path, temp)
                 break
@@ -909,7 +914,8 @@ class Queue(QueueBase):
         if not self.type:
             raise QueueError("unknown schema")
         while True:
-            temp = '%s/%s/%s' % (self.path, TEMPORARY_DIRECTORY, _name())
+            temp = '%s/%s/%s' % (self.path, TEMPORARY_DIRECTORY,
+                                 _name(self.rndhex))
             if _special_mkdir(temp, self.umask):
                 break
         for name in data.keys():
@@ -938,7 +944,7 @@ class Queue(QueueBase):
             if name not in data:
                 raise QueueError("missing mandatory data: %s" % name)
         while True:
-            name = '%s/%s' % (self._insertion_directory(), _name())
+            name = '%s/%s' % (self._insertion_directory(), _name(self.rndhex))
             path = '%s/%s' % (self.path, name)
             try:
                 os.rename(temp, path)

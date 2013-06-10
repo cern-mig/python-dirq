@@ -62,9 +62,9 @@ class TestQueueBaseModuleFunctions(TestDirQueueBase):
 
     def test2_name(self):
         'QueueBase._name()'
-        n = QueueBase._name()
+        n = QueueBase._name(7)
         assert len(n) == 14
-        assert n.endswith('%01x' % (os.getpid() % 16))
+        assert n.endswith('%01x' % 7)
 
     def test3_file_create(self):
         'QueueBase._file_create()'

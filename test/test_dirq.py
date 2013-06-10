@@ -324,7 +324,7 @@ def main_simple(type="simple"):
     class options(object):
         debug = True
         path = '/tmp/dirq-%i' % os.getpid()
-        count = 100
+        count = 1000
         size = False
         random = False
         granularity = None
