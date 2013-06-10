@@ -32,9 +32,9 @@ import time
 from dirq.utils import VALID_STR_TYPES
 
 __DirectoryRegexp = '[0-9a-f]{8}'
-_DirectoryRegexp = re.compile('(%s)$' % __DirectoryRegexp)
 __ElementRegexp = '[0-9a-f]{14}'
-_ElementRegexp = re.compile('(%s)$' % __ElementRegexp)
+_DirectoryRegexp = re.compile('^(%s)$' % __DirectoryRegexp)
+_ElementRegexp = re.compile('^(%s)$' % __ElementRegexp)
 _DirElemRegexp = re.compile('^%s/%s$' % (__DirectoryRegexp, __ElementRegexp))
 
 WARN = False

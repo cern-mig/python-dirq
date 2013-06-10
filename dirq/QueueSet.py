@@ -147,7 +147,7 @@ class QueueSet(object):
         instances are used.
 
         Arguments:
-            \*queues - add([q1,..]/(q1,..)) or add(q1,..)
+            *queues - add([q1,..]/(q1,..)) or add(q1,..)
 
         Raise:
             QueueError - queue already in the set

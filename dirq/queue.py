@@ -296,9 +296,10 @@ LOCKED_DIRECTORY = "locked"
 # global variables
 #
 
-__FileRegexp = "[0-9a-zA-Z]+"
-_FileRegexp = re.compile("^(%s)$" % __FileRegexp)
-_KeyValRegexp = re.compile('^([^\x09\x0a]*)\x09([^\x09\x0a]*)$')
+_FileRegexp = re.compile("^([0-9a-zA-Z]+)$")
+_KeyValRegexp = re.compile("^([^\x09\x0a]*)\x09([^\x09\x0a]*)$")
+_H2SRegexp = re.compile("(\\\\|\x09|\x0a)")
+_S2HRegexp = re.compile(r"(\\\\|\\t|\\n)")
 
 _Byte2Esc = {"\\": r"\\", "\t": r"\t", "\n": r"\n"}
 _Esc2Byte = dict([(_value, _key) for _key, _value in _Byte2Esc.items()])
@@ -323,8 +324,8 @@ def _hash2string(data):
         val = data[key]
         if type(val) not in VALID_STR_TYPES:
             raise QueueError("invalid hash value type: %r" % val)
-        key = re.sub('(\\\\|\x09|\x0a)', lambda m: _Byte2Esc[m.group(1)], key)
-        val = re.sub('(\\\\|\x09|\x0a)', lambda m: _Byte2Esc[m.group(1)], val)
+        key = _H2SRegexp.sub(lambda m: _Byte2Esc[m.group(1)], key)
+        val = _H2SRegexp.sub(lambda m: _Byte2Esc[m.group(1)], val)
         string = '%s%s' % (string, '%s\x09%s\x0a' % (key, val))
     return string
 
@@ -345,10 +346,10 @@ def _string2hash(given):
         match = _KeyValRegexp.match(line)
         if not match:
             raise QueueError("unexpected hash line: %s" % line)
-        key = re.sub(r'(\\\\|\\t|\\n)', lambda m: _Esc2Byte[str(m.group(1))],
-                     match.group(1))
-        val = re.sub(r'(\\\\|\\t|\\n)', lambda m: _Esc2Byte[str(m.group(1))],
-                     match.group(2))
+        key = _S2HRegexp.sub(lambda m: _Esc2Byte[str(m.group(1))],
+                             match.group(1))
+        val = _S2HRegexp.sub(lambda m: _Esc2Byte[str(m.group(1))],
+                             match.group(2))
         _hash[key] = val
     return _hash
 
@@ -495,13 +496,13 @@ class Queue(QueueBase):
                 if not isinstance(schema[name], str):
                     raise QueueError("invalid data type for schema " +
                                      "specification: %r" % type(schema[name]))
-                match = re.match('(binary|string|table)([\?\*]{0,2})?$',
+                match = re.match('(binary|string|table)([\\?\\*]{0,2})?$',
                                  schema[name])
                 if not match:
                     raise QueueError("invalid schema data type: %r" %
                                      schema[name])
                 self.type[name] = match.group(1)
-                if not re.search('\?', match.group(2)):
+                if not re.search('\\?', match.group(2)):
                     self.mandatory[name] = True
             if not self.mandatory:
                 raise QueueError("invalid schema: no mandatory data")
