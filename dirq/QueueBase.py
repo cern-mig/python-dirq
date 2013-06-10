@@ -31,8 +31,6 @@ import time
 
 from dirq.utils import VALID_STR_TYPES
 
-UPID = '%01x' % (os.getpid() % 16)
-
 __DirectoryRegexp = '[0-9a-f]{8}'
 _DirectoryRegexp = re.compile('(%s)$' % __DirectoryRegexp)
 __ElementRegexp = '[0-9a-f]{14}'

@@ -6,9 +6,10 @@ Test program for testing dirq.QueueSet module.
 
 import os
 import re
-import sys
-import time
 import shutil
+import sys
+import tempfile
+import time
 from optparse import OptionParser
 
 sys.path.insert(1, re.sub('/\w*$', '', os.getcwd()))
@@ -104,11 +105,10 @@ def test_complex():
     """
     wd = OS.path
     os.mkdir(wd)
-    pid = os.getpid()
     qn = 6
     paths = []
     for i in range(qn):
-        paths.append(wd + '/test-add-%i-%i' % (i, pid))
+        paths.append(wd + '/q%i' % i)
     count = OS.count or 1000
     debug("creating %i initial queues. adding %i elements into each." %
           (qn, count))
@@ -182,8 +182,8 @@ def main_complex():
 
     class options(object):
         """ options class. """
-        path = '/tmp/dirqset-%i' % os.getpid()
-        count = 10
+        path = tempfile.mkdtemp() + '/dirqset'
+        count = 100
         random = False
         size = False
         header = False

@@ -2,6 +2,7 @@
 
 import os
 import shutil
+import tempfile
 import unittest
 
 __all__ = ['TestQueueSet']
@@ -14,7 +15,7 @@ from dirq.QueueSet import QueueSet
 class TestDirQueue(unittest.TestCase):
 
     def setUp(self):
-        self.path = '/tmp/dirq-%i' % os.getpid()
+        self.path = tempfile.mkdtemp()
         for i in range(1, 5):
             setattr(self, 'p%i' % i, '%s/%s' % (self.path, 'p%i' % i))
         shutil.rmtree(self.path, ignore_errors=True)

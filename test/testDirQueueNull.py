@@ -22,7 +22,7 @@ def assert_fail(exc, callable, *args, **kwargs):
 
 class TestDirQueue(unittest.TestCase):
     def setUp(self):
-        self.qdir = tempfile.mkdtemp(prefix='directory-qnull', dir='/tmp')
+        self.qdir = tempfile.mkdtemp(prefix='directory-qnull')
 
     def tearDown(self):
         shutil.rmtree(self.qdir, ignore_errors=True)

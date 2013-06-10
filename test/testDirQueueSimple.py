@@ -14,7 +14,7 @@ __all__ = ['TestQueueSimple']
 class TestDirQueue(unittest.TestCase):
 
     def setUp(self):
-        self.qdir = tempfile.mkdtemp(prefix='directory-qsimple', dir='/tmp')
+        self.qdir = tempfile.mkdtemp(prefix='directory-qsimple')
         shutil.rmtree(self.qdir, ignore_errors=True)
 
     def tearDown(self):

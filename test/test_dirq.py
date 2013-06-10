@@ -5,11 +5,12 @@ Test program for testing dirq.queue and dirq.QueueSimple modules.
 """
 
 import os
-import re
-import sys
-import time
 import random
+import re
 import shutil
+import sys
+import tempfile
+import time
 from optparse import OptionParser
 
 sys.path.insert(1, re.sub('/\w*$', '', os.getcwd()))
@@ -323,7 +324,7 @@ def main_simple(type="simple"):
 
     class options(object):
         debug = True
-        path = '/tmp/dirq-%i' % os.getpid()
+        path = tempfile.mkdtemp() + '/dirq'
         count = 1000
         size = False
         random = False

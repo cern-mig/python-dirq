@@ -6,11 +6,12 @@
 from dirq.queue import Queue, QueueError, QueueLockError
 import os
 import sys
+import tempfile
 
 # total number of elements
 COUNT = 9
 # queue head directory
-path = '/tmp/dirq-test-%i' % os.getpid()
+path = tempfile.mkdtemp()
 # max elements per elements directory
 maxelts = 3
 # element's schema
@@ -123,7 +124,7 @@ assert total_left == miss
 del dirq_c
 
 print("*** CONSUMER: lower level iterator protocol.")
-path = '/tmp/dirq-test-%i-0' % os.getpid()
+path = tempfile.mkdtemp()
 print("create new queue and add elements")
 print("adding %d elements to the queue at %s" % (COUNT, path))
 dirq_p = Queue(path, maxelts=maxelts, schema=schema)

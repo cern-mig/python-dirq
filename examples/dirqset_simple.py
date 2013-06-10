@@ -4,10 +4,10 @@
 
 from dirq.queue import Queue, QueueSet
 import os
+import tempfile
 
 # root directory for queues
-working_dir = '/tmp'
-pid = os.getpid()
+working_dir = tempfile.mkdtemp()
 # number of queues
 QUEUES = 4
 
@@ -15,7 +15,7 @@ print("*** Setup & populate queues")
 # generate paths
 paths = []
 for i in range(QUEUES):
-    paths.append(working_dir + '/test-add-%i-%i' % (i, pid))
+    paths.append(working_dir + '/q-%i' % i)
 COUNT = 5
 
 print("creating %i initial queues. adding %i elements into each." % (QUEUES,
