@@ -301,7 +301,7 @@ _FileRegexp = re.compile("^(%s)$" % __FileRegexp)
 _KeyValRegexp = re.compile('^([^\x09\x0a]*)\x09([^\x09\x0a]*)$')
 
 _Byte2Esc = {"\\": r"\\", "\t": r"\t", "\n": r"\n"}
-_Esc2Byte = dict([(value, key) for key, value in _Byte2Esc.items()])
+_Esc2Byte = dict([(_value, _key) for _key, _value in _Byte2Esc.items()])
 
 #
 # Helper Functions
