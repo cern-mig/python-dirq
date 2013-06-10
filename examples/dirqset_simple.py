@@ -3,7 +3,6 @@
 """ Browse a set of queues. """
 
 from dirq.queue import Queue, QueueSet
-import os
 import tempfile
 
 # root directory for queues
