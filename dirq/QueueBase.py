@@ -6,7 +6,7 @@ be used elsewhere.
 Author
 ------
 
-Konstantin Skaburskas \<konstantin.skaburskas@gmail.com\>
+Konstantin Skaburskas <konstantin.skaburskas@gmail.com>
 
 License and Copyright
 ---------------------

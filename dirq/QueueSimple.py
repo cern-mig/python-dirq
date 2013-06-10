@@ -94,7 +94,7 @@ Directory Structure
 Author
 ------
 
-Konstantin Skaburskas \<konstantin.skaburskas@gmail.com\>
+Konstantin Skaburskas <konstantin.skaburskas@gmail.com>
 
 License and Copyright
 ---------------------
@@ -222,8 +222,7 @@ class QueueSimple(QueueBase):
         _dir, path = self._add_data(data)
         return self._add_path(path, _dir)
 
-    add_ref = add
-    """ Defined to comply with Directory::Queue interface."""
+    add_ref = add  # to comply with the Perl Directory::Queue interface
 
     def add_path(self, path):
         """Add the given file (identified by its path) to the queue and return
@@ -239,8 +238,7 @@ class QueueSimple(QueueBase):
         """
         return _file_read('%s/%s%s' % (self.path, name, LOCKED_SUFFIX), False)
 
-    get_ref = get
-    "Get locked element. Defined to comply with Directory::Queue interface."
+    get_ref = get  # to comply with the Perl Directory::Queue interface
 
     def get_path(self, name):
         """ Return the path given the name. """

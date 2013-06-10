@@ -48,11 +48,12 @@ print('=' * 25)
 # BROWSER
 print("*** BROWSER: Python iterator protocol.")
 dirq_b = Queue(path, schema=schema)
+done = 0
 miss = 0
 # for i,name in enumerate(dirq_b): # same (object returns Python iterator over
                                    # the names of elements)
 for i, name in enumerate(dirq_b.names()):
-    i += 1  # enumerate(o, start=1) in Python 2.6
+    done += 1  # enumerate(o, start=1) in Python 2.6
     print("element: %s %s" % (path, name))
     try:
         if i in [1, 4, 5]:  # artificially lock some elements
@@ -73,7 +74,7 @@ for i, name in enumerate(dirq_b.names()):
         print(error)
         break
     print("element: %i" % i, e.keys())
-print("found %i elements; got %i" % (i, i - miss))
+print("found %i elements; got %i" % (done, done - miss))
 del dirq_b
 
 print("*** BROWSER: lower level iterator protocol.")

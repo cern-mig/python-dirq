@@ -41,7 +41,7 @@ Description
 Author
 ------
 
-Konstantin Skaburskas \<konstantin.skaburskas@gmail.com\>
+Konstantin Skaburskas <konstantin.skaburskas@gmail.com>
 
 License and Copyright
 ---------------------
@@ -67,8 +67,7 @@ class QueueNull(QueueBase):
         """Add data to the queue, this does nothing. """
         return ""
 
-    add_ref = add
-    "Defined to comply with Directory::Queue interface."
+    add_ref = add  # to comply with the Perl Directory::Queue interface
 
     def add_path(self, path):
         """Add the given file (identified by its path) to the queue,
@@ -81,8 +80,7 @@ class QueueNull(QueueBase):
         """ Not supported method. """
         raise NotImplementedError("unsupported method: get()")
 
-    get_ref = get
-    "Get locked element. Defined to comply with Directory::Queue interface."
+    get_ref = get  # to comply with the Perl Directory::Queue interface
 
     def get_path(self, name):
         """ Not supported method. """
