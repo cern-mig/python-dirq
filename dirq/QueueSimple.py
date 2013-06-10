@@ -140,18 +140,13 @@ class QueueSimple(QueueBase):
         if not isinstance(granularity, int):
             raise TypeError('granularity should be integer.')
         self.granularity = granularity
-        if self.granularity == 0:
-            self._add_dir = self.__add_dir_timecurrent
 
     def _add_dir(self):
-        """ Return new directory name based on time. """
+        """ Return new directory name based on time and granularity. """
         now = time.time()
-        now -= now % self.granularity
+        if self.granularity > 1:
+            now -= now % self.granularity
         return "%08x" % now
-
-    def __add_dir_timecurrent(self):
-        """ Return new directory name with current time. """
-        return "%08x" % time.time()
 
     def _add_data(self, data):
         """Write 'data' to a file.
