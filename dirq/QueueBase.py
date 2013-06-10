@@ -66,7 +66,7 @@ def _name():
     * matching $_ElementRegexp
     """
     now = time.time()
-    return "%08x%05x%s" % (now, (now % 1.0) * 100000, UPID)
+    return "%08x%05x%s" % (now, (now % 1.0) * 1000000, UPID)
 
 
 def _directory_contents(path, missingok=True):

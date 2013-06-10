@@ -1,3 +1,6 @@
+* ???
+- [lc] fixed a bug with element name generation
+
 * Wed May 22 2013 Lionel Cons <lionel.cons@cern.ch> - 1.3
 - [lc] improved the test scripts
 - [mp] improved Python3 support
@@ -6,7 +9,7 @@
 - [lc] fixed the mode of newly created files
 
 * Mon Jun 04 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.2.2
-- fixed race condition in QueueSimple.lock()
+- [ks] fixed race condition in QueueSimple.lock()
 
 * Sun May 06 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.2.1
 - [mp] fixing escaping bug in hash2string and string2hash
@@ -15,40 +18,40 @@
 - [mp] adding python3 support
 
 * Wed Mar 28 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.1.2
-- removed "from .<module> import" as we have to support Python <= 2.4 
+- [ks] removed "from .<module> import" as we have to support Python <= 2.4 
 
 * Mon Mar 19 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.1.1
-- minor fix for failing build under Python 3
-- updated test of dirq.Queue.touch()
+- [ks] minor fix for failing build under Python 3
+- [ks] updated test of dirq.Queue.touch()
 
 * Thu Mar 01 2012 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.1.0
 - [mp] added QueueNull which is kind of a black hole
-- Fixed a bug with providing umask to QueueBase constructor
+- [ks] fixed a bug with providing umask to QueueBase constructor
 
 * Mon Dec 05 2011 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.0.1
-- Updated documentation and unified versioning.
+- [ks] updated documentation and unified versioning
 
 * Sun Dec 04 2011 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 1.0.0
-- After more testing and followed fixes promoted to version 1.0.0
+- [ks] after more testing and followed fixes promoted to version 1.0.0
 
 * Thu Nov 03 2011 K. Skaburskas <Konstantin.Skaburskas@gmail.com> - 0.1.0
-- Updated the interface and overall implementation to comply with the changes
-  in original Perl Directory::Queue implementation as of version 1.2
-   + Added the touch() method
-   + Improved the speed of the purge() method for large queues
+- [ks] updated the interface and overall implementation to comply with the
+  changes in original Perl Directory::Queue implementation as of version 1.2
+   + added the touch() method
+   + improved the speed of the purge() method for large queues
    + NB! Although, it's possible to provide schema as in Directory::Queue
      with '*' to request returning of data by reference this is not actually
-     relevant in case of Python.
-   + Support for Windows.
-   + Some modification to private methods.
-- Added unit tests.
+     relevant in case of Python
+   + support for Windows
+   + some modification to private methods
+- [ks] added unit tests
 
 * Mon Jun 28 2010 K. Skaburskas <Konstantin.Skaburskas@cern.ch> - 0.0.5-1
-- Added Python iterator protocol to iterate over names of elements in
-  queues and set of queues (Queue and QueueSet classes). See examples.
+- [ks] added Python iterator protocol to iterate over names of elements in
+  queues and set of queues (Queue and QueueSet classes), see examples
 
 * Mon Jun 21 2010 K. Skaburskas <Konstantin.Skaburskas@cern.ch> - 0.0.4-1
-- Initial release 0.0.4-1
+- [ks] initial release 0.0.4-1
 
 [ks] = Konstantin Skaburskas <konstantin.skaburskas@gmail.com>
 [lc] = Lionel Cons <lionel.cons@cern.ch>
