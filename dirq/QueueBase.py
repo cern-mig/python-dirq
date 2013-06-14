@@ -346,7 +346,7 @@ class QueueBase(object):
         Raises:
            EnvironmentError - on any IOError, OSError in utime()
 
-        TODO: this may not work on OSes with directories implemented not as
+        NOTE: this may not work on OSes with directories implemented not as
         files (eg. Windows). See doc for os.utime().
         """
         path = '%s/%s' % (self.path, ename)

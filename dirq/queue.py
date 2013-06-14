@@ -1032,8 +1032,6 @@ class Queue(QueueBase):
             name = self.first()
             while name:
                 if self._is_locked(name, oldtime):
-                    # TODO: check if remove_element is needed or
-                    # "unlocking" instead.
                     _warn("* removing too old locked element: %s" % name)
                     self.unlock(name, True)
                 name = self.next()
