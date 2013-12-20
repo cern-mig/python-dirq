@@ -374,7 +374,12 @@ class QueueSimple(QueueBase):
                         continue
                     _warn("WARNING: removing too old volatile file: %s/%s" %
                           (self.path, old))
-                    os.unlink('%s/%s' % (path, old))
+                    try:
+                        os.unlink('%s/%s' % (path, old))
+                    except OSError:
+                        error = sys.exc_info()[1]
+                        if error.errno != errno.ENOENT:
+                            raise error
         # try to purge all but the last intermediate directory
         if len(dirs) > 1:
             dirs.sort()

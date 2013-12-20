@@ -1,3 +1,6 @@
+* ??? - ???
+- [lc] fixed a race condition in dirq.QueueSimple.purge()
+
 * Fri Jun 14 2013 Lionel Cons <lionel.cons@cern.ch> - 1.4
 - [lc] fixed a bug with element name generation
 - [lc] added support for the rndhex attribute as in Perl's Directory::Queue
