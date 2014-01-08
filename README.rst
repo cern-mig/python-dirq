@@ -47,4 +47,4 @@ License and Copyright
 
 Apache License, Version 2.0
 
-Copyright (C) CERN 2011-2013
+Copyright (C) CERN 2011-2014
