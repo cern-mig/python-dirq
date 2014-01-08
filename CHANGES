@@ -1,4 +1,4 @@
-* ??? - ???
+* Wed Jan  8 2014 Lionel Cons <lionel.cons@cern.ch> - 1.5
 - [lc] fixed a race condition in dirq.QueueSimple.purge()
 
 * Fri Jun 14 2013 Lionel Cons <lionel.cons@cern.ch> - 1.4

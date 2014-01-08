@@ -28,8 +28,8 @@ Copyright (C) CERN 2011-2014
 """
 
 AUTHOR = "Konstantin Skaburskas <konstantin.skaburskas@gmail.com>"
-VERSION = '1.4'
-DATE = "14 Jun 2013"
+VERSION = "1.5"
+DATE = "8 Jan 2014"
 __author__ = AUTHOR
 __version__ = VERSION
 __date__ = DATE
