@@ -1,3 +1,6 @@
+* ???
+- [lc] fixed several bugs related to the use of umask
+
 * Wed Jan  8 2014 Lionel Cons <lionel.cons@cern.ch> - 1.5
 - [lc] fixed a race condition in dirq.QueueSimple.purge()
 

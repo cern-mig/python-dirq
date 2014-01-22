@@ -166,7 +166,7 @@ class QueueSimple(QueueBase):
             except EnvironmentError:
                 error = sys.exc_info()[1]
                 if error.errno == errno.ENOENT:
-                    _special_mkdir('%s/%s/' % (self.path, _dir))
+                    _special_mkdir('%s/%s' % (self.path, _dir), self.umask)
                     continue
             else:
                 if new_file:
@@ -225,7 +225,7 @@ class QueueSimple(QueueBase):
         filesystem and will be moved to the queue
         """
         _dir = self._add_dir()
-        _special_mkdir('%s/%s' % (self.path, _dir), umask=self.umask)
+        _special_mkdir('%s/%s' % (self.path, _dir), self.umask)
         return self._add_path(path, _dir)
 
     def get(self, name):

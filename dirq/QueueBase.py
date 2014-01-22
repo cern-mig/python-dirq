@@ -88,36 +88,40 @@ def _directory_contents(path, missingok=True):
         return []
 
 
+def _wrapped_makedirs(path):
+    """Wrapped os.makedirs() used by _special_mkdir()"""
+    try:
+        os.makedirs(path)
+    except OSError:
+        error = sys.exc_info()[1]
+        if error.errno == errno.EEXIST and os.path.isdir(path):
+            return (False, None)
+        elif error.errno == errno.EISDIR:
+            return (False, None)
+        return (False, "cannot mkdir(%s): %s" % (path, error))
+    else:
+        return (True, None)
+
+
 def _special_mkdir(path, umask=None):
     """
     Recursively create directories specified in path:
     * return true on success
-    * return false if something with the same path already exists
+    * return false if the directory already exists
     * die in case of any other error
 
     Raise:
         OSError - can't make directory
-
-    Note:
-    * in case something with the same name already exists, we do not check
-      that this is indeed a directory as this should always be the case here
     """
-    try:
-        if umask is None:
-            os.makedirs(path)
-        else:
-            oldumask = os.umask(umask)
-            os.makedirs(path)
-            os.umask(oldumask)
-    except OSError:
-        error = sys.exc_info()[1]
-        if error.errno == errno.EEXIST and not os.path.isfile(path):
-            return False
-        elif error.errno == errno.EISDIR:
-            return False
-        raise OSError("cannot mkdir(%s): %s" % (path, error))
+    if umask is None:
+        result, error = _wrapped_makedirs(path)
     else:
-        return True
+        oldumask = os.umask(umask)
+        result, error = _wrapped_makedirs(path)
+        os.umask(oldumask)
+    if error is None:
+        return result
+    raise OSError(error)
 
 
 def _special_rmdir(path):
@@ -176,7 +180,7 @@ def _file_create(path, umask=None, utf8=False):
     Raises:
         OSError - if file exists
     """
-    if umask:
+    if umask is not None:
         oldumask = os.umask(umask)
     if utf8:
         if os.path.exists(path):
@@ -187,7 +191,7 @@ def _file_create(path, umask=None, utf8=False):
     else:
         fileh = os.fdopen(
             os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 438), 'wb')
-    if umask:
+    if umask is not None:
         os.umask(oldumask)
 
     return fileh
