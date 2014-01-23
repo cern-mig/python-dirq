@@ -3,7 +3,6 @@
 import os
 import shutil
 import unittest
-import time
 
 from dirq.QueueNull import QueueNull
 import tempfile
@@ -21,11 +20,13 @@ def assert_fail(exc, callable, *args, **kwargs):
 
 
 class TestDirQueue(unittest.TestCase):
+
     def setUp(self):
-        self.qdir = tempfile.mkdtemp(prefix='directory-qnull')
+        self.tempdir = tempfile.mkdtemp(prefix='dirq-null')
+        self.qdir = self.tempdir + '/dirq'
 
     def tearDown(self):
-        shutil.rmtree(self.qdir, ignore_errors=True)
+        shutil.rmtree(self.tempdir, ignore_errors=True)
 
 
 class TestQueueNull(TestDirQueue):
@@ -45,7 +46,7 @@ class TestQueueNull(TestDirQueue):
         'QueueNull.add_path()'
         qn = QueueNull()
         data = 'foo'
-        path = self.qdir + '/foo.bar'
+        path = self.tempdir + '/foo.bar'
         fh = open(path, 'w')
         fh.write(data)
         fh.flush()

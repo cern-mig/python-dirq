@@ -3,6 +3,7 @@
 import os
 import shutil
 import sys
+import tempfile
 import time
 import unittest
 
@@ -15,18 +16,18 @@ __all__ = ['TestQueue', 'TestQueueModuleFunctions']
 class TestDirQueue(unittest.TestCase):
 
     def setUp(self):
-        self.path = os.getcwd() + '/directory'
-        shutil.rmtree(self.path, ignore_errors=True)
+        self.tempdir = tempfile.mkdtemp(prefix='dirq')
+        self.qdir = self.tempdir + '/dirq'
 
     def tearDown(self):
-        shutil.rmtree(self.path, ignore_errors=True)
+        shutil.rmtree(self.tempdir, ignore_errors=True)
 
 
 class TestQueue(TestDirQueue):
 
     def test1init(self):
         """ Queue.__init__() """
-        path = self.path + '/aaa/bbb/ccc'
+        path = self.tempdir + '/aaa/bbb/ccc'
         umask = None
         maxelts = 10
         good_schemas = [
@@ -59,7 +60,7 @@ class TestQueue(TestDirQueue):
 
     def test2copy(self):
         """ Queue.copy(). """
-        q = Queue(self.path, schema={'a': 'string'})
+        q = Queue(self.qdir, schema={'a': 'string'})
         q1 = q.copy()
         q.foo = 1
         try:
@@ -71,52 +72,52 @@ class TestQueue(TestDirQueue):
 
     def test3_is_locked(self):
         """ Queue._is_locked_*() """
-        q = Queue(self.path, schema={'a': 'string'})
+        q = Queue(self.qdir, schema={'a': 'string'})
 
         assert q._is_locked_nlink('') is False
         assert q._is_locked_nlink('not_there') is False
-        os.mkdir(self.path + '/a')
+        os.mkdir(self.qdir + '/a')
         assert q._is_locked_nlink('a') is False
-        os.mkdir(self.path + '/a/%s' % queue.LOCKED_DIRECTORY)
+        os.mkdir(self.qdir + '/a/%s' % queue.LOCKED_DIRECTORY)
         assert q._is_locked_nlink('a') is True
         time.sleep(1)
         assert q._is_locked_nlink('a', time.time()) is True
 
         assert q._is_locked_nonlink('') is False
         assert q._is_locked_nonlink('not_there') is False
-        os.mkdir(self.path + '/b')
+        os.mkdir(self.qdir + '/b')
         assert q._is_locked_nonlink('b') is False
-        os.mkdir(self.path + '/b/%s' % queue.LOCKED_DIRECTORY)
+        os.mkdir(self.qdir + '/b/%s' % queue.LOCKED_DIRECTORY)
         assert q._is_locked_nonlink('b') is True
         time.sleep(1)
         assert q._is_locked_nonlink('b', time.time()) is True
 
     def test4_insertion_directory(self):
         """ Queue._insertion_directory() """
-        q = queue.Queue(self.path, schema={'a': 'string'})
+        q = queue.Queue(self.qdir, schema={'a': 'string'})
         q.maxelts = 1
         name0 = '%08x' % 0
         assert q._insertion_directory() == name0
-        assert os.path.exists(self.path + '/' + name0)
-        os.mkdir('%s/%s/%s' % (self.path, name0, queue._name(q.rndhex)))
+        assert os.path.exists(self.qdir + '/' + name0)
+        os.mkdir('%s/%s/%s' % (self.qdir, name0, queue._name(q.rndhex)))
         name1 = '%08x' % 1
         assert q._insertion_directory() == name1
-        assert os.path.exists(self.path + '/' + name1)
+        assert os.path.exists(self.qdir + '/' + name1)
 
     def test5add(self):
         """ Queue.add() """
-        q = queue.Queue(self.path, schema={'a': 'string'})
+        q = queue.Queue(self.qdir, schema={'a': 'string'})
         q.add({'a': 'a\n'})
 
-        assert os.listdir(self.path + '/' + queue.TEMPORARY_DIRECTORY) == []
-        data_file = '%s/%s/%s/a' % (self.path, '%08x' % 0,
-                                    os.listdir('%s/%08x' % (self.path, 0))[-1])
+        assert os.listdir(self.qdir + '/' + queue.TEMPORARY_DIRECTORY) == []
+        data_file = '%s/%s/%s/a' % (self.qdir, '%08x' % 0,
+                                    os.listdir('%s/%08x' % (self.qdir, 0))[-1])
         assert os.path.exists(data_file)
         assert open(data_file).read() == 'a\n'
 
     def test6touch(self):
         """ Queue.touch() """
-        q = queue.Queue(self.path, schema={'a': 'string'})
+        q = queue.Queue(self.qdir, schema={'a': 'string'})
         q.add({'a': 'a\n'})
         e = q.first()
         element_dir = q.path + '/' + e

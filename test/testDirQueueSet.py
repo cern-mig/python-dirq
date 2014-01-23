@@ -15,13 +15,12 @@ from dirq.QueueSet import QueueSet
 class TestDirQueue(unittest.TestCase):
 
     def setUp(self):
-        self.path = tempfile.mkdtemp()
+        self.tempdir = tempfile.mkdtemp(prefix='dirq-set')
         for i in range(1, 5):
-            setattr(self, 'p%i' % i, '%s/%s' % (self.path, 'p%i' % i))
-        shutil.rmtree(self.path, ignore_errors=True)
+            setattr(self, 'q%i' % i, '%s/%s' % (self.tempdir, 'q%i' % i))
 
     def tearDown(self):
-        shutil.rmtree(self.path, ignore_errors=True)
+        shutil.rmtree(self.tempdir, ignore_errors=True)
 
 
 class TestQueueSet(TestDirQueue):
@@ -31,19 +30,19 @@ class TestQueueSet(TestDirQueue):
         """ QueueSet.__init__() """
         self.failUnlessRaises(TypeError, QueueSet, ('a'))
         self.failUnlessRaises(TypeError, QueueSet,
-                              (Queue(self.p1, schema={'data': 'string'}), 'a'))
+                              (Queue(self.q1, schema={'data': 'string'}), 'a'))
         self.failUnlessRaises(TypeError, QueueSet,
-                              ([Queue(self.p1,
+                              ([Queue(self.q1,
                                       schema={'data': 'string'}), 'a']))
         self.failUnlessRaises(TypeError, QueueSet, ([1, 2]))
         self.failUnlessRaises(TypeError, QueueSet, ((1, 2)))
 
     def test2_addremove(self):
         """ QueueSet.add()/remove() """
-        q1 = Queue(self.p1, schema={'data': 'string'})
-        q2 = Queue(self.p2, schema={'data': 'string'})
-        q3 = Queue(self.p3, schema={'data': 'string'})
-        q4 = Queue(self.p4, schema={'data': 'string'})
+        q1 = Queue(self.q1, schema={'data': 'string'})
+        q2 = Queue(self.q2, schema={'data': 'string'})
+        q3 = Queue(self.q3, schema={'data': 'string'})
+        q4 = Queue(self.q4, schema={'data': 'string'})
         for i in range(10):
             q1.add({'data': '%i A\n' % i})
             q2.add({'data': '%i A\n' % i})
@@ -57,8 +56,8 @@ class TestQueueSet(TestDirQueue):
 
     def test3_firstnext(self):
         """ QueueSet.first()/next() """
-        q1 = Queue(self.p1, schema={'data': 'string'})
-        q2 = Queue(self.p2, schema={'data': 'string'})
+        q1 = Queue(self.q1, schema={'data': 'string'})
+        q2 = Queue(self.q2, schema={'data': 'string'})
         for i in range(10):
             q1.add({'data': '%i A\n' % i})
             q2.add({'data': '%i A\n' % i})

@@ -2,9 +2,6 @@ ifndef PYTHON
 	PYTHON=python
 endif
 
-TESTDIR := $(shell [ "$(shell uname)" = "Darwin" ] && \
-             mktemp -d -t dirq-test || mktemp -d -t dirq-test.XXXXXX)
-
 QueueBase: testDirQueueBase.py
 	@echo "=== $? ==="
 	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
@@ -35,26 +32,13 @@ QueueSet: testDirQueueSet.py
 	$(PYTHON) $?
 	@echo
 
-QueueFunc: test_dirq.py
-	@echo "=== $? Queue ==="
-	@rm -rf $(TESTDIR)
-	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
-	$(PYTHON) $? -d -c 1000 -p $(TESTDIR) simple
-	@echo
-
-QueueSimpleFunc: test_dirq.py
-	@echo "=== $? QueueSimple ==="
-	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
-	$(PYTHON) $? -d -c 1000 -p $(TESTDIR) --type simple simple
-	@echo
-
-QueueSetFunc: test_dirqset.py
+Wrapper: testWrapper.py
 	@echo "=== $? ==="
 	@export PYTHONPATH=`pwd`/..:${PYTHONPATH}; \
-	$(PYTHON) $? -d -c 100 -p $(TESTDIR) complex
+	$(PYTHON) $?
 	@echo
 
-tests: QueueBase Queue QueueSimple QueueSet QueueFunc QueueSimpleFunc QueueSetFunc
+tests: QueueBase Queue QueueSimple QueueNull QueueSet Wrapper
 
 test: tests clean
 

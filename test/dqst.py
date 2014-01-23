@@ -1,28 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Test program for testing dirq.QueueSet module.
+Test program for testing the dirq.QueueSet module.
 """
 
 import os
 import re
 import shutil
 import sys
-import tempfile
 import time
 from optparse import OptionParser
 
 sys.path.insert(1, re.sub('/\w*$', '', os.getcwd()))
 import dirq
 from dirq import queue
+from dirq.QueueSimple import QueueSimple
 
-OS = ''
+opts = None
 TEST = ''
+ProgramName = sys.argv[0]
 
 
 def init():
     """ Initialize. """
-    global OS, TEST
+    global opts, TEST
     parser = OptionParser(usage="%prog [OPTIONS] [--] TEST",
                           version=("%%prog %s" % dirq.VERSION))
     parser.add_option('-d', '--debug', dest='debug', action="store_true",
@@ -35,15 +36,18 @@ def init():
                       help="set the body size for added elements")
     parser.add_option("-r", "--random", dest="random", action="store_true",
                       default=False, help="randomize the body size")
+    parser.add_option("--granularity", dest="granularity", type="int",
+                      default=None, help="time granularity for intermediate "
+                      "directories (QueueSimple)")
     parser.add_option("--header", dest="header", action="store_true",
                       default=False, help="set header for added elements")
     parser.add_option("--maxelts", dest="maxelts", type='int', default=0,
                       help="set the maximum number of elements per directory")
-
-    OS, args = parser.parse_args()
-    if not OS.path:
-        print("*** mandatory option not set: path")
-        sys.exit(1)
+    parser.add_option("--type", dest="type", type="string", default="simple",
+                      help="set the type of dirq (simple|normal)")
+    opts, args = parser.parse_args()
+    if not opts.path:
+        _die("%s: mandatory option not set: -p/--path", ProgramName)
     if len(args) != 0:
         TEST = args[0]
     else:
@@ -51,12 +55,12 @@ def init():
         sys.exit()
 
 
-def debug(format, *arguments):
+def debug(fmt, *arguments):
     """Report a debugging message.
     """
-    if not OS.debug:
+    if not opts.debug:
         return
-    message = format % arguments
+    message = fmt % arguments
     message = re.sub('\s+$', '.', message)
     sys.stderr.write("# %s %s[%d]: %s\n" %
                      (time.strftime("%Y/%m/%d-%H:%M:%S",
@@ -65,21 +69,38 @@ def debug(format, *arguments):
                       os.getpid(), message))
 
 
+def _die(fmt, *arguments):
+    """Report a fatal error."""
+    sys.stderr.write(fmt % arguments + "\n")
+    sys.stderr.flush()
+    sys.exit(1)
+
+
 def new_dirq(path, _schema):
-    """Create a new dirq.Queue object, optionally with schema.
+    """Create a new Directory::Queue object, optionally with schema.
     """
-    if _schema:
-        schema = {'body': 'string'}
+    kwargs = {}
+    if opts.type == "simple":
+        if opts.granularity is not None:
+            kwargs['granularity'] = opts.granularity
+        return QueueSimple(path, **kwargs)
     else:
-        schema = {}
-    return queue.Queue(path, maxelts=OS.maxelts, schema=schema)
+        if _schema:
+            schema = {'body': 'string',
+                      'header': 'table?'}
+            kwargs['schema'] = schema
+        if opts.maxelts:
+            kwargs['maxelts'] = opts.maxelts
+        return queue.Queue(path, **kwargs)
 
 
 def new_dirqs():
     """Create a new Directory::Queue object, optionally with schema.
     """
     time1 = time.time()
-    qs = queue.QueueSet(OS.path.split(','))
+    qs = queue.QueueSet()
+    for path in opts.path.split(','):
+        qs.add(new_dirq(path, 0))
     debug("created queue set in %.4f seconds", time.time() - time1)
     return qs
 
@@ -103,19 +124,19 @@ def test_add():
 def test_complex():
     """Add elements to the queue.
     """
-    wd = OS.path
+    wd = opts.path
     os.mkdir(wd)
     qn = 6
     paths = []
     for i in range(qn):
         paths.append(wd + '/q%i' % i)
-    count = OS.count or 1000
+    count = opts.count or 1000
     debug("creating %i initial queues. adding %i elements into each." %
           (qn, count))
     queues = []
     t1 = time.time()
     while qn:
-        q = new_dirq(paths[qn - 1], 1)
+        dq = new_dirq(paths[qn - 1], 1)
         debug("adding %d elements to the queue...", count)
         element = {}
         done = 0
@@ -123,10 +144,10 @@ def test_complex():
         while not count or done < count:
             done += 1
             element['body'] = 'Element %i \u263A\n' % done
-            q.add(element)
+            dq.add(element)
         time2 = time.time()
         debug("done in %.4f seconds", time2 - time1)
-        queues.append(q)
+        queues.append(dq)
         qn -= 1
     debug("total done in %.4f seconds", time.time() - t1)
 
@@ -144,8 +165,8 @@ def test_complex():
 
     debug("removing %i first queues." % i)
     t1 = time.time()
-    for q in queues[0:i]:
-        qs.remove(q)
+    for dq in queues[0:i]:
+        qs.remove(dq)
     debug("done in %.4f sec." % (time.time() - t1))
 
     debug("number of elements left: %i" % qs.count())
@@ -163,40 +184,16 @@ def test_iterate():
     qs = new_dirqs()
     done = 0
     time1 = time.time()
-    name = qs.first()
-    while name:
-        if not qs.lock(name):
-            name = qs.next()
+    dq, name = qs.first()
+    while dq:
+        if not dq.lock(name):
+            dq, name = qs.next()
             continue
-        qs.unlock(name)
+        dq.unlock(name)
         done += 1
-        name = qs.next()
+        dq, name = qs.next()
     time2 = time.time()
     debug("done in %.4f seconds (%d elements)", time2 - time1, done)
-
-
-def main_complex():
-    """A wrapper to run from a library.
-    """
-    global OS
-
-    class options(object):
-        """ options class. """
-        path = tempfile.mkdtemp() + '/dirqset'
-        count = 100
-        random = False
-        size = False
-        header = False
-        debug = True
-        maxelts = 0
-    OS = options()
-    try:
-        test_complex()
-    except Exception:
-        error = sys.exc_info()[1]
-        shutil.rmtree(OS.path, ignore_errors=True)
-        raise error
-    shutil.rmtree(OS.path, ignore_errors=True)
 
 if __name__ == "__main__":
     init()
@@ -209,4 +206,4 @@ if __name__ == "__main__":
     elif TEST == "iterate":
         test_iterate()
     else:
-        print("unsupported test:", TEST)
+        _die("%s: unsupported test: %s", ProgramName, TEST)

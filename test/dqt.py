@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Test program for testing dirq.queue and dirq.QueueSimple modules.
+Test program for testing the dirq.queue and dirq.QueueSimple modules.
 """
 
 import os
@@ -9,7 +9,6 @@ import random
 import re
 import shutil
 import sys
-import tempfile
 import time
 from optparse import OptionParser
 
@@ -65,8 +64,7 @@ def init():
         print("Tests: %s" % ', '.join(TESTS))
         sys.exit()
     if not opts.path:
-        _die("*** mandatory option not set: -p/--path")
-        sys.exit(1)
+        _die("%s: mandatory option not set: -p/--path", ProgramName)
     if len(args) != 0:
         TEST = args[0]
         if TEST not in TESTS:
@@ -77,18 +75,19 @@ def init():
         sys.exit()
 
 
-def _die(format, *arguments):
-    sys.stderr.write(format % arguments + "\n")
+def _die(fmt, *arguments):
+    """Report a fatal error."""
+    sys.stderr.write(fmt % arguments + "\n")
     sys.stderr.flush()
     sys.exit(1)
 
 
-def debug(format, *arguments):
+def debug(fmt, *arguments):
     """Report a debugging message.
     """
     if not opts.debug:
         return
-    message = format % arguments
+    message = fmt % arguments
     message = re.sub('\s+$', '.', message)
     sys.stderr.write("# %s %s[%d]: %s\n" %
                      (time.strftime("%Y/%m/%d-%H:%M:%S",
@@ -118,9 +117,9 @@ def new_dirq(_schema):
 def test_count():
     """Count the elements in the queue.
     """
-    dirq = new_dirq(0)
+    dq = new_dirq(0)
     time1 = time.time()
-    count = dirq.count()
+    count = dq.count()
     time2 = time.time()
     debug("queue has %d elements", count)
     debug("done in %.4f seconds", time2 - time1)
@@ -130,20 +129,20 @@ def test_purge():
     """Purge the queue.
     """
     debug("purging the queue...")
-    dirq = new_dirq(0)
+    dq = new_dirq(0)
     time1 = time.time()
     pwkargs = {}
     if opts.maxtemp is not None:
         pwkargs['maxtemp'] = opts.maxtemp
     if opts.maxlock is not None:
         pwkargs['maxlock'] = opts.maxlock
-    dirq.purge(**pwkargs)
+    dq.purge(**pwkargs)
     time2 = time.time()
     debug("done in %.4f seconds", time2 - time1)
 
 
 def _body(size, rand):
-    ''
+    """Return a test body"""
     if rand:
         # see Irwin-Hall in http://en.wikipedia.org/wiki/Normal_distribution
         rnd = 0.
@@ -160,14 +159,14 @@ def _body(size, rand):
 def test_add():
     """Add elements to the queue.
     """
-    random = opts.random
+    rnd = opts.random
     size = opts.size
     count = opts.count
     if count:
         debug("adding %d elements to the queue...", count)
     else:
         debug("adding elements to the queue forever...")
-    dirq = new_dirq(1)
+    dq = new_dirq(1)
     if opts.type == "simple":
         element = ''
     else:
@@ -180,9 +179,9 @@ def test_add():
         done += 1
         if size:
             if opts.type == "simple":
-                element = _body(size, random)
+                element = _body(size, rnd)
             else:
-                element['body'] = _body(size, random)
+                element['body'] = _body(size, rnd)
         else:
             if opts.type == "simple":
                 element = 'Element %i ;-)\n' % done
@@ -192,7 +191,7 @@ def test_add():
                                        done).decode("utf-8")
                 except AttributeError:
                     element['body'] = 'Élément %d \u263A\n' % done
-        _ = dirq.add(element)
+        _ = dq.add(element)
     time2 = time.time()
     debug("done in %.4f seconds", time2 - time1)
 
@@ -205,33 +204,33 @@ def test_remove():
         debug("removing %d elements from the queue...", count)
     else:
         debug("removing all elements from the queue (one pass)...")
-    dirq = new_dirq(0)
+    dq = new_dirq(0)
     done = 0
     if count:
         # loop to iterate until enough are removed
         time1 = time.time()
         while done < count:
-            name = dirq.first()
+            name = dq.first()
             while name and done < count:
-                if not dirq.lock(name):
-                    name = dirq.next()
+                if not dq.lock(name):
+                    name = dq.next()
                     continue
-                dirq.remove(name)
+                dq.remove(name)
                 done += 1
-                name = dirq.next()
+                name = dq.next()
         time2 = time.time()
         debug("done in %.4f seconds", time2 - time1)
     else:
         # one pass only
         time1 = time.time()
-        name = dirq.first()
+        name = dq.first()
         while name:
-            if not dirq.lock(name):
-                name = dirq.next()
+            if not dq.lock(name):
+                name = dq.next()
                 continue
-            dirq.remove(name)
+            dq.remove(name)
             done += 1
-            name = dirq.next()
+            name = dq.next()
         time2 = time.time()
         debug("done in %.4f seconds (%d elements removed)",
               time2 - time1, done)
@@ -240,26 +239,26 @@ def test_remove():
 def test_iterate():
     """Iterate through the queue (only lock+unlock).
     """
-    dirq = new_dirq(0)
+    dq = new_dirq(0)
     done = 0
     debug("iterating all elements in the queue (first()/next())...")
     time1 = time.time()
-    name = dirq.first()
+    name = dq.first()
     while name:
-        if not dirq.lock(name):
-            name = dirq.next()
+        if not dq.lock(name):
+            name = dq.next()
             continue
-        dirq.unlock(name)
+        dq.unlock(name)
         done += 1
-        name = dirq.next()
+        name = dq.next()
     time2 = time.time()
     debug("done in %.4f seconds (%d elements)", time2 - time1, done)
     debug("iterating all elements in the queue (iterator protocol)...")
     time1 = time.time()
-    for name in dirq:
-        if not dirq.lock(name):
+    for name in dq:
+        if not dq.lock(name):
             continue
-        dirq.unlock(name)
+        dq.unlock(name)
     time2 = time.time()
     debug("done in %.4f seconds (%d elements)", time2 - time1, done)
 
@@ -268,18 +267,18 @@ def test_get():
     """Get all elements from the queue.
     """
     debug("getting all elements in the queue (one pass)...")
-    dirq = new_dirq(1)
+    dq = new_dirq(1)
     done = 0
     time1 = time.time()
-    name = dirq.first()
+    name = dq.first()
     while name:
-        if not dirq.lock(name):
-            name = dirq.next()
+        if not dq.lock(name):
+            name = dq.next()
             continue
-        dirq.get(name)
-        dirq.unlock(name)
+        dq.get(name)
+        dq.unlock(name)
         done += 1
-        name = dirq.next()
+        name = dq.next()
     time2 = time.time()
     debug("done in %.4f seconds (%d elements)", time2 - time1, done)
 
@@ -301,11 +300,11 @@ def test_simple():
     time2 = time.time()
 
     def directory_contents(path):
+        """Wrapeed os.listdir()"""
         try:
             return os.listdir(path)
         except OSError:
             _die("%s: couldn't listdir(%s)", ProgramName, path)
-            sys.exit(1)
     subdirs = directory_contents(path)
     if opts.type == "simple":
         num_subdirs = 1
@@ -315,35 +314,6 @@ def test_simple():
         _die("%s: unexpected subdirs: %i", ProgramName, len(subdirs))
     shutil.rmtree(path, ignore_errors=True)
     debug("done in %.4f seconds", time2 - time1)
-
-
-def main_simple(type="simple"):
-    """A wrapper to run from a library.
-    """
-    global opts
-
-    class options(object):
-        debug = True
-        path = tempfile.mkdtemp() + '/dirq'
-        count = 1000
-        size = False
-        random = False
-        granularity = None
-        header = False
-        maxelts = 0
-        maxtemp = None
-        maxlock = None
-        type = "simple"
-    opts = options()
-    opts.type = type
-    try:
-        shutil.rmtree(opts.path, ignore_errors=True)
-        test_simple()
-    except Exception:
-        error = sys.exc_info()[1]
-        shutil.rmtree(opts.path, ignore_errors=True)
-        raise error
-    shutil.rmtree(opts.path, ignore_errors=True)
 
 if __name__ == "__main__":
     init()

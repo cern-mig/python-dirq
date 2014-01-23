@@ -18,7 +18,6 @@ AUTHOR_EMAIL = 'konstantin.skaburskas@gmail.com'
 LICENSE = "ASL 2.0"
 PLATFORMS = "Any"
 URL = "https://github.com/cern-mig/python-dirq"
-# Cheese shop (PyPI)
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -38,7 +37,6 @@ CLASSIFIERS = [
 ]
 
 from distutils.core import setup, Command
-import sys
 
 
 class test(Command):
@@ -51,9 +49,8 @@ class test(Command):
         pass
 
     def run(self):
-        sys.path.insert(0, 'test/')
-        import test_all
-        test_all.main()
+        from test import run_tests
+        run_tests.main()
 
 setup(name=NAME,
       version=VERSION,

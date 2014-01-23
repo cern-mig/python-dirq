@@ -2,11 +2,11 @@
 
 import os
 import shutil
-import unittest
+import tempfile
 import time
+import unittest
 
 from dirq.QueueSimple import QueueSimple, LOCKED_SUFFIX
-import tempfile
 
 __all__ = ['TestQueueSimple']
 
@@ -14,18 +14,18 @@ __all__ = ['TestQueueSimple']
 class TestDirQueue(unittest.TestCase):
 
     def setUp(self):
-        self.qdir = tempfile.mkdtemp(prefix='directory-qsimple')
-        shutil.rmtree(self.qdir, ignore_errors=True)
+        self.tempdir = tempfile.mkdtemp(prefix='dirq-simple')
+        self.qdir = self.tempdir + '/dirq'
 
     def tearDown(self):
-        shutil.rmtree(self.qdir, ignore_errors=True)
+        shutil.rmtree(self.tempdir, ignore_errors=True)
 
 
 class TestQueueSimple(TestDirQueue):
 
-    def test01init(self):
+    def test01_init(self):
         'QueueSimple.__init__()'
-        path = self.qdir + '/aaa/bbb/ccc'
+        path = self.tempdir + '/aaa/bbb/ccc'
         granularity = 30
         qs = QueueSimple(path, granularity=granularity)
         assert qs.path == path
@@ -33,7 +33,7 @@ class TestQueueSimple(TestDirQueue):
 
     def test02_add_data(self):
         'QueueSimple._add_data()'
-        data = 'foo'
+        data = 'f0o'
         qs = QueueSimple(self.qdir)
         _subdirName, _fullFnOrig = qs._add_data(data)
         subdirs = os.listdir(self.qdir)
@@ -53,47 +53,43 @@ class TestQueueSimple(TestDirQueue):
         _dir = 'elems'
         elems_dir = self.qdir + '/' + _dir
         os.mkdir(elems_dir)
-        _tmpName = elems_dir + '/elem.tmp'
+        _tmpName = self.tempdir + '/elem.tmp'
         open(_tmpName, 'w').write(data)
+        assert len(os.listdir(self.tempdir)) == 2
         newName = qs._add_path(_tmpName, _dir)
         assert len(os.listdir(elems_dir)) == 1
+        assert len(os.listdir(self.tempdir)) == 1
         assert open(self.qdir + '/' + newName).read() == data
 
-    def test04add(self):
+    def test04_add(self):
         'QueueSimple.add()'
         data = 'foo bar'
         qs = QueueSimple(self.qdir)
         elem = qs.add(data)
         assert open(self.qdir + '/' + elem).read() == data
 
-    def test05add_path(self):
+    def test05_add_path(self):
         'QueueSimple.add_path()'
         qs = QueueSimple(self.qdir)
-        data = 'foo'
-        path = self.qdir + '/foo.bar'
-        fh = open(path, 'w')
-        fh.write(data)
-        fh.flush()
-        fh.close()
+        data = 'foo0oo'
+        path = self.tempdir + '/foo.bar'
+        open(path, 'w').write(data)
         elem = qs.add_path(path)
         assert open(self.qdir + '/' + elem).read() == data
         self.failIf(os.path.exists(path))
 
-    def test06lockunlok(self):
+    def test06_lock_unlock(self):
         'QueueSimple.lock()'
         qs = QueueSimple(self.qdir)
         data = 'foo'
         elem_name = 'foo.bar'
         elem_full_path = self.qdir + '/' + elem_name
-        fh = open(elem_full_path, 'w')
-        fh.write(data)
-        fh.flush()
-        fh.close()
+        open(elem_full_path, 'w').write(data)
         self.assertEqual(qs.lock(elem_name), 1)
         self.failUnless(os.path.exists(elem_full_path + LOCKED_SUFFIX))
         qs.unlock(elem_name)
 
-    def test07get(self):
+    def test07_get(self):
         'QueueSimple.get()'
         data = 'foo'.encode()
         qs = QueueSimple(self.qdir)
@@ -101,7 +97,7 @@ class TestQueueSimple(TestDirQueue):
         qs.lock(elem)
         self.assertEqual(qs.get(elem), data)
 
-    def test08count(self):
+    def test08_count(self):
         'QueueSimple.count()'
         qs = QueueSimple(self.qdir)
         # add "normal" element
@@ -111,7 +107,7 @@ class TestQueueSimple(TestDirQueue):
         open(self.qdir + '/' + fake_elem, 'w').write('')
         self.assertEqual(qs.count(), 1)
 
-    def test09remove(self):
+    def test09_remove(self):
         'QueueSimple.remove()'
         qs = QueueSimple(self.qdir, granularity=1)
         for _ in range(5):
@@ -122,7 +118,7 @@ class TestQueueSimple(TestDirQueue):
             qs.remove(elem)
         self.assertEqual(qs.count(), 0)
 
-    def test10purge_oneDirOneElement(self):
+    def test10_purge_oneDirOneElement(self):
         'QueueSimple.purge() one directory & element'
         qs = QueueSimple(self.qdir)
         qs.add('foo')
@@ -137,7 +133,7 @@ class TestQueueSimple(TestDirQueue):
         self.assertEqual(qs.count(), 1)
         self.assertEqual(len(os.listdir(self.qdir)), 1)
 
-    def test11purge_multDirMultElement(self):
+    def test11_purge_multDirMultElement(self):
         'QueueSimple.purge() multiple directories & elements'
         qs = QueueSimple(self.qdir, granularity=1)
 
