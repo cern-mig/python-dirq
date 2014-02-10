@@ -369,8 +369,9 @@ class QueueSimple(QueueBase):
                         stat = os.stat('%s/%s' % (path, old))
                     except OSError:
                         error = sys.exc_info()[1]
-                        if error.errno != errno.ENOENT:
-                            raise error
+                        if error.errno == errno.ENOENT:
+                            continue
+                        raise error
                     if (old.endswith(TEMPORARY_SUFFIX) and
                             stat.st_mtime >= oldtemp):
                         continue
