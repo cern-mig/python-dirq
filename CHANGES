@@ -1,4 +1,4 @@
-* ???
+* Mon Feb 24 2014 Lionel Cons <lionel.cons@cern.ch> - 1.6
 - [lc] fixed several bugs related to the use of umask
 - [lc] cleanup the tests
 - [lc] fixed another race condition in dirq.QueueSimple.purge()
