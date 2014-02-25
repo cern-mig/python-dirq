@@ -2,3 +2,4 @@ include CHANGES README.rst
 include PKG-INFO
 recursive-include examples *.py
 recursive-include docs *
+recursive-include test *.py
