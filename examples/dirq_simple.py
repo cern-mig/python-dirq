@@ -34,7 +34,7 @@ while done <= COUNT:
     if done % 2:  # header only for odd sequential elements
         element['header'] = dict(os.environ)
     name = dirq_p.enqueue(element)
-    #name = dirq_p.add(element) # same
+    # name = dirq_p.add(element) # same
     print("added %.2i: %s" % (done, name))
     done += 1
 
@@ -50,8 +50,6 @@ print("*** BROWSER: Python iterator protocol.")
 dirq_b = Queue(path, schema=schema)
 done = 0
 miss = 0
-# for i,name in enumerate(dirq_b): # same (object returns Python iterator over
-                                   # the names of elements)
 for i, name in enumerate(dirq_b.names()):
     done += 1  # enumerate(o, start=1) in Python 2.6
     print("element: %s %s" % (path, name))
