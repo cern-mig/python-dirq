@@ -5,11 +5,11 @@ import shutil
 import tempfile
 import unittest
 
-__all__ = ['TestQueueSet']
-
 from dirq.queue import Queue
 from dirq.Exceptions import QueueError
 from dirq.QueueSet import QueueSet
+
+__all__ = ['TestQueueSet']
 
 
 class TestDirQueue(unittest.TestCase):

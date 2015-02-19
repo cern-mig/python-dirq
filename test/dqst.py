@@ -9,12 +9,14 @@ import re
 import shutil
 import sys
 import time
+
 from optparse import OptionParser
 
 sys.path.insert(1, re.sub('/\w*$', '', os.getcwd()))
-import dirq
-from dirq import queue
-from dirq.QueueSimple import QueueSimple
+
+import dirq  # noqa E402
+from dirq import queue  # noqa E402
+from dirq.QueueSimple import QueueSimple  # noqa E402
 
 opts = None
 TEST = ''

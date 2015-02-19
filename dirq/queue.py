@@ -265,12 +265,6 @@ import re
 import sys
 import time
 
-__author__ = dirq.AUTHOR
-__version__ = dirq.VERSION
-__date__ = dirq.DATE
-
-__all__ = ['Queue', 'QueueSet', 'QueueError']
-
 from dirq.QueueBase import QueueBase, _DirElemRegexp, _DirectoryRegexp, \
     _ElementRegexp
 from dirq.QueueBase import (
@@ -283,6 +277,12 @@ from dirq.QueueBase import (
     _warn)
 from dirq.Exceptions import QueueError, QueueLockError
 from dirq.utils import VALID_STR_TYPES, VALID_INT_TYPES
+
+__author__ = dirq.AUTHOR
+__version__ = dirq.VERSION
+__date__ = dirq.DATE
+
+__all__ = ['Queue', 'QueueSet', 'QueueError']
 
 # name of the directory holding temporary elements
 TEMPORARY_DIRECTORY = "temporary"
