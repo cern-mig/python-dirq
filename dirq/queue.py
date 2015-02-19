@@ -278,6 +278,9 @@ from dirq.QueueBase import (
 from dirq.Exceptions import QueueError, QueueLockError
 from dirq.utils import VALID_STR_TYPES, VALID_INT_TYPES
 
+# for backward compatibility.
+from dirq.QueueSet import QueueSet
+
 __author__ = dirq.AUTHOR
 __version__ = dirq.VERSION
 __date__ = dirq.DATE
@@ -1036,6 +1039,3 @@ class Queue(QueueBase):
                     _warn("* removing too old locked element: %s" % name)
                     self.unlock(name, True)
                 name = self.next()
-
-# For backward compatibility.
-from dirq.QueueSet import QueueSet
