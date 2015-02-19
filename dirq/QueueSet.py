@@ -12,13 +12,15 @@ ASL 2.0
 
 Copyright (C) CERN 2011-2015
 """
+
 import dirq
-__version__ = dirq.VERSION
-__author__ = dirq.AUTHOR
-__date__ = dirq.DATE
 
 from dirq.QueueBase import QueueBase
 from dirq.Exceptions import QueueError
+
+__version__ = dirq.VERSION
+__author__ = dirq.AUTHOR
+__date__ = dirq.DATE
 
 
 class QueueSet(object):

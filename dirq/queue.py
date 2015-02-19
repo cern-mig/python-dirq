@@ -257,16 +257,17 @@ ASL 2.0
 
 Copyright (C) CERN 2011-2015
 """
-import dirq
-__author__ = dirq.AUTHOR
-__version__ = dirq.VERSION
-__date__ = dirq.DATE
 
+import dirq
 import errno
 import os
 import re
 import sys
 import time
+
+__author__ = dirq.AUTHOR
+__version__ = dirq.VERSION
+__date__ = dirq.DATE
 
 __all__ = ['Queue', 'QueueSet', 'QueueError']
 

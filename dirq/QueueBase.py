@@ -15,11 +15,8 @@ ASL 2.0
 
 Copyright (C) CERN 2011-2015
 """
-import dirq
-__author__ = dirq.AUTHOR
-__version__ = dirq.VERSION
-__date__ = dirq.DATE
 
+import dirq
 import codecs
 import errno
 import inspect
@@ -30,6 +27,10 @@ import sys
 import time
 
 from dirq.utils import VALID_STR_TYPES
+
+__author__ = dirq.AUTHOR
+__version__ = dirq.VERSION
+__date__ = dirq.DATE
 
 __DirectoryRegexp = '[0-9a-f]{8}'
 __ElementRegexp = '[0-9a-f]{14}'
