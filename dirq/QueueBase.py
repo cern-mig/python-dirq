@@ -32,11 +32,11 @@ __author__ = dirq.AUTHOR
 __version__ = dirq.VERSION
 __date__ = dirq.DATE
 
-__DirectoryRegexp = '[0-9a-f]{8}'
-__ElementRegexp = '[0-9a-f]{14}'
-_DirectoryRegexp = re.compile('^(%s)$' % __DirectoryRegexp)
-_ElementRegexp = re.compile('^(%s)$' % __ElementRegexp)
-_DirElemRegexp = re.compile('^%s/%s$' % (__DirectoryRegexp, __ElementRegexp))
+__DIRECTORY_REGEXP = '[0-9a-f]{8}'
+__ELEMENT_REGEXP = '[0-9a-f]{14}'
+_DIRECTORY_REGEXP = re.compile('^(%s)$' % __DIRECTORY_REGEXP)
+_ELEMENT_REGEXP = re.compile('^(%s)$' % __ELEMENT_REGEXP)
+_DIRELT_REGEXP = re.compile('^%s/%s$' % (__DIRECTORY_REGEXP, __ELEMENT_REGEXP))
 
 WARN = False
 
@@ -63,7 +63,7 @@ def _name(rndhex):
     * can be lexically sorted
     * ever increasing (for a given process)
     * reasonably compact
-    * matching $_ElementRegexp
+    * matching $_ELEMENT_REGEXP
     """
     now = time.time()
     return "%08x%05x%01x" % (now, (now % 1.0) * 1000000, rndhex)
@@ -299,7 +299,7 @@ class QueueBase(object):
         """
         self.dirs = []
         for name in _directory_contents(self.path):
-            if _DirectoryRegexp.match(name):
+            if _DIRECTORY_REGEXP.match(name):
                 self.dirs.append(name)
         self.dirs.sort()
         self.elts = []

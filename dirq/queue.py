@@ -265,8 +265,8 @@ import re
 import sys
 import time
 
-from dirq.QueueBase import QueueBase, _DirElemRegexp, _DirectoryRegexp, \
-    _ElementRegexp
+from dirq.QueueBase import QueueBase, _DIRELT_REGEXP, _DIRECTORY_REGEXP, \
+    _ELEMENT_REGEXP
 from dirq.QueueBase import (
     _name,
     _special_mkdir,
@@ -300,13 +300,13 @@ LOCKED_DIRECTORY = "locked"
 # global variables
 #
 
-_FileRegexp = re.compile("^([0-9a-zA-Z]+)$")
-_KeyValRegexp = re.compile("^([^\x09\x0a]*)\x09([^\x09\x0a]*)$")
-_H2SRegexp = re.compile("(\\\\|\x09|\x0a)")
-_S2HRegexp = re.compile(r"(\\\\|\\t|\\n)")
+_FILE_REGEXP = re.compile("^([0-9a-zA-Z]+)$")
+_KEY_VAL_REGEXP = re.compile("^([^\x09\x0a]*)\x09([^\x09\x0a]*)$")
+_H2S_REGEXP = re.compile("(\\\\|\x09|\x0a)")
+_S2H_REGEXP = re.compile(r"(\\\\|\\t|\\n)")
 
-_Byte2Esc = {"\\": r"\\", "\t": r"\t", "\n": r"\n"}
-_Esc2Byte = dict([(_value, _key) for _key, _value in _Byte2Esc.items()])
+_BYTE2ESC = {"\\": r"\\", "\t": r"\t", "\n": r"\n"}
+_ESC2BYTE = dict([(_value, _key) for _key, _value in _BYTE2ESC.items()])
 
 #
 # Helper Functions
@@ -328,8 +328,8 @@ def _hash2string(data):
         val = data[key]
         if type(val) not in VALID_STR_TYPES:
             raise QueueError("invalid hash value type: %r" % val)
-        key = _H2SRegexp.sub(lambda m: _Byte2Esc[m.group(1)], key)
-        val = _H2SRegexp.sub(lambda m: _Byte2Esc[m.group(1)], val)
+        key = _H2S_REGEXP.sub(lambda m: _BYTE2ESC[m.group(1)], key)
+        val = _H2S_REGEXP.sub(lambda m: _BYTE2ESC[m.group(1)], val)
         string = '%s%s' % (string, '%s\x09%s\x0a' % (key, val))
     return string
 
@@ -347,13 +347,13 @@ def _string2hash(given):
     if not given:
         return _hash
     for line in given.strip('\n').split('\x0a'):
-        match = _KeyValRegexp.match(line)
+        match = _KEY_VAL_REGEXP.match(line)
         if not match:
             raise QueueError("unexpected hash line: %s" % line)
-        key = _S2HRegexp.sub(lambda m: _Esc2Byte[str(m.group(1))],
-                             match.group(1))
-        val = _S2HRegexp.sub(lambda m: _Esc2Byte[str(m.group(1))],
-                             match.group(2))
+        key = _S2H_REGEXP.sub(lambda m: _ESC2BYTE[str(m.group(1))],
+                              match.group(1))
+        val = _S2H_REGEXP.sub(lambda m: _ESC2BYTE[str(m.group(1))],
+                              match.group(2))
         _hash[key] = val
     return _hash
 
@@ -432,7 +432,7 @@ def _check_element(name):
     Raise:
         QueueError - given element is invalid
     """
-    if not _DirElemRegexp.match(name):
+    if not _DIRELT_REGEXP.match(name):
         raise QueueError("invalid element name: %s" % name)
 
 
@@ -495,7 +495,7 @@ class Queue(QueueBase):
             if not isinstance(schema, dict):
                 raise QueueError("invalid schema: %r" % schema)
             for name in schema.keys():
-                if not _FileRegexp.match(name):
+                if not _FILE_REGEXP.match(name):
                     raise QueueError("invalid schema name: %r" % name)
                 if not isinstance(schema[name], str):
                     raise QueueError("invalid data type for schema " +
@@ -587,7 +587,7 @@ class Queue(QueueBase):
             _list = []
             for name in _directory_contents(
                     '%s/%s' % (self.path, directory), True):
-                if _ElementRegexp.match(name):
+                if _ELEMENT_REGEXP.match(name):
                     _list.append(name)
             if not _list:
                 continue
@@ -748,7 +748,7 @@ class Queue(QueueBase):
         for name in _directory_contents(temp):
             if name == LOCKED_DIRECTORY:
                 continue
-            if not _FileRegexp.match(name):
+            if not _FILE_REGEXP.match(name):
                 raise QueueError("unexpected file in %s: %s" % (temp, name))
             path = '%s/%s' % (temp, name)
             try:
@@ -865,7 +865,7 @@ class Queue(QueueBase):
 
         * if there is none, an initial one will be created
         * if it is full, a new one will be created
-        * in any case the name will match $_DirectoryRegexp
+        * in any case the name will match $_DIRECTORY_REGEXP
 
         Raise:
             OSError - can't list/make element directories
@@ -873,7 +873,7 @@ class Queue(QueueBase):
         _list = []
         # get the list of existing directories
         for name in _directory_contents(self.path):
-            if _DirectoryRegexp.match(name):
+            if _DIRECTORY_REGEXP.match(name):
                 _list.append(name)
         # handle the case with no directories yet
         if not _list:
@@ -970,11 +970,11 @@ class Queue(QueueBase):
         _list = []
         for name in _directory_contents(
                 '%s/%s' % (self.path, TEMPORARY_DIRECTORY), True):
-            if _ElementRegexp.match(name):
+            if _ELEMENT_REGEXP.match(name):
                 _list.append('%s/%s' % (TEMPORARY_DIRECTORY, name))
         for name in _directory_contents(
                 '%s/%s' % (self.path, OBSOLETE_DIRECTORY), True):
-            if _ElementRegexp.match(name):
+            if _ELEMENT_REGEXP.match(name):
                 _list.append('%s/%s' % (OBSOLETE_DIRECTORY, name))
         return _list
 
@@ -999,7 +999,7 @@ class Queue(QueueBase):
         # get the list of intermediate directories
         _list = []
         for name in _directory_contents(self.path):
-            if _DirectoryRegexp.match(name):
+            if _DIRECTORY_REGEXP.match(name):
                 _list.append(name)
         _list.sort()
         # try to purge all but last one

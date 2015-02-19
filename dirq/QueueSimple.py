@@ -111,7 +111,7 @@ import sys
 import time
 
 from dirq.QueueBase import QueueBase, _name, _file_create, _special_mkdir, \
-    _file_read, _DirectoryRegexp, _ElementRegexp, _special_rmdir, _warn
+    _file_read, _DIRECTORY_REGEXP, _ELEMENT_REGEXP, _special_rmdir, _warn
 from dirq.utils import is_bytes
 
 # suffix indicating a temporary element
@@ -200,7 +200,7 @@ class QueueSimple(QueueBase):
         while self.dirs:
             _dir = self.dirs.pop(0)
             for name in os.listdir('%s/%s' % (self.path, _dir)):
-                if _ElementRegexp.match(name):
+                if _ELEMENT_REGEXP.match(name):
                     _list.append(name)
             if not _list:
                 continue
@@ -320,7 +320,7 @@ class QueueSimple(QueueBase):
         """Fill out provided list with names of intermediate directories.
         """
         for name in os.listdir(self.path):
-            if _DirectoryRegexp.match(name):
+            if _DIRECTORY_REGEXP.match(name):
                 dirs.append(name)
 
     def count(self):
@@ -334,7 +334,7 @@ class QueueSimple(QueueBase):
         # count elements in sub-directories
         for name in dirs:
             for element in os.listdir('%s/%s' % (self.path, name)):
-                if _ElementRegexp.match(element):
+                if _ELEMENT_REGEXP.match(element):
                     count += 1
         return count
 
