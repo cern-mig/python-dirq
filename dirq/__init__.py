@@ -27,8 +27,6 @@ ASL 2.0
 Copyright (C) CERN 2011-2015
 """
 
-from dirq.queue import Queue
-
 AUTHOR = "Konstantin Skaburskas <konstantin.skaburskas@gmail.com>"
 VERSION = "1.6.1"
 DATE = "25 Feb 2014"
