@@ -284,7 +284,7 @@ def test_get():
             name = dq.next()
             continue
         data = dq.get(name)
-        if len(data) < 10:
+        if opts.type == "simple" and len(data) < 10:
             _die("unexpected element %s: %s" % (name, data))
         dq.unlock(name)
         done += 1
