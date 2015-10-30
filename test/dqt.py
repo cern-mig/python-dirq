@@ -56,6 +56,8 @@ def init():
     parser.add_option("--maxtemp", dest="maxtemp", type="int", default=None,
                       help="maximum time for a temporary element. "
                       "0 - temporary elements will not be removed.")
+    parser.add_option("--rndhex", dest="rndhex", type="int",
+                      default=None, help="set the queue random hexadecimal digit")
     parser.add_option("--sleep", dest="sleep", type="float", default=0,
                       help="sleep this amount of seconds before starting "
                            "the test(s)")
@@ -105,6 +107,8 @@ def new_dirq(_schema):
     if opts.type == "simple":
         if opts.granularity is not None:
             kwargs['granularity'] = opts.granularity
+        if opts.rndhex is not None:
+            kwargs['rndhex'] = opts.rndhex
         return QueueSimple(opts.path, **kwargs)
     else:
         if _schema:
@@ -113,6 +117,8 @@ def new_dirq(_schema):
             kwargs['schema'] = schema
         if opts.maxelts:
             kwargs['maxelts'] = opts.maxelts
+        if opts.rndhex is not None:
+            kwargs['rndhex'] = opts.rndhex
         return queue.Queue(opts.path, **kwargs)
 
 
@@ -277,7 +283,9 @@ def test_get():
         if not dq.lock(name):
             name = dq.next()
             continue
-        dq.get(name)
+        data = dq.get(name)
+        if len(data) < 10:
+            _die("unexpected element %s: %s" % (name, data))
         dq.unlock(name)
         done += 1
         name = dq.next()
