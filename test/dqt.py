@@ -57,7 +57,7 @@ def init():
                       help="maximum time for a temporary element. "
                       "0 - temporary elements will not be removed.")
     parser.add_option("--rndhex", dest="rndhex", type="int",
-                      default=None, help="set the queue random hexadecimal digit")
+                      default=None, help="set the queue random hex digit")
     parser.add_option("--sleep", dest="sleep", type="float", default=0,
                       help="sleep this amount of seconds before starting "
                            "the test(s)")
