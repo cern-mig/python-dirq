@@ -63,10 +63,12 @@ def _name(rndhex):
     * can be lexically sorted
     * ever increasing (for a given process)
     * reasonably compact
-    * matching $_ELEMENT_REGEXP
+    * matching _ELEMENT_REGEXP
     """
     now = time.time()
-    return "%08x%05x%01x" % (now, (now % 1.0) * 1000000, rndhex)
+    secs = int(now)
+    msecs = int((now - secs) * 1000000)
+    return "%08x%05x%01x" % (secs, msecs, rndhex)
 
 
 def _directory_contents(path, missingok=True):
