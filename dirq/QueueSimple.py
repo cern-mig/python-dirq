@@ -143,7 +143,7 @@ class QueueSimple(QueueBase):
 
     def _add_dir(self):
         """ Return new directory name based on time and granularity. """
-        now = time.time()
+        now = int(time.time())
         if self.granularity > 1:
             now -= now % self.granularity
         return "%08x" % now
