@@ -1,3 +1,8 @@
+* Fri Nov 13 2015 Lionel Cons <lionel.cons@cern.ch> - 1.7
+- [lc] cleanup the code
+- [lc] improved the dqt.py test script
+- [lc] fixed a bug with the element name generation
+
 * Tue Feb 25 2014 Lionel Cons <lionel.cons@cern.ch> - 1.6.1
 - [lc] fixed packaging problem (missing test files)
 
