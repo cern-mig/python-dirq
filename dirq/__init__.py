@@ -24,12 +24,12 @@ License and Copyright
 
 ASL 2.0
 
-Copyright (C) CERN 2011-2015
+Copyright (C) CERN 2011-2016
 """
 
 AUTHOR = "Konstantin Skaburskas <konstantin.skaburskas@gmail.com>"
-VERSION = "1.7"
-DATE = "13 Nov 2015"
+VERSION = "1.7.1"
+DATE = "29 Feb 2016"
 __author__ = AUTHOR
 __version__ = VERSION
 __date__ = DATE

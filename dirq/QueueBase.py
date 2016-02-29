@@ -13,7 +13,7 @@ License and Copyright
 
 ASL 2.0
 
-Copyright (C) CERN 2011-2015
+Copyright (C) CERN 2011-2016
 """
 
 import dirq

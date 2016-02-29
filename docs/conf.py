@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'dirq'
-copyright = u'CERN 2011-2015'
+copyright = u'CERN 2011-2016'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
