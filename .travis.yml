@@ -10,8 +10,8 @@ python:
   - "3.7"
 # command to install dependencies
 install:
-  - pip install --use-mirrors pep8
-  - pip install --use-mirrors pylint
+  - pip install pep8
+  - pip install pylint
   - curl -O -R -S -f -s https://raw.github.com/cern-mig/dev-tools/master/python/pylint.sh
   - curl -O -R -S -f -s https://raw.github.com/cern-mig/dev-tools/master/python/.pylintrc
 # command to run tests
