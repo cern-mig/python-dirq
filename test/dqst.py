@@ -12,7 +12,7 @@ import time
 
 from optparse import OptionParser
 
-sys.path.insert(1, re.sub('/\w*$', '', os.getcwd()))
+sys.path.insert(1, re.sub(r'/\w*$', '', os.getcwd()))
 
 import dirq  # noqa E402
 from dirq import queue  # noqa E402
@@ -63,7 +63,7 @@ def debug(fmt, *arguments):
     if not opts.debug:
         return
     message = fmt % arguments
-    message = re.sub('\s+$', '.', message)
+    message = re.sub(r'\s+$', '.', message)
     sys.stderr.write("# %s %s[%d]: %s\n" %
                      (time.strftime("%Y/%m/%d-%H:%M:%S",
                                     time.localtime(time.time())),
