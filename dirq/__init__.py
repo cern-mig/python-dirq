@@ -24,7 +24,7 @@ License and Copyright
 
 ASL 2.0
 
-Copyright (C) CERN 2011-2016
+Copyright (C) CERN 2011-2020
 """
 
 AUTHOR = "Konstantin Skaburskas <konstantin.skaburskas@gmail.com>"
