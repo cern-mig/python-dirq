@@ -197,6 +197,7 @@ def test_iterate():
     time2 = time.time()
     debug("done in %.4f seconds (%d elements)", time2 - time1, done)
 
+
 if __name__ == "__main__":
     init()
     if TEST == "count":

@@ -420,6 +420,7 @@ def __subdirs_num_count(path):
     """
     return len(_directory_contents(path, missingok=True))
 
+
 if sys.platform in ['win32', 'cygwin']:
     _subdirs_num = __subdirs_num_count
 else:

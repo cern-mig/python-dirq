@@ -325,6 +325,7 @@ def test_simple():
     shutil.rmtree(path, ignore_errors=True)
     debug("done in %.4f seconds", time2 - time1)
 
+
 if __name__ == "__main__":
     init()
     if TEST == 'all':
