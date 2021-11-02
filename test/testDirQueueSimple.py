@@ -126,10 +126,10 @@ class TestQueueSimple(TestDirQueue):
         elem = qs.first()
         qs.lock(elem)
         elem_path_lock = self.qdir + '/' + elem + LOCKED_SUFFIX
-        self.assert_(os.path.exists(elem_path_lock) is True)
+        self.assertTrue(os.path.exists(elem_path_lock) is True)
         time.sleep(2)
         qs.purge(maxlock=1)
-        self.assert_(os.path.exists(elem_path_lock) is False)
+        self.assertTrue(os.path.exists(elem_path_lock) is False)
         self.assertEqual(qs.count(), 1)
         self.assertEqual(len(os.listdir(self.qdir)), 1)
 
