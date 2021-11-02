@@ -49,12 +49,12 @@ class TestQueue(TestDirQueue):
                        {'foo': 1},
                        {'a': 'binary?'}]
         for schema in bad_schemas:
-            self.failUnlessRaises(
+            self.assertRaises(
                 QueueError, Queue, path,
                 umask=umask, maxelts=maxelts, schema=schema)
         bad_schemas = [{'a': 'strings'}, {'a': 'table??'}]
         for schema in bad_schemas:
-            self.failUnlessRaises(
+            self.assertRaises(
                 QueueError, Queue, path,
                 umask=umask, maxelts=maxelts, schema=schema)
 
@@ -141,7 +141,7 @@ class TestQueueModuleFunctions(TestDirQueue):
                   'f' * 8 + '/' + 'g' * 14,
                   'g' * 8 + '/' + 'f' * 14,
                   ]:
-            self.failUnlessRaises(queue.QueueError, queue._check_element, (e))
+            self.assertRaises(queue.QueueError, queue._check_element, (e))
 
     def test3_hash2string(self):
         """ queue._hash2string() """
@@ -157,9 +157,7 @@ class TestQueueModuleFunctions(TestDirQueue):
         assert queue._string2hash('a1\x5c\ta2\nb1\tb2\\') == \
             {'a1\x5c': 'a2', 'b1': 'b2\\'}
         for value in ['a', ]:
-            self.failUnlessRaises(queue.QueueError,
-                                  queue._string2hash,
-                                  (value))
+            self.assertRaises(queue.QueueError, queue._string2hash, (value))
 
     def test3_hash2string2hash(self):
         """ queue._hash2string()+queue._string2hash() """

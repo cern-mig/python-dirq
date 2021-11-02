@@ -43,7 +43,7 @@ class TestQueueBaseModuleFunctions(TestDirQueue):
         # test against a file
         test_file = os.path.join(self.qdir, 'foo')
         open(test_file, 'w').write('bar')
-        self.failUnlessRaises(OSError, QueueBase._special_mkdir, (test_file))
+        self.assertRaises(OSError, QueueBase._special_mkdir, (test_file))
 
     def test2_name(self):
         'QueueBase._name()'
@@ -62,15 +62,15 @@ class TestQueueBaseModuleFunctions(TestDirQueue):
             assert error.errno == errno.ENOENT
 
         QueueBase._file_create(self.tempfile, 0, False)
-        self.failUnlessRaises(OSError,
-                              QueueBase._file_create,
-                              *(self.tempfile, 0, False))
+        self.assertRaises(OSError,
+                          QueueBase._file_create,
+                          *(self.tempfile, 0, False))
         os.unlink(self.tempfile)
         # utf8 data
         QueueBase._file_create(self.tempfile, 0, True)
-        self.failUnlessRaises(OSError,
-                              QueueBase._file_create,
-                              *(self.tempfile, 0, True))
+        self.assertRaises(OSError,
+                          QueueBase._file_create,
+                          *(self.tempfile, 0, True))
 
     def test4_file_write(self):
         'QueueBase._file_write()'
@@ -80,7 +80,7 @@ class TestQueueBaseModuleFunctions(TestDirQueue):
                               False, ('a' * (2 ** 10) * 10).encode())
         os.unlink(self.tempfile)
         for t in [1, [], (), {}, object]:
-            self.failUnlessRaises(TypeError, QueueBase._file_write, ('', t))
+            self.assertRaises(TypeError, QueueBase._file_write, ('', t))
 
     def test5_file_read(self):
         'QueueBase._file_read()'

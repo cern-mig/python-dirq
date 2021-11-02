@@ -28,14 +28,13 @@ class TestQueueSet(TestDirQueue):
 
     def test1_init(self):
         """ QueueSet.__init__() """
-        self.failUnlessRaises(TypeError, QueueSet, ('a'))
-        self.failUnlessRaises(TypeError, QueueSet,
-                              (Queue(self.q1, schema={'data': 'string'}), 'a'))
-        self.failUnlessRaises(TypeError, QueueSet,
-                              ([Queue(self.q1,
-                                      schema={'data': 'string'}), 'a']))
-        self.failUnlessRaises(TypeError, QueueSet, ([1, 2]))
-        self.failUnlessRaises(TypeError, QueueSet, ((1, 2)))
+        self.assertRaises(TypeError, QueueSet, ('a'))
+        self.assertRaises(TypeError, QueueSet,
+                          (Queue(self.q1, schema={'data': 'string'}), 'a'))
+        self.assertRaises(TypeError, QueueSet,
+                          ([Queue(self.q1, schema={'data': 'string'}), 'a']))
+        self.assertRaises(TypeError, QueueSet, ([1, 2]))
+        self.assertRaises(TypeError, QueueSet, ((1, 2)))
 
     def test2_addremove(self):
         """ QueueSet.add()/remove() """
@@ -52,7 +51,7 @@ class TestQueueSet(TestDirQueue):
         qs.add(q3)
         qs.remove(q1)
         qs.add(q1, q4)
-        self.failUnlessRaises(QueueError, qs.add, ([q1]))
+        self.assertRaises(QueueError, qs.add, ([q1]))
 
     def test3_firstnext(self):
         """ QueueSet.first()/next() """
