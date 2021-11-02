@@ -52,7 +52,7 @@ class TestQueueNull(TestDirQueue):
         fh.flush()
         fh.close()
         elem = qn.add_path(path)
-        self.failIf(os.path.exists(path))
+        self.assertFalse(os.path.exists(path))
 
     def test04lockunlok(self):
         'QueueNull.lock()'
