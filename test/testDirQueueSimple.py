@@ -86,7 +86,7 @@ class TestQueueSimple(TestDirQueue):
         elem_full_path = self.qdir + '/' + elem_name
         open(elem_full_path, 'w').write(data)
         self.assertEqual(qs.lock(elem_name), 1)
-        self.failUnless(os.path.exists(elem_full_path + LOCKED_SUFFIX))
+        self.assertTrue(os.path.exists(elem_full_path + LOCKED_SUFFIX))
         qs.unlock(elem_name)
 
     def test07_get(self):
