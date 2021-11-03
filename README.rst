@@ -2,8 +2,8 @@
 python-dirq
 ===========
 
-.. image:: https://secure.travis-ci.org/cern-mig/python-dirq.png?branch=master
-   :target: https://travis-ci.org/cern-mig/python-dirq
+.. image:: https://github.com/cern-mig/python-dirq/actions/workflows/test.yml/badge.svg
+
 
 Overview
 ========
