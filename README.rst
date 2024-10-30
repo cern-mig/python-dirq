@@ -4,6 +4,7 @@ python-dirq
 
 .. image:: https://github.com/cern-mig/python-dirq/actions/workflows/test.yml/badge.svg
 
+WARNING: This software is not maintained anymore.
 
 Overview
 ========
